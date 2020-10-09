@@ -43,8 +43,6 @@ public class EquipmentServiceImpl implements EquipmentService {
     private static String typeId = "100002001";
     private static String model = "model";// 类型
     private static String ipType = "ipType";// 设备
-    private String[] organizeNames = {messageSourceUtil.getMessage("hierarchy1"),messageSourceUtil.getMessage("hierarchy2"),
-            messageSourceUtil.getMessage("hierarchy3"),messageSourceUtil.getMessage("hierarchy4")};
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EquipmentServiceImpl.class);
 
@@ -59,6 +57,8 @@ public class EquipmentServiceImpl implements EquipmentService {
     @Value("${childequipment.requestCount}")
     private int requestCount = 1;// 重新请求次数
     private static Date date = null;
+
+    private List<String> organizeNames = new ArrayList<String>();
 
     /**
      * 采用为是的字段
@@ -80,6 +80,12 @@ public class EquipmentServiceImpl implements EquipmentService {
             return restResult;
         }
         int levelInt = Integer.parseInt(level);
+        if(organizeNames.size()!=levelInt){
+            for(int i=0;i<levelInt;i++){
+                String hierarchy = "hierarchy"+i;
+                organizeNames.add(messageSourceUtil.getMessage(hierarchy));
+            }
+        }
         Map<String, Object> map = getConditions(request,levelInt);// 查询条件封装
         if("false".equals(map.get("flag"))){
             restResult.setCode(ServiceCommonConst.CODE_FAILURE);
@@ -99,6 +105,7 @@ public class EquipmentServiceImpl implements EquipmentService {
             restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
             restResult.setMessage("");
             restResult.setData(maps);
+            return restResult;
         }
         restResult.setCode(ServiceCommonConst.CODE_FAILURE);
         restResult.setMessage(messageSourceUtil.getMessage("resultIsEmpt"));
@@ -117,7 +124,7 @@ public class EquipmentServiceImpl implements EquipmentService {
         List<String> list = new ArrayList<String>();
         for(int i=0;i<level;i++){
             list.add("views.id"+i);
-            menu = getMuse(i,organizeNames[i],"filed"+i);
+            menu = getMuse(i,organizeNames.get(i),"filed"+i);
             menuList.add(menu);
         }
         JSONObject json = JSONObject.parseObject(request.getParameter("data"));
@@ -237,6 +244,7 @@ public class EquipmentServiceImpl implements EquipmentService {
             restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
             restResult.setData(list);
             restResult.setMessage("");
+            return restResult;
         }
         restResult.setMessage(messageSourceUtil.getMessage("resultIsEmpt"));
         return restResult;
@@ -300,6 +308,12 @@ public class EquipmentServiceImpl implements EquipmentService {
             return restResult;
         }
         int levelInt = Integer.parseInt(level);
+        if(organizeNames.size()!=levelInt){
+            for(int i=0;i<levelInt;i++){
+                String hierarchy = "hierarchy"+levelInt;
+                organizeNames.add(messageSourceUtil.getMessage(hierarchy));
+            }
+        }
         Map<String, Object> map = getConditions(request,levelInt);// 查询条件封装
         List<Menu> menuList  = (List<Menu>)map.get("menuList");
         List<String> sheetNameList = new ArrayList<String>();
@@ -334,7 +348,7 @@ public class EquipmentServiceImpl implements EquipmentService {
 
         List<String> list = new ArrayList<String>();
         for(int i=0;i<level;i++){
-            list.add(organizeNames[i]);
+            list.add(organizeNames.get(i));
         }
         result.put("organizeNames", list);
         return result;
