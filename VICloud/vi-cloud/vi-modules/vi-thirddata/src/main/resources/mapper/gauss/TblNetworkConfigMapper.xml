@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huawei.db.repository.TblNetworkConfigMapper">
+
+    <resultMap id="BaseResultMap"
+               type="com.huawei.vi.thirddata.service.binary.pojo.TblNetworkConfig">
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="location" jdbcType="VARCHAR"
+                property="location"/>
+        <result column="type" jdbcType="VARCHAR" property="type"/>
+        <result column="network_rules" jdbcType="VARCHAR"
+                property="networkRules"/>
+        <result column="network_total_broadband" jdbcType="VARCHAR"
+                property="networkTotalBroadband"/>
+        <result column="network_in_broadband" jdbcType="VARCHAR"
+                property="networkInBroadband"/>
+        <result column="network_out_broadband" jdbcType="VARCHAR"
+                property="networkOutBroadband"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+		name, location, type, network_rules, network_total_broadband,
+		network_in_broadband, network_out_broadband
+	</sql>
+
+    <sql id="condition">
+        <where>
+            <if test="location!=null">
+                and location=#{location}
+            </if>
+            <if test="networkRules != null">
+                and network_rules=#{networkRules}
+            </if>
+
+        </where>
+    </sql>
+    <!-- GAUSSDB -->
+    <!-- 删除原始表数据 -->
+    <update id="dropTable" parameterType="map">
+		drop table IF
+		EXISTS ${tabName}
+	</update>
+    <select id="getDataByIp" parameterType="java.util.Map"
+            resultType="String">
+		select distinct location from tbl_network_config where network_rules
+		=#{networkRules} LIMIT 1
+	</select>
+
+    <select id="selectByCondition" parameterType="map"
+            resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from tbl_network_config
+        <include refid="condition"/>
+        ORDER BY network_rules
+        <if test="pageNum!=null and rowsPerPage!=null and rowsPerPage>0">
+            limit ${(pageNum-1)*rowsPerPage},${rowsPerPage}
+        </if>
+    </select>
+
+    <!-- 删除原始数据(含清空数据表) -->
+    <update id="delTblOriginalData" parameterType="map">
+        DELETE FROM tbl_network_config WHERE 1=1
+        <include refid="condition"/>
+    </update>
+
+</mapper>

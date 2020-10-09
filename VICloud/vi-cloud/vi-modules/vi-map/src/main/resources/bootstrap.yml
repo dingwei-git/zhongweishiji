@@ -1,0 +1,7 @@
+spring:
+  profiles:
+    include: butils,fn
+  application:
+    name: vi-map
+  main:
+    allow-bean-definition-overriding: true

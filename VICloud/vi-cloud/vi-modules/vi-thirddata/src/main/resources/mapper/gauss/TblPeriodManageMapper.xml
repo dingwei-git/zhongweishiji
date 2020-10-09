@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huawei.vi.thirddata.mapper.TblPeriodManageMapper">
+
+	<sql id="condition">
+		<where>
+			<if test="id!=null">
+				and	id=#{id}
+			</if>
+			<if test="periodStartTime!=null">
+				and	period_start_time=#{periodStartTime}
+			</if>
+			<if test="list!=null"> 
+				and tbl_user.id in
+				<foreach collection="list"  item="id" separator="," open="(" close=")" index="">
+      				#{id,jdbcType=INTEGER}
+   			 </foreach>
+			</if>
+		</where>
+	</sql>
+	<select id="selectRowsNumByCondition" parameterType="map" resultType="int">
+		select count(period_start_time) from tbl_period_manage		<include refid="condition" />
+		
+	</select>
+	<select id="getPeriodStartTimeCount" parameterType="java.lang.String" resultType="int">
+		select
+		count(period_start_time)
+		from VIDEOINSIGHT.tbl_period_manage
+		where period_start_time=#{periodStartTime}
+	</select>
+	<!-- 查询时间条数 -->
+	<select id="getDateCount" resultType="Integer">
+		SELECT COUNT(*) FROM VIDEOINSIGHT.tbl_period_manage
+	</select>
+	
+	<insert id="insert"
+		parameterType="com.huawei.vi.thirddata.service.binary.pojo.TblPeriodManage">
+		insert into VIDEOINSIGHT.tbl_period_manage (period_start_time,is_analyse_over)
+		values (#{periodStartTime},
+		#{isAnalyseOver})
+	</insert>
+	<!-- 获取小于某个周期的时间集合 -->
+	<select id="getBeforePeriod" parameterType="java.util.Map"
+		resultType="Date">
+		select distinct * from VIDEOINSIGHT.tbl_period_manage where period_start_time &lt;
+		#{periodStartTime} order by period_start_time desc
+	</select>
+	<!-- 查询最新时间 -->
+	<select id="getNewDate" resultType="String">
+		SELECT MAX(period_start_time) FROM VIDEOINSIGHT.tbl_period_manage
+	</select>
+	<!-- 查询离本周期最近一次时间 -->
+	<select id="getLastNewDate" parameterType="String"
+		resultType="String">
+		SELECT MAX(period_start_time) period_start_time FROM VIDEOINSIGHT.tbl_period_manage
+		WHERE period_start_time &lt; #{periodTime}
+	</select>
+</mapper>

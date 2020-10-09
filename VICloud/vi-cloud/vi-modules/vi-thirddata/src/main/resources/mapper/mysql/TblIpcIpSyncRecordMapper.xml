@@ -1,0 +1,558 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huawei.vi.thirddata.mapper.TblIpcIpSyncRecordMapper">
+  <resultMap id="BaseResultMap" type="com.huawei.vi.entity.model.TblIpcIpSyncRecord">
+    <id column="taskid" jdbcType="VARCHAR" property="taskid" />
+    <id column="DeviceID" jdbcType="VARCHAR" property="deviceid" />
+    <result column="level1" jdbcType="VARCHAR" property="level1" />
+    <result column="level2" jdbcType="VARCHAR" property="level2" />
+    <result column="level3" jdbcType="VARCHAR" property="level3" />
+    <result column="level4" jdbcType="VARCHAR" property="level4" />
+    <result column="level5" jdbcType="VARCHAR" property="level5" />
+    <result column="Name" jdbcType="VARCHAR" property="name" />
+    <result column="ParentID" jdbcType="VARCHAR" property="parentid" />
+    <result column="Manufacturer" jdbcType="VARCHAR" property="manufacturer" />
+    <result column="Model" jdbcType="VARCHAR" property="model" />
+    <result column="Owner" jdbcType="VARCHAR" property="owner" />
+    <result column="CivilCode" jdbcType="VARCHAR" property="civilcode" />
+    <result column="Address" jdbcType="VARCHAR" property="address" />
+    <result column="SafetyWay" jdbcType="VARCHAR" property="safetyway" />
+    <result column="RegisterWay" jdbcType="VARCHAR" property="registerway" />
+    <result column="Secrecy" jdbcType="VARCHAR" property="secrecy" />
+    <result column="Parental" jdbcType="VARCHAR" property="parental" />
+    <result column="Status" jdbcType="VARCHAR" property="status" />
+    <result column="Port" jdbcType="VARCHAR" property="port" />
+    <result column="IPAddress" jdbcType="VARCHAR" property="ipaddress" />
+    <result column="LoginName" jdbcType="VARCHAR" property="loginname" />
+    <result column="Password" jdbcType="VARCHAR" property="password" />
+    <result column="Longitude" jdbcType="VARCHAR" property="longitude" />
+    <result column="Latitude" jdbcType="VARCHAR" property="latitude" />
+    <result column="ChannelNO" jdbcType="VARCHAR" property="channelno" />
+    <result column="Info" jdbcType="VARCHAR" property="info" />
+    <result column="operateTime" jdbcType="TIMESTAMP" property="operatetime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    taskid, DeviceID, level1, level2, level3, level4, level5, `Name`, ParentID, Manufacturer, 
+    Model, `Owner`, CivilCode, Address, SafetyWay, RegisterWay, Secrecy, Parental, `Status`, 
+    Port, IPAddress, LoginName, `Password`, Longitude, Latitude, ChannelNO, Info, operateTime
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="com.huawei.vi.entity.model.TblIpcIpSyncRecord" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from tbl_ipc_ip_sync_record
+    where taskid = #{taskid,jdbcType=VARCHAR}
+      and DeviceID = #{deviceid,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="com.huawei.vi.entity.model.TblIpcIpSyncRecord">
+    delete from tbl_ipc_ip_sync_record
+    where taskid = #{taskid,jdbcType=VARCHAR}
+      and DeviceID = #{deviceid,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" keyColumn="taskid" keyProperty="taskid" parameterType="com.huawei.vi.entity.model.TblIpcIpSyncRecord" useGeneratedKeys="true">
+    insert into tbl_ipc_ip_sync_record (DeviceID, level1, level2, 
+      level3, level4, level5, 
+      `Name`, ParentID, Manufacturer, 
+      Model, `Owner`, CivilCode, 
+      Address, SafetyWay, RegisterWay, 
+      Secrecy, Parental, `Status`, 
+      Port, IPAddress, LoginName, 
+      `Password`, Longitude, Latitude, 
+      ChannelNO, Info, operateTime
+      )
+    values (#{deviceid,jdbcType=VARCHAR}, #{level1,jdbcType=VARCHAR}, #{level2,jdbcType=VARCHAR}, 
+      #{level3,jdbcType=VARCHAR}, #{level4,jdbcType=VARCHAR}, #{level5,jdbcType=VARCHAR}, 
+      #{name,jdbcType=VARCHAR}, #{parentid,jdbcType=VARCHAR}, #{manufacturer,jdbcType=VARCHAR}, 
+      #{model,jdbcType=VARCHAR}, #{owner,jdbcType=VARCHAR}, #{civilcode,jdbcType=VARCHAR}, 
+      #{address,jdbcType=VARCHAR}, #{safetyway,jdbcType=VARCHAR}, #{registerway,jdbcType=VARCHAR}, 
+      #{secrecy,jdbcType=VARCHAR}, #{parental,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, 
+      #{port,jdbcType=VARCHAR}, #{ipaddress,jdbcType=VARCHAR}, #{loginname,jdbcType=VARCHAR}, 
+      #{password,jdbcType=VARCHAR}, #{longitude,jdbcType=VARCHAR}, #{latitude,jdbcType=VARCHAR}, 
+      #{channelno,jdbcType=VARCHAR}, #{info,jdbcType=VARCHAR}, #{operatetime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective"  parameterType="com.huawei.vi.entity.model.TblIpcIpSyncRecord" >
+    insert into tbl_ipc_ip_sync_record
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="taskid != null">
+        taskid,
+      </if>
+      <if test="deviceid != null">
+        DeviceID,
+      </if>
+      <if test="level1 != null">
+        level1,
+      </if>
+      <if test="level2 != null">
+        level2,
+      </if>
+      <if test="level3 != null">
+        level3,
+      </if>
+      <if test="level4 != null">
+        level4,
+      </if>
+      <if test="level5 != null">
+        level5,
+      </if>
+      <if test="name != null">
+        `Name`,
+      </if>
+      <if test="parentid != null">
+        ParentID,
+      </if>
+      <if test="manufacturer != null">
+        Manufacturer,
+      </if>
+      <if test="model != null">
+        Model,
+      </if>
+      <if test="owner != null">
+        `Owner`,
+      </if>
+      <if test="civilcode != null">
+        CivilCode,
+      </if>
+      <if test="address != null">
+        Address,
+      </if>
+      <if test="safetyway != null">
+        SafetyWay,
+      </if>
+      <if test="registerway != null">
+        RegisterWay,
+      </if>
+      <if test="secrecy != null">
+        Secrecy,
+      </if>
+      <if test="parental != null">
+        Parental,
+      </if>
+      <if test="status != null">
+        `Status`,
+      </if>
+      <if test="port != null">
+        Port,
+      </if>
+      <if test="ipaddress != null">
+        IPAddress,
+      </if>
+      <if test="loginname != null">
+        LoginName,
+      </if>
+      <if test="password != null">
+        `Password`,
+      </if>
+      <if test="longitude != null">
+        Longitude,
+      </if>
+      <if test="latitude != null">
+        Latitude,
+      </if>
+      <if test="channelno != null">
+        ChannelNO,
+      </if>
+      <if test="info != null">
+        Info,
+      </if>
+      <if test="operatetime != null">
+        operateTime,
+      </if>
+      <if test="synctype !=null">
+        synctype,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="taskid != null">
+        #{taskid,jdbcType=VARCHAR},
+      </if>
+      <if test="deviceid != null">
+        #{deviceid,jdbcType=VARCHAR},
+      </if>
+      <if test="level1 != null">
+        #{level1,jdbcType=VARCHAR},
+      </if>
+      <if test="level2 != null">
+        #{level2,jdbcType=VARCHAR},
+      </if>
+      <if test="level3 != null">
+        #{level3,jdbcType=VARCHAR},
+      </if>
+      <if test="level4 != null">
+        #{level4,jdbcType=VARCHAR},
+      </if>
+      <if test="level5 != null">
+        #{level5,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="parentid != null">
+        #{parentid,jdbcType=VARCHAR},
+      </if>
+      <if test="manufacturer != null">
+        #{manufacturer,jdbcType=VARCHAR},
+      </if>
+      <if test="model != null">
+        #{model,jdbcType=VARCHAR},
+      </if>
+      <if test="owner != null">
+        #{owner,jdbcType=VARCHAR},
+      </if>
+      <if test="civilcode != null">
+        #{civilcode,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null">
+        #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="safetyway != null">
+        #{safetyway,jdbcType=VARCHAR},
+      </if>
+      <if test="registerway != null">
+        #{registerway,jdbcType=VARCHAR},
+      </if>
+      <if test="secrecy != null">
+        #{secrecy,jdbcType=VARCHAR},
+      </if>
+      <if test="parental != null">
+        #{parental,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="port != null">
+        #{port,jdbcType=VARCHAR},
+      </if>
+      <if test="ipaddress != null">
+        #{ipaddress,jdbcType=VARCHAR},
+      </if>
+      <if test="loginname != null">
+        #{loginname,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null">
+        #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="longitude != null">
+        #{longitude,jdbcType=VARCHAR},
+      </if>
+      <if test="latitude != null">
+        #{latitude,jdbcType=VARCHAR},
+      </if>
+      <if test="channelno != null">
+        #{channelno,jdbcType=VARCHAR},
+      </if>
+      <if test="info != null">
+        #{info,jdbcType=VARCHAR},
+      </if>
+      <if test="operatetime != null">
+        #{operatetime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="synctype != null">
+        #{synctype,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+
+  <insert id="insertBatch"  parameterType="java.util.List" >
+    <foreach collection="list" index="index" item="item" separator=";">
+    insert into tbl_ipc_ip_sync_record
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="item.taskid != null">
+        taskid,
+      </if>
+      <if test="item.deviceid != null">
+        DeviceID,
+      </if>
+      <if test="item.level1 != null">
+        level1,
+      </if>
+      <if test="item.level2 != null">
+        level2,
+      </if>
+      <if test="item.level3 != null">
+        level3,
+      </if>
+      <if test="item.level4 != null">
+        level4,
+      </if>
+      <if test="item.level5 != null">
+        level5,
+      </if>
+      <if test="item.name != null">
+        `Name`,
+      </if>
+      <if test="item.parentid != null">
+        ParentID,
+      </if>
+      <if test="item.manufacturer != null">
+        Manufacturer,
+      </if>
+      <if test="item.model != null">
+        Model,
+      </if>
+      <if test="item.owner != null">
+        `Owner`,
+      </if>
+      <if test="item.civilcode != null">
+        CivilCode,
+      </if>
+      <if test="item.address != null">
+        Address,
+      </if>
+      <if test="item.safetyway != null">
+        SafetyWay,
+      </if>
+      <if test="item.registerway != null">
+        RegisterWay,
+      </if>
+      <if test="item.secrecy != null">
+        Secrecy,
+      </if>
+      <if test="item.parental != null">
+        Parental,
+      </if>
+      <if test="item.status != null">
+        `Status`,
+      </if>
+      <if test="item.port != null">
+        Port,
+      </if>
+      <if test="item.ipaddress != null">
+        IPAddress,
+      </if>
+      <if test="item.loginname != null">
+        LoginName,
+      </if>
+      <if test="item.password != null">
+        `Password`,
+      </if>
+      <if test="item.longitude != null">
+        Longitude,
+      </if>
+      <if test="item.latitude != null">
+        Latitude,
+      </if>
+      <if test="item.channelno != null">
+        ChannelNO,
+      </if>
+      <if test="item.info != null">
+        Info,
+      </if>
+      <if test="item.operatetime != null">
+        operateTime,
+      </if>
+      <if test="item.synctype !=null">
+        synctype,
+      </if>
+    </trim>
+
+    values
+
+    (
+      <if test="item.taskid != null">
+        #{taskid,jdbcType=VARCHAR},
+      </if>
+      <if test="item.deviceid != null">
+        #{item.deviceid,jdbcType=VARCHAR},
+      </if>
+      <if test="item.level1 != null">
+        #{item.level1,jdbcType=VARCHAR},
+      </if>
+      <if test="item.level2 != null">
+        #{item.level2,jdbcType=VARCHAR},
+      </if>
+      <if test="item.level3 != null">
+        #{item.level3,jdbcType=VARCHAR},
+      </if>
+      <if test="item.level4 != null">
+        #{item.level4,jdbcType=VARCHAR},
+      </if>
+      <if test="item.level5 != null">
+        #{item.level5,jdbcType=VARCHAR},
+      </if>
+      <if test="item.name != null">
+        #{item.name,jdbcType=VARCHAR},
+      </if>
+      <if test="item.parentid != null">
+        #{item.parentid,jdbcType=VARCHAR},
+      </if>
+      <if test="item.manufacturer != null">
+        #{item.manufacturer,jdbcType=VARCHAR},
+      </if>
+      <if test="item.model != null">
+        #{item.model,jdbcType=VARCHAR},
+      </if>
+      <if test="item.owner != null">
+        #{item.owner,jdbcType=VARCHAR},
+      </if>
+      <if test="item.civilcode != null">
+        #{item.civilcode,jdbcType=VARCHAR},
+      </if>
+      <if test="item.address != null">
+        #{item.address,jdbcType=VARCHAR},
+      </if>
+      <if test="item.safetyway != null">
+        #{item.safetyway,jdbcType=VARCHAR},
+      </if>
+      <if test="item.registerway != null">
+        #{item.registerway,jdbcType=VARCHAR},
+      </if>
+      <if test="item.secrecy != null">
+        #{item.secrecy,jdbcType=VARCHAR},
+      </if>
+      <if test="item.parental != null">
+        #{item.parental,jdbcType=VARCHAR},
+      </if>
+      <if test="item.status != null">
+        #{item.status,jdbcType=VARCHAR},
+      </if>
+      <if test="item.port != null">
+        #{item.port,jdbcType=VARCHAR},
+      </if>
+      <if test="item.ipaddress != null">
+        #{item.ipaddress,jdbcType=VARCHAR},
+      </if>
+      <if test="item.loginname != null">
+        #{item.loginname,jdbcType=VARCHAR},
+      </if>
+      <if test="item.password != null">
+        #{item.password,jdbcType=VARCHAR},
+      </if>
+      <if test="item.longitude != null">
+        #{item.longitude,jdbcType=VARCHAR},
+      </if>
+      <if test="item.latitude != null">
+        #{item.latitude,jdbcType=VARCHAR},
+      </if>
+      <if test="item.channelno != null">
+        #{item.channelno,jdbcType=VARCHAR},
+      </if>
+      <if test="item.info != null">
+        #{item.info,jdbcType=VARCHAR},
+      </if>
+      <if test="item.operatetime != null">
+        #{item.operatetime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="item.synctype != null">
+        #{synctype,jdbcType=TIMESTAMP},
+      </if>
+      )
+    </foreach>
+  </insert>
+
+  <update id="updateByPrimaryKeySelective" parameterType="com.huawei.vi.entity.model.TblIpcIpSyncRecord">
+    update tbl_ipc_ip_sync_record
+    <set>
+      <if test="level1 != null">
+        level1 = #{level1,jdbcType=VARCHAR},
+      </if>
+      <if test="level2 != null">
+        level2 = #{level2,jdbcType=VARCHAR},
+      </if>
+      <if test="level3 != null">
+        level3 = #{level3,jdbcType=VARCHAR},
+      </if>
+      <if test="level4 != null">
+        level4 = #{level4,jdbcType=VARCHAR},
+      </if>
+      <if test="level5 != null">
+        level5 = #{level5,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        `Name` = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="parentid != null">
+        ParentID = #{parentid,jdbcType=VARCHAR},
+      </if>
+      <if test="manufacturer != null">
+        Manufacturer = #{manufacturer,jdbcType=VARCHAR},
+      </if>
+      <if test="model != null">
+        Model = #{model,jdbcType=VARCHAR},
+      </if>
+      <if test="owner != null">
+        `Owner` = #{owner,jdbcType=VARCHAR},
+      </if>
+      <if test="civilcode != null">
+        CivilCode = #{civilcode,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null">
+        Address = #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="safetyway != null">
+        SafetyWay = #{safetyway,jdbcType=VARCHAR},
+      </if>
+      <if test="registerway != null">
+        RegisterWay = #{registerway,jdbcType=VARCHAR},
+      </if>
+      <if test="secrecy != null">
+        Secrecy = #{secrecy,jdbcType=VARCHAR},
+      </if>
+      <if test="parental != null">
+        Parental = #{parental,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        `Status` = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="port != null">
+        Port = #{port,jdbcType=VARCHAR},
+      </if>
+      <if test="ipaddress != null">
+        IPAddress = #{ipaddress,jdbcType=VARCHAR},
+      </if>
+      <if test="loginname != null">
+        LoginName = #{loginname,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null">
+        `Password` = #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="longitude != null">
+        Longitude = #{longitude,jdbcType=VARCHAR},
+      </if>
+      <if test="latitude != null">
+        Latitude = #{latitude,jdbcType=VARCHAR},
+      </if>
+      <if test="channelno != null">
+        ChannelNO = #{channelno,jdbcType=VARCHAR},
+      </if>
+      <if test="info != null">
+        Info = #{info,jdbcType=VARCHAR},
+      </if>
+      <if test="operatetime != null">
+        operateTime = #{operatetime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where taskid = #{taskid,jdbcType=VARCHAR}
+      and DeviceID = #{deviceid,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.huawei.vi.entity.model.TblIpcIpSyncRecord">
+    update tbl_ipc_ip_sync_record
+    set level1 = #{level1,jdbcType=VARCHAR},
+      level2 = #{level2,jdbcType=VARCHAR},
+      level3 = #{level3,jdbcType=VARCHAR},
+      level4 = #{level4,jdbcType=VARCHAR},
+      level5 = #{level5,jdbcType=VARCHAR},
+      `Name` = #{name,jdbcType=VARCHAR},
+      ParentID = #{parentid,jdbcType=VARCHAR},
+      Manufacturer = #{manufacturer,jdbcType=VARCHAR},
+      Model = #{model,jdbcType=VARCHAR},
+      `Owner` = #{owner,jdbcType=VARCHAR},
+      CivilCode = #{civilcode,jdbcType=VARCHAR},
+      Address = #{address,jdbcType=VARCHAR},
+      SafetyWay = #{safetyway,jdbcType=VARCHAR},
+      RegisterWay = #{registerway,jdbcType=VARCHAR},
+      Secrecy = #{secrecy,jdbcType=VARCHAR},
+      Parental = #{parental,jdbcType=VARCHAR},
+      `Status` = #{status,jdbcType=VARCHAR},
+      Port = #{port,jdbcType=VARCHAR},
+      IPAddress = #{ipaddress,jdbcType=VARCHAR},
+      LoginName = #{loginname,jdbcType=VARCHAR},
+      `Password` = #{password,jdbcType=VARCHAR},
+      Longitude = #{longitude,jdbcType=VARCHAR},
+      Latitude = #{latitude,jdbcType=VARCHAR},
+      ChannelNO = #{channelno,jdbcType=VARCHAR},
+      Info = #{info,jdbcType=VARCHAR},
+      operateTime = #{operatetime,jdbcType=TIMESTAMP}
+    where taskid = #{taskid,jdbcType=VARCHAR}
+      and DeviceID = #{deviceid,jdbcType=VARCHAR}
+  </update>
+</mapper>

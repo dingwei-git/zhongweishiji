@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.huawei.vi.thirddata.mapper.EquipmentMapper">
+    <select id="getEquipmentStatistical" parameterType="java.util.Map" resultType="com.huawei.vi.entity.vo.EquipmentVo">
+
+        SELECT
+        any_value(views.filed0) as filed0,
+        any_value(views.id0) as id0,
+        any_value(views.filed1) as filed1,
+        any_value(views.id1) as id1,
+        any_value(views.filed2) as filed2,
+        any_value(views.id2) as id2,
+        any_value(views.copoleCode) as copoleCode,
+        any_value(views.ipType) as ipType,
+        any_value(views.model) as model,
+        COUNT(views.three) as zeroToThree,
+        COUNT(views.five) as threeToFive,
+        COUNT(views.ten) as fiveToTen,
+        COUNT(views.unknown) as unknown,
+        any_value(views.shelveDate) as shelveDate,
+        any_value(views.shelveName) as shelveName,
+        any_value(views.shelveId) as shelveId,
+        any_value(views.id) as id
+        FROM (
+        SELECT
+        tmp.filed0,
+        tmp.id0,
+        tmp.filed1,
+        tmp.id1,
+        tmp.filed2,
+        tmp.id2,
+        tmp.copoleCode,
+        tmp.ipType,
+        tmp.model,
+        tmp.ip,
+        total.three,
+        total.five,
+        total.ten,
+        CASE WHEN total.three IS NULL AND total.five IS NULL AND total.ten IS NULL THEN 'unknown' END AS UNKNOWN,
+        total.shelveDate,
+        case when total.shelveName is null then '-' ELSE total.shelveName end as shelveName,
+        total.shelveId,
+        total.id
+        from tbl_ipc_ip_tmp tmp LEFT JOIN
+        (SELECT
+        b.id,
+        b.shelveDate,
+        b.shelveId,
+        b.shelveName,
+        CASE
+        WHEN b.da >= #{zero}
+        AND b.da &lt; #{three} THEN 'three'
+        END AS three,
+        CASE
+        WHEN b.da >= #{three}
+        AND b.da &lt; #{five} THEN 'five'
+        END AS five,
+        CASE
+        WHEN b.da >= #{five} THEN 'ten'
+        END AS ten
+        FROM
+        (
+        SELECT
+        a.id,
+        a.shelveDate,
+        a.shelveId,
+        a.shelveName,
+        TIMESTAMPDIFF( YEAR,
+        shelveDate,
+        NOW()) AS da
+        FROM
+        (
+        SELECT
+        con1.id,
+        con1.shelveId,
+        con2.shelveDate,
+        con3.shelveName
+        FROM
+        (
+        SELECT
+        id,
+        value AS shelveId,
+        '' AS shelveDate
+        FROM
+        tbl_dossier_content con
+        WHERE
+        type_id IN(#{id},#{id1}) ) con1
+        LEFT JOIN (
+        SELECT
+        id,
+        value AS shelveDate
+        FROM
+        tbl_dossier_content con
+        WHERE
+        type_id IN (#{time},#{time1})) con2 ON
+        con1.id = con2.id
+        LEFT JOIN (
+        SELECT
+        id,
+        value AS shelveName
+        FROM
+        tbl_dossier_content con
+        WHERE
+        type_id IN (#{name},#{name1})
+        ) con3 ON con1.id = con3.id) a
+        LEFT JOIN tbl_dossier_content_base base ON a.id = base.id where base.dossiers_status = #{dossierStatus}
+        ) b) total
+        ON tmp.cameraId = total.shelveId) views
+        <where>
+            1=1
+            <if test="modelList!=null and modelList.size>0">
+                and model in
+                <foreach collection="modelList" item="item" index="index" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="ipTypeList!=null and ipTypeList.size>0">
+                and ipType in
+                <foreach collection="ipTypeList" item="item" index="index" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="shelveNameList!=null and shelveNameList.size>0">
+                and shelveName in
+                <foreach collection="shelveNameList" item="item" index="index" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="ids!=null and ids.size>0">
+                and ${ida} in
+                <foreach collection="ids" item="item" index="index" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="userIp!=null and userIp.size>0">
+                and views.ip in
+                <foreach collection="userIp" item="ip" index="index" open="(" separator="," close=")">
+                    #{ip}
+                </foreach>
+            </if>
+        </where>
+        <if test="list!=null and list.size>0">
+            group by
+            <foreach collection="list" item="item" index="index" separator=",">
+                ${item}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="queryEquipmentListByUser" parameterType="map" resultType="java.lang.String">
+        <choose>
+            <when test="isDefault == 1">
+                <include refid="selectAllIp"/>
+            </when>
+            <otherwise>
+                <include refid="ipcByUser"/>
+            </otherwise>
+        </choose>
+    </select>
+    <!-- 默认用户即admin用户查询所有ipc -->
+    <sql id="selectAllIp">
+        SELECT a.cameraId from (
+        SELECT con.value,tmp.ip,tmp.cameraId from tbl_ipc_ip_tmp tmp
+        LEFT JOIN tbl_dossier_content con on tmp.cameraId = con.value and con.type_id in (#{id},#{id1})
+        ) a
+        WHERE a.value is null
+        <if test="cameraId!=null">
+            and a.cameraId like '%${cameraId}%'
+        </if>
+    </sql>
+    <!-- 根据用户查询其权限下的ipc -->
+    <sql id="ipcByUser">
+        SELECT a.cameraId from (
+        SELECT con.value,tmp.ip,tmp.cameraId from tbl_ipc_ip_tmp tmp
+        LEFT JOIN tbl_dossier_content con on tmp.cameraId = con.value and con.type_id in (#{id},#{id1})
+        ) a INNER JOIN tbl_user as b
+        INNER JOIN tbl_user_ipc_resource as c
+        WHERE b.userId = c.user_id
+        AND b.user_name= #{userName}
+        AND a.ip = c.ip
+        and a.value is null
+        <if test="cameraId!=null">
+            and a.cameraId like '%${cameraId}%'
+        </if>
+    </sql>
+
+    <insert id="insertChildEquipmentInfo">
+        INSERT into tbl_ipc_extra (cameraType,cameraValue,isUse,cameraSn,addTime,modifyTime) values
+            (#{cameraInformationVo.cameraType},#{cameraInformationVo.cameraValue},#{cameraInformationVo.isUse},
+            #{cameraInformationVo.cameraSn},#{cameraInformationVo.createTime},#{cameraInformationVo.updateTime})
+        ON DUPLICATE KEY UPDATE cameraValue=VALUES(cameraValue),isUse=VALUES(isUse),modifyTime=VALUES(modifyTime)
+    </insert>
+
+    <update id="updateChildEquipmentInfo">
+        <foreach collection="list" item="cameraInformationVo" separator=";">
+            update tbl_ipc_extra set
+            cameraType=#{cameraInformationVo.cameraType},
+            cameraValue=#{cameraInformationVo.cameraValue},
+            isUse=#{cameraInformationVo.isUse},
+            modifyTime=#{cameraInformationVo.updateTime}
+            where cameraType = #{cameraInformationVo.cameraType} and cameraSn = #{cameraInformationVo.cameraSn}
+        </foreach>
+    </update>
+
+    <select id="checkEquipment" parameterType="String" resultType="Boolean">
+        select count(camera_sn) from tbl_ipc_ip_tmp where camera_sn = #{cameraSn}
+    </select>
+
+    <select id="queryEquipment" parameterType="String" resultType="String">
+        select ${type} from tbl_ipc_ip_tmp group by ${type}
+    </select>
+
+    <select id="getUserEquipmentIp" parameterType="String" resultType="String">
+        SELECT a.ip FROM tbl_user_ipc_resource a,tbl_ipc_ip_tmp b where user_id = #{userId} and a.ip=b.ip
+    </select>
+
+</mapper>

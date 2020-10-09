@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.huawei.vi.login.mapper.WebLoginMapper">
+
+    <select id="selectByUserName" parameterType="java.lang.String" resultType="com.huawei.vi.login.po.WebLoginRecordPO">
+		SELECT userName userLoginName,lockFlag,failureNum,loginDate as loginDate
+		FROM tbl_login_record
+		where userName=#{usertmpName,jdbcType=VARCHAR}
+	</select>
+
+	<!-- 根据userName删除信息 -->
+	<delete id="deleteUserName" parameterType="String">
+		delete from tbl_login_record
+		where binary userName=#{userName}
+	</delete>
+
+	<!-- 查询用户 -->
+	<select id="selectUser" parameterType="java.util.Map" resultType="com.huawei.vi.login.po.WebUserPO">
+		select
+		 userId,user_name userTblName,password passUserWord,is_inint_syspass isInintSyspass,user_salt userSalt,main_id mainId,report_level reportLevel,is_default isDefault
+		from tbl_user
+		where 1=1
+		<if test="userTblName != null">
+			AND user_name = #{userTblName}
+		</if>
+		<if test="passUserWord != null">
+			AND password = #{passUserWord}
+		</if>
+	</select>
+
+</mapper>

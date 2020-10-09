@@ -1,0 +1,11 @@
+feign:
+  httpclient:
+    connection-timeout: 30000
+    enabled: false
+  okhttp:
+    enabled: true
+ribbon:
+  eager-load:
+    # feign 饥饿加载
+    clients: vi-map
+    enabled: true

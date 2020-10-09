@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huawei.vi.workorder.mapper.WorkOrderPictureMapper">
+
+    <insert id="insertOrUpdate">
+        insert into tbl_work_order_picture
+        (order_code, onsite_picture_url)
+        values (#{orderCode},#{onsitePictureUrl})
+        ON DUPLICATE KEY UPDATE
+        order_code=values(orderCode),
+        onsite_picture_url=values(onsitePictureUrl)
+    </insert>
+<!--    useGeneratedKeys="true" keyProperty="id" keyColumn="id"-->
+    <insert id="insertOrUpdateOrderPic"
+            parameterType="com.huawei.vi.entity.po.WorkOrderPicturePO">
+        insert INTO
+        tbl_work_order_picture(order_code, onsite_picture_url)
+        VALUES
+        (#{orderCode},#{onsitePictureUrl})
+        ON DUPLICATE KEY UPDATE
+        onsite_picture_url = #{onsitePictureUrl}
+    </insert>
+    <update id="updateOrderPic" parameterType="com.huawei.vi.entity.po.WorkOrderPicturePO">
+        update tbl_work_order_picture
+        <set>
+            <if test="faultPictureUrl != null">
+                fault_picture_url=#{faultPictureUrl},
+            </if>
+            <if test="onsitePictureUrl != null">
+                onsite_picture_url=#{onsitePictureUrl},
+            </if>
+            <if test="recheckPictureUrl != null">
+                recheck_picture_url=#{recheckPictureUrl},
+            </if>
+
+        </set>
+        where order_code=#{orderCode}
+    </update>
+
+</mapper>

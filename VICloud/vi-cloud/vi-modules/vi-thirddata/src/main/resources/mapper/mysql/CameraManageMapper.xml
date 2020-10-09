@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.huawei.vi.thirddata.mapper.CameraManageMapper">
+    <resultMap id="getCameraPages" type="com.huawei.vi.entity.vo.TblIpcIpTmpVo">
+        <result column="cameraName" property="cameraName"></result>
+        <result column="cameraNum" property="cameraNum"></result>
+        <result column="cameraSn" property="cameraSn"></result>
+    </resultMap>
+    <select id="getCameraPage" parameterType="java.util.Map" resultType="com.huawei.vi.entity.po.CameraManagePo">
+        select
+        camera_name as cameraName,cameraId as cameraId
+        from
+           ${tblName}
+        where
+        <if test="cameraName != null">
+         camera_name like ('%${cameraName}%')
+        </if>
+        LIMIT ${start},${rowsPage}
+    </select>
+
+    <select id="getManyCameraPage" parameterType="java.util.Map" resultType="com.huawei.vi.entity.po.CameraManagePo">
+        select
+        <if test="cameraName !=null">
+            camera_name as cameraName,cameraId
+        </if>
+        <if test="cameraId !=null">
+            cameraId as cameraName,cameraId
+        </if>
+        <if test="cameraIp !=null">
+            ip as cameraName,cameraId
+        </if>
+        from
+        ${tblName}
+        where
+        <if test="cameraName != null">
+            camera_name like ('%${cameraName}%')
+        </if>
+        <if test="cameraId != null">
+            cameraId like ('%${cameraId}%')
+        </if>
+        <if test="cameraIp != null">
+            ip like ('%${cameraIp}%')
+        </if>
+        LIMIT ${start},${rowsPage}
+    </select>
+
+
+</mapper>

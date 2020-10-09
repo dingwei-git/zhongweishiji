@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.huawei.vi.workorder.mapper.UserMapper">
+    <resultMap id="BaseUserInfoMap" type="com.huawei.vi.entity.po.UserPO">
+        <result column="userId" property="userId" jdbcType="INTEGER"/>
+        <result column="user_name" property="userTblName"
+                jdbcType="VARCHAR"/>
+        <result column="maintenance_organization" property="maintenanceOrganization" jdbcType="VARCHAR"/>
+        <result column="role_name" property="roleName"
+                jdbcType="VARCHAR"/>
+        <result column="is_Default" property="isDefault"
+                jdbcType="INTEGER"/>
+        <result column="main_id" property="mainId"
+                jdbcType="INTEGER"/>
+        <result column="role_id" property="roleId"
+                jdbcType="INTEGER"/>
+        <result column="report_level" property="reportLevel"
+                jdbcType="INTEGER"/>
+        <result column="report_level_name" property="reportLevelName"
+                jdbcType="VARCHAR"/>
+        <result column="is_inint_syspass" property="isInintSyspass"
+                jdbcType="INTEGER"/>
+        <result column="user_salt" property="userSalt"
+                jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <resultMap id="BaseResultMap" type="com.huawei.vi.entity.po.UserPO">
+        <result column="userId" property="userId" jdbcType="INTEGER"/>
+        <result column="user_name" property="userTblName" jdbcType="VARCHAR"/>
+        <result column="password" property="passUserWord" jdbcType="VARCHAR"/>
+        <result column="is_inint_syspass" property="isInintSyspass" jdbcType="INTEGER"/>
+        <result column="user_salt" property="userSalt" jdbcType="VARCHAR"/>
+        <result column="main_id" property="mainId" jdbcType="INTEGER"/>
+        <result column="report_level" property="reportLevel" jdbcType="INTEGER"/>
+        <result column="is_default" property="isDefault" jdbcType="INTEGER"/>
+    </resultMap>
+    <select id="getInfo" resultMap="BaseResultMap">
+        select
+        *
+        from tbl_user
+        where userId = #{userId}
+    </select>
+
+    <select id="queryPermission" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+        select
+        *
+        from tbl_role_permission
+        where role_id = #{roleId} and is_open=1 and
+        permission_id in
+        <foreach item="item" index="index" collection="permission_id" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+
+
+</mapper>

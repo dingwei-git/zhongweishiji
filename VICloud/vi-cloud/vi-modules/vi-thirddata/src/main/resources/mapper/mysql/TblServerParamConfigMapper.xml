@@ -1,0 +1,408 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="com.huawei.vi.thirddata.mapper.TblServerParamConfigMapper">
+	<resultMap id="BaseResultMap"
+		type="com.huawei.vi.thirddata.service.binary.pojo.TblServerParamConfig">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="service_flag" property="serviceFlag"
+			jdbcType="VARCHAR" />
+		<result column="service_ip_address" property="serviceIpAddress"
+			jdbcType="VARCHAR" />
+		<result column="service_name" property="serviceName"
+			jdbcType="VARCHAR" />
+		<result column="service_password" property="servicePassword"
+			jdbcType="VARCHAR" />
+		<result column="service_link_id" property="serviceLinkId"
+			jdbcType="VARCHAR" />
+		<result column="service_data_type" property="serviceDataType"
+			jdbcType="VARCHAR" />
+		<result column="service_status" property="serviceStatus"
+			jdbcType="VARCHAR" />
+		<result column="service_message" property="message"
+			jdbcType="VARCHAR" />
+		<result column="service_dz_port" property="dzPort"
+			jdbcType="VARCHAR" />
+		<result column="service_time" property="serviceTime"
+			jdbcType="TIMESTAMP" />
+		<result column="service_sub_type" property="serviceSubType"
+			jdbcType="INTEGER" />
+		<result column="service_sub_id" property="serviceSubId"
+			jdbcType="VARCHAR" />
+		<result column="file_service_type" property="fileServiceType"
+			jdbcType="VARCHAR" />
+		<result column="middle_port" property="middlePort"
+			jdbcType="VARCHAR" />
+		<result column="middle_httpport" property="middleHttpPort"
+			jdbcType="VARCHAR" />
+		<result column="middle_tcpport" property="middleTcpPort"
+			jdbcType="VARCHAR" />
+		<result column="keep_type" property="keepType"
+			jdbcType="VARCHAR" />
+	</resultMap>
+	<resultMap id="BaseResultMaps" type="com.huawei.vi.thirddata.service.binary.pojo.TblServerParamConfig">
+		<result column="server_id" property="serviceIpAddress"></result>
+		<result column="service_sub_type" property="serviceSubType"></result>
+		<result column="service_name" property="remark"></result>
+	</resultMap>
+
+	<resultMap id="BaseResult" type="com.huawei.vi.thirddata.service.binary.pojo.TblServerParamConfig">
+		<result column="service_ip_address" property="serviceIpAddress"></result>
+	</resultMap>
+
+	<sql id="Base_Column_List">
+		id, service_flag,service_ip_address, service_name, service_password,
+		service_link_id, service_data_type, middle_port, middle_httpport, middle_tcpport,
+		service_status, service_message,service_dz_port, service_time, service_sub_type, service_sub_id, file_service_type, keep_type
+	</sql>
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="java.lang.Integer">
+		select
+		<include refid="Base_Column_List" />
+		from tbl_server_param_config
+		where id = #{id,jdbcType=INTEGER}
+	</select>
+	<delete id="deleteByPrimaryKey"
+		parameterType="java.lang.Integer">
+		delete a.* from tbl_server_param_config a,(select * from tbl_server_param_config tmp where id = #{id,jdbcType=INTEGER}) tmp
+		where (a.service_ip_address=tmp.service_ip_address and a.service_sub_type is null)
+        or (a.service_ip_address=tmp.service_ip_address and a.service_sub_type is not null and a.service_sub_type=tmp.service_sub_type)
+	</delete>
+	<insert id="insert"
+		parameterType="com.huawei.vi.thirddata.service.binary.pojo.TblServerParamConfig">
+		insert into tbl_server_param_config (id, service_flag,service_ip_address,
+		service_name,
+		service_password, service_link_id, service_data_type,
+		service_status, service_message, service_dz_port,service_time
+		)
+		values (#{id,jdbcType=INTEGER}, #{service_flag,jdbcType=VARCHAR},
+		#{serviceIpAddress,jdbcType=VARCHAR}, #{serviceName,jdbcType=VARCHAR},
+		#{servicePassword,jdbcType=VARCHAR},
+		#{serviceLinkId,jdbcType=VARCHAR},
+		#{serviceDataType,jdbcType=VARCHAR},
+		#{serviceStatus,jdbcType=VARCHAR}, #{message,jdbcType=VARCHAR},
+		#{dzPort,jdbcType=VARCHAR}, #{serviceTime,jdbcType=TIMESTAMP}
+		)
+	</insert>
+	<insert id="insertSelective"
+		parameterType="com.huawei.vi.thirddata.service.binary.pojo.TblServerParamConfig">
+		insert into videoinsightCollecter.tbl_server_param_config
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="serviceFlag != null">
+				service_flag,
+			</if>
+			<if test="serviceIpAddress != null">
+				service_ip_address,
+			</if>
+			<if test="serviceName != null">
+				service_name,
+			</if>
+			<if test="servicePassword != null">
+				service_password,
+			</if>
+			<if test="serviceLinkId != null">
+				service_link_id,
+			</if>
+			<if test="serviceDataType != null">
+				service_data_type,
+			</if>
+			<if test="serviceStatus != null">
+				service_status,
+			</if>
+			<if test="message != null">
+				service_message,
+			</if>
+			<if test="dzPort != null">
+				service_dz_port,
+			</if>
+			<if test="serviceTime != null">
+				service_time,
+			</if>
+			<if test="serviceSubType != null">
+				service_sub_type,
+			</if>
+			<if test="serviceSubId != null">
+				service_sub_id,
+			</if>
+			<if test="fileServiceType != null">
+				file_service_type,
+			</if>
+			<if test="middlePort != null">
+				middle_port,
+			</if>
+			<if test="middleHttpPort != null">
+				middle_httpport,
+			</if>
+			<if test="middleTcpPort != null">
+				middle_tcpport,
+			</if>
+			<if test="keepType != null">
+				keep_type,
+			</if>
+			show_flag,
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=INTEGER},
+			</if>
+			<if test="serviceFlag != null">
+				#{serviceFlag,jdbcType=VARCHAR},
+			</if>
+			<if test="serviceIpAddress != null">
+				#{serviceIpAddress,jdbcType=VARCHAR},
+			</if>
+			<if test="serviceName != null">
+				#{serviceName,jdbcType=VARCHAR},
+			</if>
+			<if test="servicePassword != null">
+				#{servicePassword,jdbcType=VARCHAR},
+			</if>
+			<if test="serviceLinkId != null">
+				#{serviceLinkId,jdbcType=VARCHAR},
+			</if>
+			<if test="serviceDataType != null">
+				#{serviceDataType,jdbcType=VARCHAR},
+			</if>
+			<if test="serviceStatus != null">
+				#{serviceStatus,jdbcType=VARCHAR},
+			</if>
+			<if test="message != null">
+				#{message,jdbcType=VARCHAR},
+			</if>
+			<if test="dzPort != null">
+				#{dzPort,jdbcType=VARCHAR},
+			</if>
+			<if test="serviceTime != null">
+				#{serviceTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="serviceSubType != null">
+				#{serviceSubType,jdbcType=INTEGER},
+			</if>
+			<if test="serviceSubId != null">
+				#{serviceSubId,jdbcType=VARCHAR},
+			</if>
+			<if test="fileServiceType != null">
+				#{fileServiceType,jdbcType=VARCHAR},
+			</if>
+			<if test="middlePort != null">
+				#{middlePort,jdbcType=VARCHAR},
+			</if>
+			<if test="middleHttpPort != null">
+				#{middleHttpPort,jdbcType=VARCHAR},
+			</if>
+			<if test="middleTcpPort != null">
+				#{middleTcpPort,jdbcType=VARCHAR},
+			</if>
+			<if test="keepType != null">
+				#{keepType,jdbcType=VARCHAR},
+			</if>
+			#{showFlag,jdbcType=INTEGER},
+		</trim>
+	</insert>
+	<update id="updateByPrimaryKeySelective"
+		parameterType="com.huawei.vi.thirddata.service.binary.pojo.TblServerParamConfig">
+		update tbl_server_param_config
+		<set>
+			<if test="serviceIpAddress != null">
+				service_ip_address = #{serviceIpAddress,jdbcType=VARCHAR},
+			</if>
+			<if test="serviceName != null">
+				service_name = #{serviceName,jdbcType=VARCHAR},
+			</if>
+			<if test="servicePassword != null">
+				service_password = #{servicePassword,jdbcType=VARCHAR},
+			</if>
+			<if test="serviceLinkId != null">
+				service_link_id = #{serviceLinkId,jdbcType=VARCHAR},
+			</if>
+			<if test="serviceDataType != null">
+				service_data_type = #{serviceDataType,jdbcType=VARCHAR},
+			</if>
+			<if test="serviceStatus != null">
+				service_status = #{serviceStatus,jdbcType=VARCHAR},
+			</if>
+			<if test="message != null">
+				service_message = #{message,jdbcType=VARCHAR},
+			</if>
+			<if test="dzPort != null">
+				service_dz_port = #{dzPort,jdbcType=VARCHAR},
+			</if>
+			<if test="serviceTime != null">
+				service_time = #{serviceTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="keepType != null">
+				keep_type = #{keepType,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+
+	<update id="updateByPrimaryKeyAndIpAddressSelective"
+		parameterType="com.huawei.vi.thirddata.service.binary.pojo.TblServerParamConfig">
+		update tbl_server_param_config
+		<set>
+			<if test="serviceName != null">
+				service_name = #{serviceName,jdbcType=VARCHAR},
+			</if>
+			<if test="servicePassword != null">
+				service_password = #{servicePassword,jdbcType=VARCHAR},
+			</if>
+			<if test="serviceLinkId != null">
+				service_link_id = #{serviceLinkId,jdbcType=VARCHAR},
+			</if>
+			<if test="serviceDataType != null">
+				service_data_type = #{serviceDataType,jdbcType=VARCHAR},
+			</if>
+			<if test="serviceStatus != null">
+				service_status = #{serviceStatus,jdbcType=VARCHAR},
+			</if>
+			<if test="message != null">
+				service_message = #{message,jdbcType=VARCHAR},
+			</if>
+			<if test="dzPort != null">
+				service_dz_port = #{dzPort,jdbcType=VARCHAR},
+			</if>
+			<if test="serviceTime != null">
+				service_time = #{serviceTime,jdbcType=TIMESTAMP},
+			</if>
+		</set>
+		where service_ip_address =
+		#{serviceIpAddress,jdbcType=VARCHAR}
+		<if test="id != null">
+		    and id = #{id,jdbcType=INTEGER}
+		</if>
+		<if test="middlePort != null">
+		    and service_dz_port = #{middlePort,jdbcType=VARCHAR}
+		</if>
+		<if test="serviceSubType != null">
+		    and service_sub_type = #{serviceSubType,jdbcType=INTEGER}
+		</if>
+	</update>
+
+	<update id="updateByPrimaryKey"
+		parameterType="com.huawei.vi.thirddata.service.binary.pojo.TblServerParamConfig">
+		update tbl_server_param_config
+		set service_ip_address = #{serviceIpAddress,jdbcType=VARCHAR},
+		service_name = #{serviceName,jdbcType=VARCHAR},
+		service_password = #{servicePassword,jdbcType=VARCHAR},
+		service_link_id = #{serviceLinkId,jdbcType=VARCHAR},
+		service_data_type = #{serviceDataType,jdbcType=VARCHAR},
+		service_status = #{serviceStatus,jdbcType=VARCHAR},
+		service_message = #{message,jdbcType=VARCHAR},
+		service_dz_port = #{dzPort,jdbcType=VARCHAR},
+		service_time = #{serviceTime,jdbcType=TIMESTAMP}
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+
+	<sql id="condition">
+		<where>
+			<if test="id!=null">
+				and id=#{id}
+			</if>
+			<if test="pid!=null">
+				and id !=#{pid}
+			</if>
+			<if test="serviceFlag != null">
+				and service_flag=#{serviceFlag}
+			</if>
+			<if test="serviceIpAddress != null">
+				and service_ip_address=#{serviceIpAddress}
+			</if>
+			<if test="serviceName != null">
+				and service_name=#{serviceName}
+			</if>
+			<if test="servicePassword!=null">
+				and service_password=#{servicePassword}
+			</if>
+			<if test="serviceLinkId != null">
+				and service_link_id=#{serviceLinkId}
+			</if>
+			<if test="serviceDataType != null">
+				and service_data_type=#{serviceDataType}
+			</if>
+			<if test="serviceStatus!=null">
+				and service_status=#{serviceStatus}
+			</if>
+			<if test="message != null">
+				and service_message=#{message}
+			</if>
+			<if test="dzPort != null">
+				and service_dz_port=#{dzPort}
+			</if>
+			<if test="serviceTime != null">
+				and service_time=#{serviceTime}
+			</if>
+			<if test="serviceSubType != null">
+				and service_sub_type=#{serviceSubType}
+			</if>
+		    <if test="serviceFlag == null">
+				and show_flag=1
+			</if>
+		</where>
+	</sql>
+
+	<select id="selectByCondition" parameterType="map"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from tbl_server_param_config
+		<include refid="condition" />
+		ORDER BY id desc
+		<if test="pageNum!=null and rowsPerPage!=null and rowsPerPage>0">
+			limit ${(pageNum-1)*rowsPerPage},${rowsPerPage}
+		</if>
+	</select>
+
+	<select id="selectAll" resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from tbl_server_param_config
+	</select>
+
+	<select id="selectFirstDzServerParamConfig" resultType="String">
+		SELECT CONCAT(dzServer.service_ip_address,':') AS IpAndPort FROM
+		`tbl_server_param_config` dzServer
+		WHERE service_flag = 2 ORDER BY id ASC LIMIT 1
+	</select>
+
+	<select id="getServerSubTypeCountByIp" parameterType="map" resultType="int">
+		select count(distinct service_sub_type) from tbl_server_param_config where service_flag = 2
+		   and service_ip_address = #{serviceIpAddress}
+	</select>
+	
+	<update id="updateByPrimaryKeySelectiveIp"
+		parameterType="com.huawei.vi.thirddata.service.binary.pojo.TblServerParamConfig">
+		update tbl_server_param_config
+		set service_ip_address = #{serviceIpAddress,jdbcType=VARCHAR}
+		where (service_ip_address,service_sub_type) in (select service_ip_address,service_sub_type from
+		(select service_ip_address,service_sub_type from tbl_server_param_config tmp where id = #{id,jdbcType=INTEGER}) as tmp)
+	</update>
+	<select id="selectIpAndRemark" parameterType="map" resultMap="BaseResultMaps">
+		select distinct (service_sub_id),service_sub_type,remark
+        from tbl_server_param_config
+        where
+        <if test="serviceSubType!=null" >
+        service_sub_type = #{serviceSubType}
+		</if>
+	</select>
+
+	<select id="selectIpOrPlatformid" parameterType="java.util.Map" resultType="java.util.Map">
+		select service_ip_address AS ip ,service_link_id AS platformid
+		from tbl_server_param_config
+		<where>
+			<if test="serviceFlag!=null" >
+				AND service_flag = #{serviceFlag}
+			</if>
+			<if test="serviceSubType!=null" >
+				AND service_sub_type = #{serviceSubType}
+			</if>
+			<if test="serviceSubId!=null" >
+				AND service_sub_id = #{serviceSubId}
+			</if>
+		</where>
+	</select>
+
+</mapper>

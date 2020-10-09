@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+        namespace="com.huawei.vi.thirddata.mapper.TblCameraManageOnceMapper">
+
+    <resultMap id="CameraManageVo" type="com.huawei.vi.thirddata.service.binary.pojo.TblCameraDetailOriginalData">
+        <result column="camera_sn" property="cameraSn"/>
+        <result column="camera_name" property="cameraName"/>
+        <result column="mount_height" property="mountHeight"/>
+        <result column="longitude" property="longitude"/>
+        <result column="latitude" property="latitude"/>
+        <result column="address" property="address"/>
+        <result column="stream_url" property="streamUrl"/>
+        <result column="direction" property="direction"/>
+        <result column="lane" property="lane"/>
+        <result column="camera_state" property="cameraState"/>
+        <result column="camera_type" property="cameraType"/>
+        <result column="camera_use" property="cameraUse"/>
+        <result column="camera_feature" property="cameraFeature"/>
+        <result column="plat_name" property="platName"/>
+        <result column="resolution_type" property="resolutionType"/>
+        <result column="field_no" property="fieldNo"/>
+        <result column="compass" property="compass"/>
+        <result column="nvr" property="nvr"/>
+        <result column="group_id" property="groupId"/>
+        <result column="camera_id" property="cameraId"/>
+        <result column="substatus" property="substatus"/>
+        <result column="vcn_camera_use" property="vcnCameraUse"/>
+        <result column="analysis_list" property="analysisList"/>
+        <result column="analysis_type" property="analysisType"/>
+        <result column="task_type_list" property="taskTypeList"/>
+        <result column="task_type" property="taskType"/>
+        <result column="discard_collection" property="discardCollection"/>
+        <result column="ip_ivs" property="ipIvs"/>
+    </resultMap>
+    <resultMap id="IvsImageResultMap"  type="com.huawei.vi.thirddata.service.binary.pojo.CaptureHourStatistics">
+		<result column="camera_sn" property="cameraSn" jdbcType="VARCHAR" />
+		<result column="start_hour" property="startHour" jdbcType="TIMESTAMP" />
+		<result column="camera_name" property="cameraName" jdbcType="VARCHAR" />
+		<result column="type" property="type" jdbcType="INTEGER" />
+		<result column="picturecount" property="pictureCount" jdbcType="INTEGER" />
+		<result column="completehour" property="completeHour" jdbcType="INTEGER" />
+		<result column="group_name" property="groupName" jdbcType="VARCHAR" />
+		<result column="EFFECTIVE_CAMERA" property="effectiveCamera" jdbcType="INTEGER" />
+	</resultMap>
+	<resultMap id="CameraManageImageVo" type="com.huawei.vi.thirddata.service.binary.pojo.TblCameraDatailOriginalImageData">
+		<result column="camera_sn" property="cameraSn"/>
+		<result column="camera_name" property="cameraName"/>
+		<result column="mount_height" property="mountHeight"/>
+		<result column="longitude" property="longitude"/>
+		<result column="latitude" property="latitude"/>
+		<result column="address" property="address"/>
+		<result column="stream_url" property="streamUrl"/>
+		<result column="direction" property="direction"/>
+		<result column="lane" property="lane"/>
+		<result column="camera_state" property="cameraState"/>
+		<result column="camera_type" property="cameraType"/>
+		<result column="camera_use" property="cameraUse"/>
+		<result column="camera_feature" property="cameraFeature"/>
+		<result column="plat_name" property="platName"/>
+		<result column="resolution_type" property="resolutionType"/>
+		<result column="field_no" property="fieldNo"/>
+		<result column="compass" property="compass"/>
+		<result column="nvr" property="nvr"/>
+		<result column="group_id" property="groupId"/>
+		<result column="camera_id" property="cameraId"/>
+		<result column="substatus" property="substatus"/>
+		<result column="vcn_camera_use" property="vcnCameraUse"/>
+		<result column="analysis_list" property="analysisList"/>
+		<result column="analysis_type" property="analysisType"/>
+		<result column="task_type_list" property="taskTypeList"/>
+		<result column="task_type" property="taskType"/>
+		<result column="ip_ivs" property="ipIvs"/>
+		<result column="start_time" property="startTime"/>
+		<result column="end_time" property="endTime"/>
+		<result column="type" property="type"/>
+		<result column="picture_count" property="pictureCount"/>
+		<result column="effective_camera" property="effectiveCamera"/>
+	</resultMap>
+
+
+
+
+
+
+    <insert id="insert"
+            parameterType="com.huawei.vi.thirddata.service.binary.pojo.TblCameraDetailOriginalData">
+        insert into tbl_camera_manager_original
+        (camera_sn,camera_name,mount_height,longitude,latitude,address,stream_url,direction,lane,
+        camera_state,camera_type,camera_use,camera_feature,plat_name,resolution_type,field_no,compass,nvr,group_id,camera_id,
+        substatus,vcn_camera_use,analysis_list,analysis_type,task_type_list,task_type,ip_ivs)
+        values
+        <foreach collection="relists" item="relist" index="index" separator=",">
+            (#{relist.cameraSn,jdbcType=VARCHAR},
+            #{relist.cameraName,jdbcType=VARCHAR},#{relist.mountHeight,jdbcType=VARCHAR},#{relist.longitude,jdbcType=VARCHAR},
+            #{relist.latitude,jdbcType=VARCHAR},#{relist.address,jdbcType=VARCHAR},#{relist.streamUrl,jdbcType=VARCHAR},
+            #{relist.direction,jdbcType=VARCHAR},#{relist.lane,jdbcType=VARCHAR},#{relist.cameraState,jdbcType=INTEGER},
+            #{relist.cameraType,jdbcType=VARCHAR},#{relist.cameraUse,jdbcType=VARCHAR},#{relist.cameraFeature,jdbcType=VARCHAR},
+            #{relist.platName,jdbcType=VARCHAR},#{relist.resolutionType,jdbcType=VARCHAR},#{relist.fieldNo,jdbcType=VARCHAR},
+            #{relist.compass,jdbcType=VARCHAR},#{relist.nvr,jdbcType=VARCHAR},#{relist.groupId,jdbcType=VARCHAR},
+            #{relist.cameraId,jdbcType=VARCHAR},#{relist.substatus,jdbcType=INTEGER},#{relist.vcnCameraUse,jdbcType=INTEGER},
+            #{relist.analysisList,jdbcType=VARCHAR},#{relist.analysisType,jdbcType=VARCHAR},#{relist.taskTypeList,jdbcType=VARCHAR},
+            #{relist.taskType,jdbcType=INTEGER},#{relist.ipIvs,jdbcType=VARCHAR}
+            )
+        </foreach>
+
+    </insert>
+
+    <select id="getIntersection" parameterType="java.util.Map"
+            resultMap="CameraManageVo">
+		select * from ${tabName}
+	</select>
+
+    <!-- 删除原始数据(含清空数据表) -->
+    <update id="delTblOriginalData" parameterType="map">
+		TRUNCATE table
+		tbl_camera_manager_original
+	</update>
+
+    <!-- <insert id="insertIntersection"
+            parameterType="com.huawei.db.pojo.TblCameraDetailOriginalData">
+        insert into ${tabName}
+        (camera_sn,camera_name,mount_height,longitude,latitude,address,stream_url,direction,lane,
+        camera_state,camera_type,camera_use,camera_feature,plat_name,resolution_type,field_no,compass,nvr,group_id,camera_id,
+        substatus,vcn_camera_use,analysis_list,analysis_type,task_type_list,task_type,discard_collection,ip_ivs)
+        values
+        <foreach collection="relists" item="relist" index="index" separator=",">
+            (#{relist.cameraSn,jdbcType=VARCHAR},
+            #{relist.cameraName,jdbcType=VARCHAR},#{relist.mountHeight,jdbcType=VARCHAR},#{relist.longitude,jdbcType=VARCHAR},
+            #{relist.latitude,jdbcType=VARCHAR},#{relist.address,jdbcType=VARCHAR},#{relist.streamUrl,jdbcType=VARCHAR},
+            #{relist.direction,jdbcType=VARCHAR},#{relist.lane,jdbcType=VARCHAR},#{relist.cameraState,jdbcType=INTEGER},
+            #{relist.cameraType,jdbcType=VARCHAR},#{relist.cameraUse,jdbcType=VARCHAR},#{relist.cameraFeature,jdbcType=VARCHAR},
+            #{relist.platName,jdbcType=VARCHAR},#{relist.resolutionType,jdbcType=VARCHAR},#{relist.fieldNo,jdbcType=VARCHAR},
+            #{relist.compass,jdbcType=VARCHAR},#{relist.nvr,jdbcType=VARCHAR},#{relist.groupId,jdbcType=VARCHAR},
+            #{relist.cameraId,jdbcType=VARCHAR},#{relist.substatus,jdbcType=INTEGER},#{relist.vcnCameraUse,jdbcType=INTEGER},
+            #{relist.analysisList,jdbcType=VARCHAR},#{relist.analysisType,jdbcType=VARCHAR},#{relist.taskTypeList,jdbcType=VARCHAR},
+            #{relist.taskType,jdbcType=INTEGER},#{relist.discardCollection,jdbcType=INTEGER},#{relist.ipIvs,jdbcType=VARCHAR}
+            )
+        </foreach>
+
+    </insert> -->
+
+    <update id="createTblOriginalData" parameterType="java.util.Map">
+		CREATE TABLE ${tabName} AS
+         (select a.*,if(b.CAMERA_SN is null, null, max(b.MOUNT_HEIGHT)) MOUNT_HEIGHT,
+               if(b.CAMERA_SN is null, null, max(b.ADDRESS)) ADDRESS,if(b.CAMERA_SN is null, null, max(b.STREAM_URL)) STREAM_URL,
+               if(b.CAMERA_SN is null, null, max(b.DIRECTION)) DIRECTION,if(b.CAMERA_SN is null, null, max(b.LANE)) LANE,
+               if(b.CAMERA_SN is null, -1, max(b.CAMERA_STATE)) CAMERA_STATE,if(b.CAMERA_SN is null, null, max(b.CAMERA_TYPE)) CAMERA_TYPE,
+               if(b.CAMERA_SN is null, a.ipType, max(b.CAMERA_USE)) CAMERA_USE,if(b.CAMERA_SN is null, null, max(b.CAMERA_FEATURE)) CAMERA_FEATURE,
+               if(b.CAMERA_SN is null, null, max(b.PLAT_NAME)) PLAT_NAME,if(b.CAMERA_SN is null, null, max(b.RESOLUTION_TYPE)) RESOLUTION_TYPE,
+               if(b.CAMERA_SN is null, null, max(b.FIELD_NO)) FIELD_NO,if(b.CAMERA_SN is null, null, max(b.COMPASS)) COMPASS,
+               if(b.CAMERA_SN is null, null, max(b.NVR)) NVR,if(b.CAMERA_SN is null, -1, max(b.GROUP_ID)) GROUP_ID,
+               if(b.CAMERA_SN is null, a.CAMERANUM, max(b.CAMERA_ID)) CAMERA_ID,if(b.CAMERA_SN is null, null, max(b.SUBSTATUS)) SUBSTATUS,
+               if(b.CAMERA_SN is null, null, max(b.VCN_CAMERA_USE)) VCN_CAMERA_USE,
+               if(b.CAMERA_SN is null, null, max(b.ANALYSIS_TYPE)) ANALYSIS_TYPE,
+               if(b.CAMERA_SN is null, null, max(b.TASK_TYPE)) TASK_TYPE,if(b.CAMERA_SN is null, 1, 0) DISCARD_COLLECTION,
+               if(b.CAMERA_SN is null, -1, max(b.ip_ivs)) ip_ivs
+          from tbl_ipc_ip_tmp a
+          left join tbl_camera_manager_original b
+            on a.camera_sn=b.CAMERA_SN
+          where a.checkflag=1
+          group by a.camera_sn having length(a.camera_sn)>2);
+	</update>
+
+    <!-- 删除原始表数据 -->
+    <update id="dropTable" parameterType="map">
+		drop table IF
+		EXISTS
+		`${tabName}`
+	</update>
+	
+	<update id="createCaptureTable" parameterType="map">
+		CREATE TABLE IF NOT EXISTS `${tableName}` LIKE
+		`tbl_image_day_statistics`
+	</update>
+	
+	<insert id="insertCaptureTable" parameterType="map">
+		insert into ${tableName}(
+		CAMERA_SN,
+		START_TIME,
+		END_TIME,
+		CAMERA_NAME,
+		TYPE,
+		PICTURE_COUNT,
+		EFFECTIVE_CAMERA
+		)
+		values(
+		<foreach collection="analysisList" item="item" separator="),(">
+			#{item.cameraSn},
+			#{item.startTime},
+			#{item.endTime},
+			#{item.cameraName},
+			#{item.type},
+			#{item.pictureCount},
+			#{item.effectiveCamera}
+		</foreach>
+		)
+	</insert>
+	
+	<update id ="createDimensionTable" parameterType="map">
+		CREATE TABLE IF NOT EXISTS `${tableName}` LIKE
+		`tbl_image_hour_statistics`
+	</update>
+	
+	<insert id="insertImagehourstatistics" parameterType="map">
+		insert into ${tableName}
+		values(
+			<foreach collection="dataList" item="item" separator="),(">
+				#{item.cameraSn},
+				#{item.startHour},
+				#{item.endHour},
+				#{item.cameraName},
+				#{item.type},
+				#{item.pictureCount},
+				#{item.groupName},
+				#{item.completeHour},
+				#{item.effectiveCamera}
+			</foreach>
+		)		
+	</insert>
+	
+	<select id="selectImageCount" parameterType="map" resultMap="IvsImageResultMap">
+		select
+		camera_sn,
+		camera_name,
+		type,
+		EFFECTIVE_CAMERA,
+		DATE_SUB(#{endTime},interval 1 hour) start_hour,
+		SUM(PICTURE_COUNT) picturecount,
+		COUNT(camera_sn) completehour,
+		group_name
+		from
+		(
+			select current.camera_sn,
+			current.camera_name,
+			current.start_time,
+			current.end_time,
+			current.type,
+			current.EFFECTIVE_CAMERA,
+			current.PICTURE_COUNT,
+			cameraInfo.group_name
+			from ${tableName} current inner join ${cameraInfoTableName}  cameraInfo on current.camera_sn=cameraInfo.camera_sn WHERE START_TIME>=DATE_SUB(#{endTime},interval 1 hour)
+		) tmp 
+		GROUP BY camera_sn,type,effective_camera
+	</select>
+	
+	<select id="showTableByname" parameterType="map"
+		resultType="String">
+		show tables like #{tableName};
+	</select>
+
+
+	<select id="getCameraInfoByState" parameterType="java.util.Map"
+			resultMap="CameraManageVo">
+		select
+		camera_sn,camera_name,mount_height,longitude,latitude,address,stream_url,direction,lane,camera_state,camera_type,camera_use,camera_feature,plat_name,resolution_type,
+		field_no,compass,nvr,group_id,camera_id,substatus,vcn_camera_use,analysis_list,analysis_type,task_type_list,task_type,ip_ivs
+		from
+		${tabName}
+		order by camera_sn desc
+	</select>
+
+	<select id="getCameraInfoAndImage" parameterType="java.util.Map"
+			resultMap="CameraManageImageVo">
+		select
+		a.camera_sn,a.camera_name,a.mount_height,a.longitude,a.latitude,a.address,a.stream_url,a.direction,a.lane,a.camera_state,a.camera_type,a.camera_use,a.camera_feature,
+		a.plat_name,a.resolution_type,a.field_no,a.compass,a.nvr,a.group_id,a.camera_id,a.substatus,a.vcn_camera_use,a.analysis_list,a.analysis_type,a.task_type_list,a.task_type,
+		a.ip_ivs,b.start_time,b.end_time,b.type,b.picture_count,b.effective_camera
+		from
+		${tabName} a
+		left join ${tableName} b on
+		a.camera_sn = b.camera_sn
+		where
+		<if test="effectiveCamera!=null">
+			b.effective_camera=#{effectiveCamera}
+		</if>
+	</select>
+
+
+</mapper>

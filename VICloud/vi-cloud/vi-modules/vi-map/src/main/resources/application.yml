@@ -1,0 +1,6 @@
+server:
+  port: 22000
+logging:
+  config: classpath:logconfig/logback-custom.xml
+mybatis:
+  mapper-locations: classpath:mapper/*.xml

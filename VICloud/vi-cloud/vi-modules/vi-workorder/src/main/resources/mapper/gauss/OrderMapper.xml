@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huawei.vi.workorder.mapper.OrderMapper">
+
+    <resultMap id="BaseResultMap" type="com.huawei.vi.entity.vo.OrderDetailVO">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="order_title" property="orderTitle" jdbcType="VARCHAR"/>
+        <result column="order_code" property="orderCode" jdbcType="VARCHAR"/>
+        <result column="fault_types" property="faultTypes" jdbcType="VARCHAR"/>
+        <result column="fault_types_name" property="faultTypesName" jdbcType="VARCHAR"/>
+        <result column="device_type" property="deviceType" jdbcType="VARCHAR"/>
+        <result column="camera_id" property="cameraId" jdbcType="VARCHAR"/>
+        <result column="creat_time" property="creatTime" jdbcType="TIMESTAMP"/>
+        <result column="demand_time" jdbcType="TIMESTAMP" property="demandTime"/>
+        <result column="camera_name" property="deviceName" jdbcType="VARCHAR"/>
+        <result column="ip" property="ip" jdbcType="VARCHAR"/>
+        <result column="order_description" property="orderDescription" jdbcType="VARCHAR"/>
+        <result column="fault_picture_url" property="faultPictureUrl" jdbcType="VARCHAR"/>
+        <result column="recheck_picture_url" property="recheckPictureUrl" jdbcType="VARCHAR"/>
+        <result column="onsite_picture_url" property="onsitePictureUrl" jdbcType="VARCHAR"/>
+        <result column="forback_details" property="forbackDetails" jdbcType="VARCHAR"/>
+        <result column="delay" property="delay" jdbcType="INTEGER"/>
+        <result column="review_status" property="reviewStatus" jdbcType="VARCHAR"/>
+        <result column="creation_type" property="creationType" jdbcType="VARCHAR"/>
+    </resultMap>
+    <resultMap id="OrderListMap" type="com.huawei.vi.entity.vo.OrderListVO">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="order_code" property="orderCode" jdbcType="VARCHAR"/>
+        <result column="order_title" property="orderTitle" jdbcType="VARCHAR"/>
+        <result column="creat_time" property="creatTime" jdbcType="TIMESTAMP"/>
+        <result column="camera_name" property="cameraName" jdbcType="VARCHAR"/>
+        <result column="fault_types" property="faultTypes" jdbcType="VARCHAR"/>
+        <result column="order_type" property="orderType" jdbcType="VARCHAR"/>
+        <result column="order_status" property="orderStatus" jdbcType="VARCHAR"/>
+        <result column="delay" property="delay" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="queryOrderList" resultMap="OrderListMap" parameterType="java.util.Map">
+        SELECT
+            t1.id,
+            t1.order_code,
+            t1.order_title,
+            t2.demand_time creat_time,
+            t1.order_type,
+            t1.order_status,
+            t2.delay,
+            t3.camera_name,
+            GROUP_CONCAT( t4.name) fault_types
+        FROM
+        tbl_fault_type t4,tbl_create_orders_info t1
+        inner JOIN tbl_maintenance_info t2 ON t1.order_code = t2.order_code
+        inner JOIN tbl_ipc_ip_tmp t3 on t1.camera_id=t3.cameraNum
+        WHERE FIND_IN_SET( t4.id, t1.fault_types ) and
+        t1.order_status in
+        <foreach item="item" index="index" collection="orderStatus" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        AND t2.person_id=#{userId}
+        GROUP BY t1.id,
+        t1.order_code,
+        t1.order_title,
+        t2.demand_time,
+        t1.order_type,
+        t1.order_status,
+        t2.delay,
+        t3.camera_name
+        ORDER BY t2.demand_time DESC
+        limit #{startLimit},#{endLimit}
+    </select>
+    <select id="queryOrderListCount" resultType="java.lang.Integer" parameterType="java.util.Map">
+        SELECT
+        count(*)
+        FROM
+        tbl_create_orders_info t1
+        inner JOIN tbl_maintenance_info t2 ON t1.order_code = t2.order_code
+        WHERE
+        t1.order_status in
+        <foreach item="item" index="index" collection="orderStatus" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        AND t2.person_id=#{userId}
+        ORDER BY t1.creat_time DESC
+    </select>
+    <select id="getOrderInfo" resultMap="BaseResultMap" parameterType="java.lang.String">
+        SELECT
+            t1.id,
+            t1.order_title,
+            t1.order_code,
+            t1.fault_types,
+            GROUP_CONCAT( t5.name) AS fault_types_name,
+            t1.device_type,
+            t1.camera_id,
+            t1.creat_time,
+            t1.order_description,
+            t1.creation_type,
+            t2.demand_time,
+            t2.delay,
+            t2.review_status,
+            t3.camera_name,
+            t3.ip,
+            t4.fault_picture_url,
+            t4.recheck_picture_url,
+            t4.onsite_picture_url
+        FROM
+             tbl_fault_type t5 ,tbl_create_orders_info t1
+            INNER JOIN tbl_maintenance_info t2 ON t1.order_code = t2.order_code
+            INNER JOIN tbl_ipc_ip_tmp t3 ON t1.camera_id = t3.cameraId
+            LEFT JOIN tbl_work_order_picture t4 ON t1.order_code = t4.order_code
+        WHERE
+            t1.order_code = #{orderCode}
+            and FIND_IN_SET( t5.id, t1.fault_types )
+            GROUP BY t1.id,
+            t1.order_title,
+            t1.order_code,
+            t1.fault_types,
+            t1.device_type,
+            t1.camera_id,
+            t1.creat_time,
+            t1.order_description,
+            t1.creation_type,
+            t2.demand_time,
+            t2.delay,
+            t2.review_status,
+            t3.camera_name,
+            t3.ip,
+            t4.fault_picture_url,
+            t4.recheck_picture_url,
+            t4.onsite_picture_url
+    </select>
+    <select id="getCountByStatus" resultType="java.util.Map" parameterType="java.lang.String">
+        SELECT
+            t1.order_status AS `order_status`,count(*) AS `count`
+        FROM
+            tbl_create_orders_info t1
+            INNER JOIN tbl_maintenance_info t2 ON t1.order_code = t2.order_code
+        WHERE
+            t2.person_id = #{userId}
+        GROUP BY
+            t1.order_status
+    </select>
+
+    <update id="updateOrderStatus" parameterType="com.huawei.vi.entity.po.OrderEntity">
+        update tbl_create_orders_info set
+        order_status=#{orderStatus}
+        where order_code = #{orderCode}
+    </update>
+    <select id="findByOrderCode" resultType="java.lang.String" parameterType="java.lang.String">
+        SELECT
+            order_status
+        FROM
+            tbl_create_orders_info
+        WHERE
+            order_code=#{orderCode}
+    </select>
+
+    <select id="selectStatusByOrderCode" parameterType="java.lang.String" resultType="java.lang.String">
+        select order_status from tbl_create_orders_info where order_code =#{orderCode}
+    </select>
+
+
+
+</mapper>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huawei.vi.workorder.mapper.IpcIpMapper">
+    <resultMap id="BaseResultMap" type="com.huawei.vi.entity.po.TblIpcIp">
+        <result column="ip" property="ip" jdbcType="CHAR"/>
+        <result column="camera_name" property="cameraName" jdbcType="VARCHAR"/>
+        <result column="filed0" property="organization" jdbcType="VARCHAR"/>
+        <result column="filed1" property="platform" jdbcType="VARCHAR"/>
+        <result column="cameraNum" property="cameraCode" jdbcType="VARCHAR"/>
+        <result column="cameraId" property="cameraId" jdbcType="VARCHAR"/>
+        <!--分辨率-->
+        <result column="hd" property="hd" jdbcType="VARCHAR"/>
+        <result column="copoleCode" property="copoleCode" jdbcType="VARCHAR"/>
+        <result column="ipType" property="ipType" jdbcType="VARCHAR"/>
+        <result column="longitude" property="longitude" jdbcType="VARCHAR"/>
+        <result column="latitude" property="latitude" jdbcType="VARCHAR"/>
+        <result column="manufacturer" property="manufacturer" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!--查询设备详情-->
+    <select id="getIpcInfo" resultType="java.util.Map" parameterType="java.lang.String">
+        SELECT
+        *
+        FROM tbl_ipc_ip_tmp
+        WHERE cameraId=#{cameraId}
+    </select>
+
+</mapper>

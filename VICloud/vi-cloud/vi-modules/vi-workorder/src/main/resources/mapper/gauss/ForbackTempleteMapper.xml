@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huawei.vi.workorder.mapper.ForbackTempleteMapper">
+    <resultMap id="BaseResultMap" type="com.huawei.vi.entity.po.ForbackTempletePO">
+
+        <result column="id" jdbcType="INTEGER" property="id"/>
+        <result column="fault_type" jdbcType="VARCHAR" property="faultType"/>
+        <result column="model" jdbcType="VARCHAR" property="model"/>
+    </resultMap>
+    <select id="getTemplete" resultMap="BaseResultMap">
+        select
+        id,fault_type,model
+        from tbl_forback_templete
+        <if test="ids!=null and ids.length>0">
+            where fault_type in
+            <foreach collection="ids" item="item" index="index" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+
+    </select>
+</mapper>

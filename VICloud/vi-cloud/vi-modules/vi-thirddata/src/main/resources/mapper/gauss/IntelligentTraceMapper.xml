@@ -1,0 +1,364 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+        namespace="com.huawei.vi.thirddata.mapper.IntelligentTraceMapper">
+    <resultMap id="PicCountDay" type="com.huawei.vi.entity.po.ImageDayStatisticsVcn">
+        <result column="start_time" property="startTime"/>
+        <result column="end_time" property="endTime"/>
+        <result column="picture_count" property="pictureCount"/>
+        <result column="source" property="source"/>
+    </resultMap>
+    <resultMap id="PicCountHour" type="com.huawei.vi.entity.po.ImageDayStatisticsVcn">
+        <result column="start_hour_time" property="startTime"/>
+        <result column="end_hour_time" property="endTime"/>
+        <result column="picture_count" property="pictureCount"/>
+        <result column="source" property="source"/>
+    </resultMap>
+
+    <sql id="daySql">
+		select
+        CAMERA_NAME
+         from ${tabName}
+	</sql>
+    <sql id="Base_Column_List">
+		faultRelationId, tableName
+	</sql>
+    <select id="gitintelligentTraceList" parameterType="map" resultType="map">
+        select service_sub_id as `serviceSubId`,remark as `remark` from ${tabName}
+        where 1=1
+        and remark is not null and service_sub_id is not null and
+        service_sub_type in
+        <foreach collection="intelligenttraceList" item="intelligenttrace" index="index" open="(" separator="," close=")">
+            #{intelligenttrace}
+        </foreach>
+    </select>
+
+    <select id="getIntelligent" parameterType="java.util.Map"  resultType="com.huawei.vi.entity.po.ImageCountPo">
+        select
+        trunc( a.TIME, 'DD' ) AS `Time`,
+        sum( a.PICTURE_COUNT ) AS `pictureCount`,
+        b.remark AS `remark`
+        from
+        ${tabName} a
+        left join ${tableName} b on
+        a.SOURCE = b.SERVICE_SUB_ID
+        where
+        <if test="startTime!=null">
+            a.TIME <![CDATA[>=]]> #{startTime}
+        </if>
+        <if test="endTime !=null">
+            and a.TIME <![CDATA[<=]]> #{endTime}
+        </if>
+        <if test="groupNames !=null">
+            and a.CAMERA_SN in
+            <foreach collection="groupNames" item="groupName" index="index" open="(" separator="," close=")">
+                #{groupName.camera_sn}
+            </foreach>
+        </if>
+        <if test="netWorks !=null">
+            and a.SOURCE in
+            <foreach collection="netWorks" item="netWork" index="index" open="(" separator="," close=")">
+                #{netWork}
+            </foreach>
+        </if>
+        <if test="scenes !=null">
+            and a.TYPE in
+            <foreach collection="scenes" item="scene" index="index" open="(" separator="," close=")">
+                #{scene}
+            </foreach>
+        </if>
+        GROUP BY
+        a.TIME,b.remark
+        ORDER BY
+        a.TIME asc
+    </select>
+
+    <select id="getIntelligents" parameterType="java.util.Map"  resultType="com.huawei.vi.entity.po.ImageCountPo">
+        select
+        trunc( a.TIME, 'DD' ) AS `Time`,b.service_ip_address as `organization`,
+        sum( a.PICTURE_COUNT ) AS `pictureCount`,
+        b.remark AS `remark`
+        from
+        ${tabName} a
+        left join ${tableName} b on
+        a.source = b.service_sub_id
+        where
+        <if test="startTime!=null">
+            a.time <![CDATA[>=]]> #{startTime}
+        </if>
+        <if test="endTime !=null">
+            and a.time <![CDATA[<=]]> #{endTime}
+        </if>
+        <if test="groupNames !=null">
+            and a.camera_sn in
+            <foreach collection="groupNames" item="groupName" index="index" open="(" separator="," close=")">
+                #{groupName.camera_sn}
+            </foreach>
+        </if>
+        <if test="netWorks !=null">
+            and a.source in
+            <foreach collection="netWorks" item="netWork" index="index" open="(" separator="," close=")">
+                #{netWork}
+            </foreach>
+        </if>
+        <if test="scenes !=null">
+            and a.type in
+            <foreach collection="scenes" item="scene" index="index" open="(" separator="," close=")">
+                #{scene}
+            </foreach>
+        </if>
+        GROUP BY
+        trunc(a.TIME,'DD'),b.remark,b.service_ip_address
+        ORDER BY
+        trunc(a.TIME,'DD') asc
+    </select>
+
+    <select id="getIntelligentHour" parameterType="map"  resultType="com.huawei.vi.entity.po.ImageCountPo">
+        select
+        trunc( a.TIME, 'HH' ) AS `time`,
+        sum( a.PICTURE_COUNT ) AS `pictureCount`,b.service_ip_address as `organization`,
+        b.remark AS `remark`
+        from
+        ${tabName} a
+        left join ${tableName} b on
+        a.SOURCE = b.SERVICE_SUB_ID
+        where
+        <if test="startTime!=null">
+            a.TIME <![CDATA[>=]]> #{startTime}
+        </if>
+        <if test="endTime !=null">
+            and a.TIME <![CDATA[<=]]> #{endTime}
+        </if>
+        <if test="groupNames !=null">
+            and a.CAMERA_SN in
+            <foreach collection="groupNames" item="groupName" index="index" open="(" separator="," close=")">
+                #{groupName.camera_sn}
+            </foreach>
+        </if>
+        <if test="netWorks !=null">
+            and a.SOURCE in
+            <foreach collection="netWorks" item="netWork" index="index" open="(" separator="," close=")">
+                #{netWork}
+            </foreach>
+        </if>
+        <if test="scenes !=null">
+            and a.TYPE in
+            <foreach collection="scenes" item="scene" index="index" open="(" separator="," close=")">
+                #{scene}
+            </foreach>
+        </if>
+        GROUP BY
+        a.TIME,b.remark,b.service_ip_address
+        ORDER BY
+        a.TIME asc
+    </select>
+
+    <select id="getIntelligentHours" parameterType="map"  resultType="com.huawei.vi.entity.po.ImageCountPo">
+        select
+        trunc( a.TIME, 'HH' ) AS `time`,b.service_ip_address as `organization`,
+        sum( a.PICTURE_COUNT ) AS `pictureCount`,
+        b.remark AS `remark`
+        from
+        ${tabName} a
+        left join ${tableName} b on
+        a.source = b.service_sub_id
+        where
+        <if test="startTime!=null">
+            a.time <![CDATA[>=]]> #{startTime}
+        </if>
+        <if test="endTime !=null">
+            and a.time <![CDATA[<=]]> #{endTime}
+        </if>
+        <if test="groupNames !=null">
+            and a.camera_sn in
+            <foreach collection="groupNames" item="groupName" index="index" open="(" separator="," close=")">
+                #{groupName.camera_sn}
+            </foreach>
+        </if>
+        <if test="netWorks !=null">
+            and a.source in
+            <foreach collection="netWorks" item="netWork" index="index" open="(" separator="," close=")">
+                #{netWork}
+            </foreach>
+        </if>
+        <if test="scenes !=null">
+            and a.type in
+            <foreach collection="scenes" item="scene" index="index" open="(" separator="," close=")">
+                #{scene}
+            </foreach>
+        </if>
+        GROUP BY
+        a.time,b.remark,b.service_ip_address
+        ORDER BY
+        a.time asc
+    </select>
+
+    <select id="getNetWorkTraceByHour"  parameterType="map"  resultType="com.huawei.vi.entity.po.ImageCountPo">
+        select
+        trunc( a.TIME, 'HH' ) AS `Time`,
+        sum( a.PICTURE_COUNT ) AS `pictureCount`,
+        b.remark AS `remark`
+        from
+        tbl_image_day_statistics_vcn a
+        left join tbl_server_param_config b on
+        a.source = b.service_sub_id
+        where
+        <if test="startTime!=null">
+            a.time <![CDATA[>=]]> #{startTime}
+        </if>
+        <if test="endTime !=null">
+            and a.time <![CDATA[<=]]> #{endTime}
+        </if>
+        <if test="netWorks !=null">
+            and a.source in
+            <foreach collection="netWorks" item="netWork" index="index" open="(" separator="," close=")">
+                #{netWork}
+            </foreach>
+        </if>
+        <if test="scenes !=null">
+            and a.type in
+            <foreach collection="scenes" item="scene" index="index" open="(" separator="," close=")">
+                #{scene}
+            </foreach>
+        </if>
+        GROUP BY
+        a.time,b.remark
+        ORDER BY
+        a.time asc
+    </select>
+
+    <select id="getNetWorkTraceByDay"  parameterType="map"  resultType="com.huawei.vi.entity.po.ImageCountPo">
+        select
+        trunc( a.TIME, 'DD' ) AS `Time`,
+        sum( a.PICTURE_COUNT ) AS `pictureCount`,b.service_ip_address as `organization`,
+        b.remark AS `remark`
+        from
+        tbl_image_day_statistics_vcn a
+        left join tbl_server_param_config b on
+        a.source = b.service_sub_id
+        where
+        <if test="startTime!=null">
+            a.time <![CDATA[>=]]> #{startTime}
+        </if>
+        <if test="endTime !=null">
+            and a.time <![CDATA[<=]]> #{endTime}
+        </if>
+        <if test="netWorks !=null">
+            and a.source in
+            <foreach collection="netWorks" item="netWork" index="index" open="(" separator="," close=")">
+                #{netWork}
+            </foreach>
+        </if>
+        <if test="scenes !=null">
+            and a.type in
+            <foreach collection="scenes" item="scene" index="index" open="(" separator="," close=")">
+                #{scene}
+            </foreach>
+        </if>
+        GROUP BY
+        a.time,b.remark,b.service_ip_address
+        ORDER BY
+        a.time asc
+    </select>
+
+    <select id="getServiceName" parameterType="map" resultType="map">
+        SELECT
+        distinct REMARK as `service_name`,SERVICE_SUB_ID as `server_id`
+        FROM
+        TBL_SERVER_PARAM_CONFIG
+        WHERE 1=1 and REMARK is not null and SERVICE_SUB_ID is not null
+        <if test="serviceName !=null">
+            and SERVICE_SUB_ID in
+            <foreach collection="serviceName" item="item" index="index" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="getServiceNames" parameterType="map" resultType="map">
+        SELECT
+        distinct remark as `service_name`,service_sub_id as `server_id`
+        FROM
+        tbl_server_param_config
+        WHERE 1=1 and remark is not null
+        <if test="netWorks !=null">
+            and service_sub_id in
+            <foreach collection="netWorks" item="item" index="index" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+
+
+    <insert id="insert" parameterType="map">
+        insert into ${tableName}
+        (datetime,organization,pictureCount,remark)
+        values
+        <foreach collection="relists" item="relist" index="index" separator=",">
+            (#{relist.time,jdbcType=VARCHAR},
+            #{relist.organization,jdbcType=VARCHAR},
+            #{relist.pictureCount,jdbcType=VARCHAR},
+            #{relist.remark,jdbcType=VARCHAR}
+            )
+        </foreach>
+    </insert>
+
+    <update id="createTable" parameterType="map">
+       CREATE TABLE ${tableName} (
+			datetime VARCHAR(200) ,
+		    organization VARCHAR(200),
+		    pictureCount VARCHAR(30),
+		    remark VARCHAR(100)
+		)
+    </update>
+
+    <select id="getIvsName" parameterType="map" resultType="map">
+        SELECT
+        a.datetime as `datetime`
+        <foreach collection="cityLists" item="cityList" index="index">
+            <foreach collection="ivsNameStr" item="relist" index="index"  >
+                , max(
+                case when a.remark=#{relist} and a.organization=#{cityList}  then  a.pictureCount else 0  end
+                ) as `${cityList}_${relist}`
+            </foreach>
+        </foreach>
+        from ${tableName} a
+        group by a.datetime
+    </select>
+
+    <select id="getIvs" parameterType="map" resultType="map">
+        SELECT
+        a.datetime as `datetime`
+        <foreach collection="cityLists" item="cityList" index="index">
+            <foreach collection="ivsNameStr" item="relist" index="index"  >
+                , max(
+                case when a.remark=#{relist} then  a.pictureCount else 0  end
+                ) as `${relist}`
+            </foreach>
+        </foreach>
+        from ${tableName} a
+        group by a.datetime
+    </select>
+
+    <select id="getIvsNames" parameterType="map" resultType="map">
+        SELECT
+        a.datetime as `datetime`
+        <foreach collection="cityLists" item="cityList" index="index">
+            <foreach collection="ivsNameStr" item="relist" index="index" >
+                , max(case when a.remark=#{relist} and a.organization= replace(#{cityList},'*','.') then  a.pictureCount else 0  end) as `${cityList}_${relist}`
+            </foreach>
+        </foreach>
+        from ${tableName} a
+        group by a.datetime
+    </select>
+
+
+    <update id="deleteByTableName" parameterType="String">
+        drop table ${tableName}
+    </update>
+
+
+
+
+
+</mapper>

@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.huawei.vi.thirddata.mapper.TblOriginalDataMapper">
+	<resultMap id="TcpResultMap"  type="com.huawei.vi.thirddata.service.binary.pojo.TcpOriginalData">
+		<result column="client_ip_addr" property="clientIpAddr" jdbcType="CLOB" />
+		<result column="client_ip_location" property="clientIpLocation" jdbcType="CLOB" />
+		<result column="client_port" property="clientPort" jdbcType="CLOB" />
+		<result column="server_ip_addr" property="serverIpAddr" jdbcType="CLOB" />
+		<result column="server_ip_location" property="serverIpLocation" jdbcType="CLOB" />
+		<result column="server_port" property="serverPort" jdbcType="CLOB" />
+		<result column="application_id" property="applicationId" jdbcType="CLOB" />
+		<result column="protocol" property="protocol" jdbcType="CLOB" />
+		<result column="tcp_status" property="tcpStatus" jdbcType="CLOB" />
+		<result column="total_packet" property="totalPacket" jdbcType="CLOB" />
+		<result column="server_total_packet" property="serverTotalPacket" jdbcType="CLOB" />
+		<result column="client_total_packet" property="clientTotalPacket" jdbcType="CLOB" />
+		<result column="flow_start_time" property="flowStartTime" jdbcType="CLOB" />
+		<result column="flow_end_time" property="flowEndTime" jdbcType="CLOB" />
+		<result column="flow_duration" property="flowDuration" jdbcType="CLOB" />
+		<result column="total_bitps" property="totalBitps" jdbcType="CLOB" />
+		<result column="client_bitps" property="clientBitps" jdbcType="CLOB" />
+		<result column="server_bitps" property="serverBitps" jdbcType="CLOB" />
+		<result column="client_tcp_retransmission_rate" property="clientTcpRetransmissionRate" jdbcType="CLOB" />
+		<result column="server_tcp_retransmission_rate" property="serverTcpRetransmissionRate" jdbcType="CLOB" />
+		<result column="client_tcp_segment_lost_packet" property="clientTcpSegmentLostPacket" jdbcType="CLOB" />
+		<result column="server_tcp_segment_lost_packet" property="serverTcpSegmentLostPacket" jdbcType="CLOB" />
+		<result column="linkId" property="linkId" jdbcType="CLOB" />
+	</resultMap>
+	<resultMap id="UdpResultMap"  type="com.huawei.vi.thirddata.service.binary.pojo.UdpOriginalData">
+		<result column="caller_ip" property="callerIp" jdbcType="CLOB" />
+		<result column="caller_ip_name" property="callerIpName" jdbcType="CLOB" />
+		<result column="caller_port" property="callerPort" jdbcType="CLOB" />
+		<result column="callee_ip" property="calleeIp" jdbcType="CLOB" />
+		<result column="callee_ip_name" property="calleeIpName" jdbcType="CLOB" />
+		<result column="callee_port" property="calleePort" jdbcType="CLOB" />
+		<result column="call_id" property="callId" jdbcType="CLOB" />
+		<result column="flow_type" property="flowType" jdbcType="CLOB" />
+		<result column="protocol" property="protocol" jdbcType="CLOB" />
+		<result column="ssrc" property="ssrc" jdbcType="CLOB" />
+		<result column="flow_start_time" property="flowStartTime" jdbcType="CLOB" />
+		<result column="flow_end_time" property="flowEndTime" jdbcType="CLOB" />
+		<result column="duration_time" property="durationTime" jdbcType="CLOB" />
+		<result column="avg_lost_packet_rate" property="avgLostPacketRate" jdbcType="CLOB" />
+		<result column="total_code_bitps" property="totalCodeBitps" jdbcType="CLOB" />
+		<result column="video_mos_avg" property="videoMosAvg" jdbcType="CLOB" />
+		<result column="jitter_avg" property="jitterAvg" jdbcType="CLOB" />
+		<result column="linkId" property="linkId" jdbcType="CLOB" />
+	</resultMap>
+	
+	<update id="insertOriginalData" parameterType="map">
+		LOAD DATA LOCAL INFILE
+		#{path}
+		INTO TABLE `${tabName}`
+		character set gbk
+		FIELDS ESCAPED BY '\\'
+		TERMINATED BY ','
+		ENCLOSED BY '"'
+		LINES TERMINATED BY '\r\n'
+		IGNORE 1 LINES;
+	</update>
+
+	<update id="insertOriginalDataInLinux" parameterType="map">
+		LOAD DATA INFILE
+		#{path}
+		INTO TABLE `${tabName}`
+		character set gbk
+		FIELDS ESCAPED BY '\\'
+		TERMINATED BY ','
+		ENCLOSED BY '"'
+		LINES TERMINATED BY '\r\n'
+		IGNORE 1 LINES;
+	</update>
+
+	<!-- 删除原始表数据 -->
+	<update id="dropTable" parameterType="map">
+		drop table IF
+		EXISTS `${tabName}`
+	</update>
+
+	<insert id="insertOriginalUdpData" parameterType="map">
+		insert into
+		`${tabName}`(
+		${title}
+		)
+		values(
+		<foreach collection="dataList" item="item" separator="),(">
+			#{item.callerIp},
+			#{item.callerIpName},
+			#{item.callerPort},
+			#{item.calleeIp},
+			#{item.calleeIpName},
+			#{item.calleePort},
+			#{item.callId},
+			#{item.flowType},
+			#{item.protocol},
+			#{item.ssrc},
+			#{item.flowStartTime},
+			#{item.flowEndTime},
+			#{item.durationTime},
+			#{item.avgLostPacketRate},
+			#{item.totalCodeBitps},
+			#{item.videoMosAvg},
+			#{item.jitterAvg},
+			#{item.linkId}
+		</foreach>
+		)
+	</insert>
+	<insert id="insertOriginalTcpData" parameterType="map">
+		insert into
+		`${tabName}`(
+		${title}
+		)
+		values(
+		<foreach collection="dataList" item="item" separator="),(">
+			#{item.clientIpAddr},
+			#{item.clientIpLocation},
+			#{item.clientPort},
+			#{item.serverIpAddr},
+			#{item.serverIpLocation},
+			#{item.serverPort},
+			#{item.applicationId},
+			#{item.protocol},
+			#{item.tcpStatus},
+			#{item.totalPacket},
+			#{item.serverTotalPacket},
+			#{item.clientTotalPacket},
+			#{item.flowStartTime},
+			#{item.flowEndTime},
+			#{item.flowDuration},
+			#{item.totalBitps},
+			#{item.clientBitps},
+			#{item.serverBitps},
+			#{item.clientTcpRetransmissionRate},
+			#{item.serverTcpRetransmissionRate},
+			#{item.clientTcpSegmentLostPacket},
+			#{item.serverTcpSegmentLostPacket},
+			#{item.linkId}
+		</foreach>
+		)
+	</insert>
+
+	<update id="createOriginalData" parameterType="map">
+		CREATE TABLE IF NOT EXISTS `${tabName}`
+		(
+		${sqlStr}
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+	</update>
+	<!-- 为表创建索引 -->
+    <update id="createOrigIndex" parameterType="java.util.Map">
+		CREATE INDEX ${tabName}_index ON ${tabName} (${indexField})
+	</update>
+
+	<select id="getAllUdpData" parameterType="java.util.Map"
+		resultMap="UdpResultMap">
+		SELECT
+		*
+		FROM
+		`${tabName}`
+	</select>
+	<select id="getAllTcpData" parameterType="java.util.Map"
+		resultMap="TcpResultMap">
+		SELECT
+		*
+		FROM
+		`${tabName}`
+	</select>
+	<select id="showTableByname" parameterType="map"
+		resultType="String">
+		SELECT
+			table_name
+		FROM
+			information_schema. TABLES
+		WHERE
+			table_name = #{tableName}
+		LIMIT 1;
+	</select>
+	<update id="changeFiled" parameterType="map">
+		alter table `${tabName}` ${changeFiled}
+	</update>
+
+	<update id="dropColumn" parameterType="map">
+		alter table `${tabName}` ${dropColumn}
+	</update>
+
+	<update id="formatDateType" parameterType="map">
+
+		UPDATE `${tabName}`
+		<set>
+			<if test="flowStartTime != null">
+				flow_start_time = REPLACE(flow_start_time,'/','-'),
+			</if>
+			<if test="flowEndTime != null">
+				flow_end_time = REPLACE(flow_end_time,'/','-'),
+			</if>
+		</set>
+	</update>
+	
+	<update id="createCaptureTable" parameterType="map">
+		CREATE TABLE IF NOT EXISTS `${tableName}` LIKE
+		`tbl_image_day_statistics`
+	</update>
+	
+	<insert id="insertCaptureTable" parameterType="map">
+		insert into ${tableName}(
+		CAMERA_SN,
+		START_TIME,
+		END_TIME,
+		CAMERA_NAME,
+		TYPE,
+		PICTURE_COUNT
+		)
+		values(
+		<foreach collection="dataList" item="item" separator="),(">
+			#{item.cameraSn},
+			#{item.startTime},
+			#{item.endTime},
+			#{item.cameraName},
+			#{item.type},
+			#{item.pictureCount}
+		</foreach>
+		)
+	</insert>
+	
+	<select id="select24H" parameterType="map" resultType="Long">
+		select SUM(pre.picturecount) from
+		(
+		select SUM(PICTURE_COUNT) picturecount from ${tableName} where camera_sn=#{cameraSn} and type=#{type} and END_TIME &lt;= #{endTime}
+		<if test="previousTableName != null">
+			union all select SUM(PICTURE_COUNT) picturecount from ${previousTableName} where camera_sn=#{cameraSn} and type=#{type} 
+		</if>
+		<if test="effectiveCameraMinute != null">
+			and END_TIME &gt;= DATE_SUB(#{endTime},interval #{effectiveCameraMinute} minute)
+		</if>
+		) pre
+	</select>
+	<select id="selectCameraSn" parameterType="map" resultType="String">
+		select CAMERA_SN from ${tableName} where DISCARD_COLLECTION=0 and VCN_CAMERA_USE=#{cameraUse} and IP_IVS=#{ivsIp}
+	</select>
+	
+	<select id="queryIvsServerParam" resultType="int">
+		select count(id) from tbl_server_param_config where service_flag=3
+	</select>
+
+</mapper>

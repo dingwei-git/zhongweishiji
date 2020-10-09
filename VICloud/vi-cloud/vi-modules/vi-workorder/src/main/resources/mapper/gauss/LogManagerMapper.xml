@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huawei.vi.workorder.mapper.LogManagerMapper">
+    <resultMap id="BaseResultMap" type="com.huawei.vi.entity.po.LogManagerPO">
+        <result column="datetime" property="datetime" jdbcType="TIMESTAMP"/>
+        <result column="operate_name" property="operateName" jdbcType="VARCHAR"/>
+        <result column="operate_type" property="operateType" jdbcType="VARCHAR"/>
+        <result column="details" property="details" jdbcType="VARCHAR"/>
+        <result column="code" property="code" jdbcType="VARCHAR"/>
+        <result column="log_type" property="logType" jdbcType="VARCHAR"/>
+        <result column="assign" property="assign" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        datetime,operate_name,operate_type,details,code,log_type,assign
+    </sql>
+
+    <select id="queryLog" resultMap="BaseResultMap" parameterType="java.lang.String">
+        select
+        <include refid="Base_Column_List"/>
+        from tbl_log_manager where code=#{orderCode} order by datetime desc
+    </select>
+
+
+    <insert id="insertLog" parameterType="com.huawei.vi.entity.po.LogManagerPO">
+        insert into tbl_log_manager
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="datetime != null">
+                datetime,
+            </if>
+            <if test="operateName != null">
+                operate_name,
+            </if>
+            <if test="operateType != null">
+                operate_type,
+            </if>
+            <if test="details != null">
+                details,
+            </if>
+            code,
+            <if test="logType != null">
+                log_type
+            </if>
+            <if test="assign != null">
+                assign
+            </if>
+        </trim>
+        <trim prefix="values(" suffix=")" suffixOverrides=",">
+            <if test="datetime != null">
+                #{datetime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="operateName != null">
+                #{operateName,jdbcType=VARCHAR},
+            </if>
+            <if test="operateType != null">
+                #{operateType,jdbcType=VARCHAR},
+            </if>
+            <if test="details != null">
+                #{details,jdbcType=VARCHAR},
+            </if>
+            #{code,jdbcType=VARCHAR},
+            <if test="logType != null">
+                #{logType,jdbcType=VARCHAR}
+            </if>
+            <if test="assign != null">
+                #{assign,jdbcType=VARCHAR}
+            </if>
+        </trim>
+    </insert>
+    <select id="queryForback" resultMap="BaseResultMap">
+        SELECT
+        *
+        FROM
+        tbl_log_manager t1
+        WHERE
+        t1.operate_type in
+        <foreach item="item" index="index" collection="operateType" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        AND t1.code=#{orderCode}
+        ORDER BY t1.datetime DESC
+    </select>
+
+</mapper>

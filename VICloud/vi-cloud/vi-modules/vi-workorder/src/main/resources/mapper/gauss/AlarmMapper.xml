@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huawei.vi.workorder.mapper.AlarmMapper">
+    <resultMap id="BaseResultMap" type="com.huawei.vi.entity.po.AlarmPO">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="cameraId" property="cameraId" jdbcType="VARCHAR"/>
+        <result column="monitor_type_id" property="monitorTypeId" jdbcType="INTEGER"/>
+        <result column="fault_type_id" property="faultTypeId" jdbcType="VARCHAR"/>
+        <result column="alarm_level_id" property="alarmLevelId" jdbcType="INTEGER"/>
+        <result column="startTime" property="startTime" jdbcType="TIMESTAMP"/>
+        <result column="endTime" property="endTime" jdbcType="TIMESTAMP"/>
+        <result column="diagnosisNum" property="diagnosisNum" jdbcType="INTEGER"/>
+        <result column="alarm_status_id" property="alarmStatusId" jdbcType="INTEGER"/>
+        <result column="reCheckStatus" property="reCheckStatus" jdbcType="TINYINT"/>
+        <result column="pictureUrl" property="pictureUrl" jdbcType="VARCHAR"/>
+        <result column="rePictureUrl" property="rePictureUrl" jdbcType="LONGVARCHAR"/>
+        <result column="task_id" property="taskId" jdbcType="VARCHAR"/>
+        <result column="faultRelationId" property="faultRelationId" jdbcType="INTEGER"/>
+        <result column="alarm_code" property="alarmCode" jdbcType="INTEGER"/>
+        <result column="camera_name" property="cameraName" jdbcType="INTEGER"/>
+        <result column="ip" property="ip" jdbcType="INTEGER"/>
+    </resultMap>
+    <select id="queryAlarmInfo" resultMap="BaseResultMap">
+        select
+        t1.id,t1.cameraId,t1.monitor_type_id,
+        t1.fault_type_id,t1.alarm_level_id,t1.startTime,t1.endTime,
+        t1.diagnosisNum,t1.alarm_status_id,
+        t1.reCheckStatus,t1.pictureUrl,t1.rePictureUrl,t1.task_id,t1.faultRelationId,t1.alarm_code,t2.camera_name,t2.ip
+        from tbl_alarm_${alarmTableDate} t1 left join tbl_ipc_ip_tmp t2 on t1.cameraId=t2.cameraId
+        where t1.alarm_code=#{alarmCode}
+    </select>
+
+    <select id="queryAlarmTblDate" parameterType="java.lang.String" resultType="java.lang.String">
+        select
+        alarm_table_day
+        from tbl_alarm_order
+        where alarm_code=#{alarmCode} and order_code=#{orderCode}
+    </select>
+
+    <select id="queryAlarmCode" parameterType="java.lang.String" resultType="java.lang.String">
+        select
+        alarm_code
+        from tbl_alarm_order
+        where order_code=#{orderCode}
+    </select>
+
+</mapper>

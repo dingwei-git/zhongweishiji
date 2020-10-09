@@ -1,0 +1,692 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.huawei.vi.thirddata.mapper.TblIpcIpMapper">
+    <resultMap id="BaseResultMap" type="com.huawei.vi.entity.po.TblIpcIp">
+        <result column="ip" property="ip" jdbcType="CHAR"/>
+        <result column="camera_name" property="cameraName" jdbcType="VARCHAR"/>
+        <result column="filed0" property="organization" jdbcType="VARCHAR"/>
+        <result column="filed1" property="platform" jdbcType="VARCHAR"/>
+        <result column="cameraNum" property="cameraCode" jdbcType="VARCHAR"/>
+        <result column="cameraId" property="cameraId" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <resultMap id="BaseResultMaps" type="com.huawei.vi.entity.po.TblIpcIp">
+        <result column="cameraId" property="cameraId"/>
+        <result column="camera_sn" property="cameraCode" />
+    </resultMap>
+
+
+    <!--获取表中最大的ip-->
+    <select id="queryMaxIp" resultType="java.lang.Integer">
+         SELECT  MAX( INET_ATON(ip)) FROM tbl_ipc_ip_tmp where ip LIKE '0.0%'
+    </select>
+
+    <!-- 从tbl_ipc_ip表中查询 -->
+    <select id="queryIp" parameterType="java.util.Map" resultMap="BaseResultMap">
+        select *
+        from tbl_ipc_ip where checkflag = '1'
+        <if test="Ip != null">
+            and ip=#{Ip}
+        </if>
+    </select>
+    <!-- 根据条件从tbl_tcp_session表中得到摄像机总数 -->
+    <select id="queryAllCameras" resultType="int">
+        select count(*) from tbl_ipc_ip
+    </select>
+
+    <!-- 得到所有摄像机信息 -->
+    <select id="queryAllIPC" resultType="java.util.Map">
+        SELECT * FROM tbl_ipc_ip_tmp
+    </select>
+
+    <!-- 查询免考核的摄像机ip -->
+    <select id="queryIsCheckCameras" parameterType="java.util.Map" resultType="int">
+        SELECT count(*) FROM tbl_ipc_ip_tmp WHERE checkflag = #{checkFlag}
+    </select>
+
+
+    <!--查询入库IPC总数-->
+    <select id="countIpc" resultType="int">
+  	SELECT COUNT(ip) FROM tbl_ipc_ip
+  </select>
+
+    <!-- 查询表中最大的共杆编码-->
+    <select id="maxCopoleCode" resultType="int">
+  	SELECT max(copoleCode) FROM tbl_ipc_ip_tmp
+  </select>
+
+    <insert id="insertBatchIpcTable" parameterType="java.util.List">
+        <foreach  collection="list" item="network" index="index" separator=";">
+            insert into tbl_ipc_ip_tmp
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="network.filed0 != null">
+                    filed0,
+                </if>
+                <if test="network.id0 != null">
+                    id0,
+                </if>
+                <if test="network.filed1 != null">
+                    filed1,
+                </if>
+                <if test="network.id1 != null">
+                    id1,
+                </if>
+                <if test="network.filed2 != null">
+                    filed2,
+                </if>
+                <if test="network.id2 != null">
+                    id2,
+                </if>
+                <if test="network.filed3 != null">
+                    filed3,
+                </if>
+                <if test="network.id3 != null">
+                    id3,
+                </if>
+                <if test="network.filed4 != null">
+                    filed4,
+                </if>
+                <if test="network.id4 != null">
+                    id4,
+                </if>
+                <if test="network.filed5 != null">
+                    filed5,
+                </if>
+                <if test="network.id5 != null">
+                    id5,
+                </if>
+                <if test="network.filed6 != null">
+                    filed6,
+                </if>
+                <if test="network.id6 != null">
+                    id6,
+                </if>
+                <if test="network.filed7 != null">
+                    filed7,
+                </if>
+                <if test="network.id7 != null">
+                    id7,
+                </if>
+                <if test="network.filed8 != null">
+                    filed8,
+                </if>
+                <if test="network.id8 != null">
+                    id8,
+                </if>
+                <if test="network.filed9 != null">
+                    filed9,
+                </if>
+                <if test="network.id9 != null">
+                    id9,
+                </if>
+                <if test="network.copoleCode != null">
+                    copoleCode,
+                </if>
+                <if test="network.ip != null">
+                    ip,
+                </if>
+                <if test="network.ipCode != null">
+                    cameraNum,
+                </if>
+                <if test="network.cameraId != null">
+                    cameraId,
+                </if>
+                <if test="network.ipName != null">
+                    camera_name,
+                </if>
+                <if test="network.isCheck != null">
+                    checkflag,
+                </if>
+                <if test="network.ipType != null">
+                    ipType,
+                </if>
+                <if test="network.longitude != null">
+                    longitude,
+                </if>
+                <if test="network.latitude != null">
+                    latitude,
+                </if>
+                <if test="network.platformIp != null">
+                    platformIp,
+                </if>
+                <if test="network.cameraSn != null">
+                    camera_sn,
+                </if>
+                <if test="network.groupName != null">
+                    group_name,
+                </if>
+                <if test="network.hd != null">
+                    hd,
+                </if>
+                <if test="network.manufacturer != null">
+                    manufacturer,
+                </if>
+                <if test="network.model != null">
+                    model,
+                </if>
+            </trim>
+            <trim prefix="values (" suffix=")" suffixOverrides=",">
+                <if test="network.filed0 != null">
+                    #{network.filed0,jdbcType=VARCHAR},
+                </if>
+                <if test="network.id0 != null">
+                    #{network.id0,jdbcType=VARCHAR},
+                </if>
+                <if test="network.filed1 != null">
+                    #{network.filed1,jdbcType=VARCHAR},
+                </if>
+                <if test="network.id1 != null">
+                    #{network.id1,jdbcType=VARCHAR},
+                </if>
+                <if test="network.filed2 != null">
+                    #{network.filed2,jdbcType=VARCHAR},
+                </if>
+                <if test="network.id2 != null">
+                    #{network.id2,jdbcType=VARCHAR},
+                </if>
+                <if test="network.filed3 != null">
+                    #{network.filed3,jdbcType=VARCHAR},
+                </if>
+                <if test="network.id3 != null">
+                    #{network.id3,jdbcType=VARCHAR},
+                </if>
+                <if test="network.filed4 != null">
+                    #{network.filed4,jdbcType=VARCHAR},
+                </if>
+                <if test="network.id4 != null">
+                    #{network.id4,jdbcType=VARCHAR},
+                </if>
+                <if test="network.filed5 != null">
+                    #{network.filed5,jdbcType=VARCHAR},
+                </if>
+                <if test="network.id5 != null">
+                    #{network.id5,jdbcType=VARCHAR},
+                </if>
+                <if test="network.filed6 != null">
+                    #{network.filed6,jdbcType=VARCHAR},
+                </if>
+                <if test="network.id6 != null">
+                    #{network.id6,jdbcType=VARCHAR},
+                </if>
+                <if test="network.filed7 != null">
+                    #{network.filed7,jdbcType=VARCHAR},
+                </if>
+                <if test="network.id7 != null">
+                    #{network.id7,jdbcType=VARCHAR},
+                </if>
+                <if test="network.filed8 != null">
+                    #{network.filed8,jdbcType=VARCHAR},
+                </if>
+                <if test="network.id8 != null">
+                    #{network.id8,jdbcType=VARCHAR},
+                </if>
+                <if test="network.filed9 != null">
+                    #{network.filed9,jdbcType=VARCHAR},
+                </if>
+                <if test="network.id9 != null">
+                    #{network.id9,jdbcType=VARCHAR},
+                </if>
+                <if test="network.copoleCode != null">
+                    #{network.copoleCode,jdbcType=VARCHAR},
+                </if>
+                <if test="network.ip != null">
+                    #{network.ip,jdbcType=VARCHAR},
+                </if>
+                <if test="network.ipCode != null">
+                    #{network.ipCode,jdbcType=VARCHAR},
+                </if>
+                <if test="network.cameraId != null">
+                    #{network.cameraId,jdbcType=VARCHAR},
+                </if>
+                <if test="network.ipName != null">
+                    #{network.ipName,jdbcType=VARCHAR},
+                </if>
+                <if test="network.isCheck != null">
+                    #{network.isCheck,jdbcType=VARCHAR},
+                </if>
+                <if test="network.ipType != null">
+                    #{network.ipType,jdbcType=VARCHAR},
+                </if>
+                <if test="network.longitude != null">
+                    #{network.longitude,jdbcType=VARCHAR},
+                </if>
+                <if test="network.latitude != null">
+                    #{network.latitude,jdbcType=VARCHAR},
+                </if>
+                <if test="network.platformIp != null">
+                    #{network.platformIp,jdbcType=VARCHAR},
+                </if>
+                <if test="network.cameraSn != null">
+                    #{network.cameraSn,jdbcType=VARCHAR},
+                </if>
+                <if test="network.groupName != null">
+                    #{network.groupName,jdbcType=VARCHAR},
+                </if>
+                <if test="network.hd != null">
+                    #{network.hd,jdbcType=VARCHAR},
+                </if>
+                <if test="network.manufacturer != null">
+                    #{network.manufacturer,jdbcType=VARCHAR},
+                </if>
+                <if test="network.model != null">
+                    #{network.model,jdbcType=VARCHAR},
+                </if>
+            </trim>
+        </foreach>
+    </insert>
+
+
+    <insert id="insertBatchIpcSelective" parameterType="java.util.Map">
+            insert into tbl_ipc_ip_tmp
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="filed0 != null">
+                    filed0,
+                </if>
+                <if test="id0 != null">
+                    id0,
+                </if>
+                <if test="filed1 != null">
+                    filed1,
+                </if>
+                <if test="id1 != null">
+                    id1,
+                </if>
+                <if test="filed2 != null">
+                    filed2,
+                </if>
+                <if test="id2 != null">
+                    id2,
+                </if>
+                <if test="filed3 != null">
+                    filed3,
+                </if>
+                <if test="id3 != null">
+                    id3,
+                </if>
+                <if test="filed4 != null">
+                    filed4,
+                </if>
+                <if test="id4 != null">
+                    id4,
+                </if>
+                <if test="filed5 != null">
+                    filed5,
+                </if>
+                <if test="id5 != null">
+                    id5,
+                </if>
+                <if test="filed6 != null">
+                    filed6,
+                </if>
+                <if test="id6 != null">
+                    id6,
+                </if>
+                <if test="filed7 != null">
+                    filed7,
+                </if>
+                <if test="id7 != null">
+                    id7,
+                </if>
+                <if test="filed8 != null">
+                    filed8,
+                </if>
+                <if test="id8 != null">
+                    id8,
+                </if>
+                <if test="filed9 != null">
+                    filed9,
+                </if>
+                <if test="id9 != null">
+                    id9,
+                </if>
+                <if test="copoleCode != null">
+                    copoleCode,
+                </if>
+                <if test="ip != null">
+                    ip,
+                </if>
+                <if test="ipCode != null">
+                    cameraNum,
+                </if>
+                <if test="cameraId != null">
+                    cameraId,
+                </if>
+                <if test="ipName != null">
+                    camera_name,
+                </if>
+                <if test="isCheck != null">
+                    checkflag,
+                </if>
+                <if test="ipType != null">
+                    ipType,
+                </if>
+                <if test="longitude != null">
+                    longitude,
+                </if>
+                <if test="latitude != null">
+                    latitude,
+                </if>
+                <if test="platformIp != null">
+                    platformIp,
+                </if>
+                <if test="cameraSn != null">
+                    camera_sn,
+                </if>
+                <if test="groupName != null">
+                    group_name,
+                </if>
+                <if test="hd != null">
+                    hd,
+                </if>
+                <if test="manufacturer != null">
+                    manufacturer,
+                </if>
+                <if test="model != null">
+                    model,
+                </if>
+            </trim>
+            <trim prefix="values (" suffix=")" suffixOverrides=",">
+                <if test="filed0 != null">
+                    #{filed0,jdbcType=VARCHAR},
+                </if>
+                <if test="id0 != null">
+                    #{id0,jdbcType=VARCHAR},
+                </if>
+                <if test="filed1 != null">
+                    #{filed1,jdbcType=VARCHAR},
+                </if>
+                <if test="id1 != null">
+                    #{id1,jdbcType=VARCHAR},
+                </if>
+                <if test="filed2 != null">
+                    #{filed2,jdbcType=VARCHAR},
+                </if>
+                <if test="id2 != null">
+                    #{id2,jdbcType=VARCHAR},
+                </if>
+                <if test="filed3 != null">
+                    #{filed3,jdbcType=VARCHAR},
+                </if>
+                <if test="id3 != null">
+                    #{id3,jdbcType=VARCHAR},
+                </if>
+                <if test="filed4 != null">
+                    #{filed4,jdbcType=VARCHAR},
+                </if>
+                <if test="id4 != null">
+                    #{id4,jdbcType=VARCHAR},
+                </if>
+                <if test="filed5 != null">
+                    #{filed5,jdbcType=VARCHAR},
+                </if>
+                <if test="id5 != null">
+                    #{id5,jdbcType=VARCHAR},
+                </if>
+                <if test="filed6 != null">
+                    #{filed6,jdbcType=VARCHAR},
+                </if>
+                <if test="id6 != null">
+                    #{id6,jdbcType=VARCHAR},
+                </if>
+                <if test="filed7 != null">
+                    #{filed7,jdbcType=VARCHAR},
+                </if>
+                <if test="id7 != null">
+                    #{id7,jdbcType=VARCHAR},
+                </if>
+                <if test="filed8 != null">
+                    #{filed8,jdbcType=VARCHAR},
+                </if>
+                <if test="id8 != null">
+                    #{id8,jdbcType=VARCHAR},
+                </if>
+                <if test="filed9 != null">
+                    #{filed9,jdbcType=VARCHAR},
+                </if>
+                <if test="id9 != null">
+                    #{id9,jdbcType=VARCHAR},
+                </if>
+                <if test="copoleCode != null">
+                    #{copoleCode,jdbcType=VARCHAR},
+                </if>
+                <if test="ip != null">
+                    #{ip,jdbcType=VARCHAR},
+                </if>
+                <if test="ipCode != null">
+                    #{ipCode,jdbcType=VARCHAR},
+                </if>
+                <if test="cameraId != null">
+                    #{cameraId,jdbcType=VARCHAR},
+                </if>
+                <if test="ipName != null">
+                    #{ipName,jdbcType=VARCHAR},
+                </if>
+                <if test="isCheck != null">
+                    #{isCheck,jdbcType=VARCHAR},
+                </if>
+                <if test="ipType != null">
+                    #{ipType,jdbcType=VARCHAR},
+                </if>
+                <if test="longitude != null">
+                    #{longitude,jdbcType=VARCHAR},
+                </if>
+                <if test="latitude != null">
+                    #{latitude,jdbcType=VARCHAR},
+                </if>
+                <if test="platformIp != null">
+                    #{platformIp,jdbcType=VARCHAR},
+                </if>
+                <if test="cameraSn != null">
+                    #{cameraSn,jdbcType=VARCHAR},
+                </if>
+                <if test="groupName != null">
+                    #{groupName,jdbcType=VARCHAR},
+                </if>
+                <if test="hd != null">
+                    #{hd,jdbcType=VARCHAR},
+                </if>
+                <if test="manufacturer != null">
+                    #{manufacturer,jdbcType=VARCHAR},
+                </if>
+                <if test="model != null">
+                    #{model,jdbcType=VARCHAR},
+                </if>
+            </trim>
+    </insert>
+
+    <!-- 从tbl_ipc_ip表中查询 -->
+    <select id="queryIpcExist" parameterType="java.util.List" resultType="java.lang.String">
+        select cameraNum
+        from tbl_ipc_ip_tmp where cameraNum in
+        <foreach collection="list" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </select>
+
+    <update id="updateIpcByCameraNum" parameterType="java.util.Map" >
+        update tbl_ipc_ip_tmp
+        <set>
+            <if test="ip != null">
+                ip = #{ip,jdbcType=VARCHAR},
+            </if>
+            <if test="ipName != null">
+                camera_name = #{ipName,jdbcType=VARCHAR},
+            </if>
+            <if test="isCheck != null">
+                checkflag = #{isCheck,jdbcType=VARCHAR},
+            </if>
+            <if test="ipType != null">
+                ipType = #{ipType,jdbcType=VARCHAR},
+            </if>
+            <if test="longitude != null">
+                longitude = #{longitude,jdbcType=VARCHAR},
+            </if>
+            <if test="latitude != null">
+                latitude = #{latitude,jdbcType=VARCHAR},
+            </if>
+            <if test="platformIp != null">
+                platformIp = #{platformIp,jdbcType=VARCHAR},
+            </if>
+            <if test="cameraSn != null">
+                camera_sn = #{cameraSn,jdbcType=VARCHAR},
+            </if>
+            <if test="groupName != null">
+                group_name = #{groupName,jdbcType=VARCHAR},
+            </if>
+            <if test="hd != null">
+                hd = #{hd,jdbcType=VARCHAR},
+            </if>
+            <if test="manufacturer != null">
+                manufacturer = #{manufacturer,jdbcType=VARCHAR},
+            </if>
+            <if test="model != null">
+                model = #{model,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where  cameraNum = #{cameraNum,jdbcType=VARCHAR}
+    </update>
+
+    <select id="getCameraSn" parameterType="map" resultMap="BaseResultMaps">
+        select cameraId,camera_sn
+        from tbl_ipc_ip_tmp
+        where
+        <if test="cameraCode!=null">
+            camera_sn = #{cameraCode}
+        </if>
+    </select>
+    <select id="queryIpcByParams" resultType="java.util.Map" parameterType="java.util.Map">
+        select ${filds} from tbl_ipc_ip_tmp
+        <where>
+            <if test="levelid != null">
+                ${levelid}
+            </if>
+        </where>
+        <if test="pageindex != null and rows != null">
+            limit #{pageindex},#{rows}
+        </if>
+
+    </select>
+
+    <select id="queryIpcByParamsCount" resultType="java.lang.Integer" parameterType="java.util.Map">
+        select count(*) from tbl_ipc_ip_tmp
+        <where>
+        <if test="levelid != null">
+             ( ${levelid} )
+        </if>
+        </where>
+    </select>
+
+
+    <select id="getNewestNetworkTable" resultType="String">
+		SELECT
+				TABLE_NAME
+			FROM
+				information_schema.TABLES
+			WHERE
+				TABLE_SCHEMA = 'videoInsight'
+			AND TABLE_NAME LIKE 'tbl_network_relationship_%'
+			ORDER BY
+				TABLE_NAME DESC
+			LIMIT 1
+	</select>
+
+    <select id="getOrganization" parameterType="map" resultType="map">
+		SELECT
+        CAMERA_SN as `camera_sn`,${fileds} as `fileds`
+			FROM
+        TBL_IPC_IP
+			WHERE 1=1
+        <if test="id0!=null">
+           and ID0 = #{id0}
+        </if>
+        <if test="id1!=null">
+            and ID1 = #{id1}
+        </if>
+        <if test="id2!=null">
+            and ID2 = #{id2}
+        </if>
+        <if test="id3!=null">
+            and ID3 = #{id3}
+        </if>
+	</select>
+
+    <select id="getCameraIds" parameterType="map" resultType="map">
+        SELECT
+        cameraId as `cameraId`,
+        <if test="filed0!=null">
+            ${filed0} as `filed0`
+        </if>
+        <if test="filed1!=null">
+            ,${filed1} as `filed1`
+        </if>
+        <if test="filed2!=null">
+           ,${filed2} as `filed2`
+        </if>
+        <if test="filed3!=null">
+            ,${filed3} as `filed3`
+        </if>
+        FROM
+        tbl_ipc_ip
+        WHERE 1=1
+        <if test="id0!=null">
+            and id0 = #{id0}
+        </if>
+        <if test="id1!=null">
+            and id1 = #{id1}
+        </if>
+        <if test="id2!=null">
+            and id2 = #{id2}
+        </if>
+        <if test="id3!=null">
+            and id3 = #{id3}
+        </if>
+    </select>
+
+    <select id="getCameraSnById" parameterType="map" resultType="map">
+        SELECT
+            camera_sn as `camera_sn`,camera_name as `cameraName`
+        FROM
+        tbl_ipc_ip
+        WHERE 1=1
+        <if test="ip!=null">
+           and ip = #{ip}
+        </if>
+    </select>
+
+
+
+
+    <select id="getFiled" parameterType="map" resultType="String">
+        SELECT
+            DISTINCT ${fileds}
+        FROM
+        tbl_ipc_ip
+        WHERE 1=1
+        <if test="id0!=null">
+            and id0 = #{id0}
+        </if>
+        <if test="id1!=null">
+            and id1 = #{id1}
+        </if>
+        <if test="id2!=null">
+            and id2 = #{id2}
+        </if>
+        <if test="id3!=null">
+            and id3 = #{id3}
+        </if>
+    </select>
+
+
+    <select id="getFileds" parameterType="map" resultType="String">
+        SELECT
+        DISTINCT ${fileds}
+        FROM
+        tbl_ipc_ip
+        WHERE 1=1
+        <if test="cameraId!=null">
+           and cameraId = #{cameraId}
+        </if>
+    </select>
+
+
+</mapper>

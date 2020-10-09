@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.huawei.vi.login.mapper.UserMapper">
+    <resultMap id="BaseUserInfoMap" type="com.huawei.vi.entity.po.UserPO">
+        <result column="userId" property="userId" jdbcType="INTEGER"/>
+        <result column="user_name" property="userTblName"
+                jdbcType="VARCHAR"/>
+        <result column="maintenance_organization" property="maintenanceOrganization" jdbcType="VARCHAR"/>
+        <result column="role_name" property="roleName"
+                jdbcType="VARCHAR"/>
+        <result column="is_Default" property="isDefault"
+                jdbcType="INTEGER"/>
+        <result column="main_id" property="mainId"
+                jdbcType="INTEGER"/>
+        <result column="role_id" property="roleId"
+                jdbcType="INTEGER"/>
+        <result column="report_level" property="reportLevel"
+                jdbcType="INTEGER"/>
+        <result column="report_level_name" property="reportLevelName"
+                jdbcType="VARCHAR"/>
+        <result column="is_inint_syspass" property="isInintSyspass"
+                jdbcType="INTEGER"/>
+        <result column="user_salt" property="userSalt"
+                jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <resultMap id="BaseResultMap" type="com.huawei.vi.entity.po.UserPO">
+        <result column="userId" property="userId" jdbcType="INTEGER"/>
+        <result column="user_name" property="userTblName" jdbcType="VARCHAR"/>
+        <result column="password" property="passUserWord" jdbcType="VARCHAR"/>
+        <result column="is_inint_syspass" property="isInintSyspass" jdbcType="INTEGER"/>
+        <result column="user_salt" property="userSalt" jdbcType="VARCHAR"/>
+        <result column="main_id" property="mainId" jdbcType="INTEGER"/>
+        <result column="report_level" property="reportLevel" jdbcType="INTEGER"/>
+        <result column="is_default" property="isDefault" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <delete id="truncateUserTable">
+		TRUNCATE TABLE tbl_user
+	</delete>
+
+    <insert id="insertUser"
+            parameterType="com.huawei.vi.entity.po.UserPO" useGeneratedKeys="true" keyProperty="userId">
+        replace into tbl_user
+        (
+        <if test="userId >0">
+            userId,
+        </if>
+        user_name,
+        password,
+        is_inint_syspass,
+        user_Salt,
+        main_id,
+        report_level,
+        is_default)
+        values
+        (
+        <if test="userId > 0">
+            #{userId},
+        </if>
+        #{userTblName},
+        #{passUserWord},
+        #{isInintSyspass},
+        #{userSalt},
+        #{mainId},
+        #{reportLevel},
+        #{isDefault})
+    </insert>
+
+
+    <sql id="tblUserCondition">
+        <where>
+            <if test="userTblName != null">
+                AND binary user_name = #{userTblName}
+            </if>
+        </where>
+    </sql>
+
+    <sql id="Base_Column">
+	userId,user_name,maintenance_organization,role_name
+	</sql>
+
+    <sql id="Base_User_Column">
+	userId,user_name,is_inint_syspass,user_salt,main_id,report_level,is_default
+	</sql>
+
+    <select id="selectAllUser" parameterType="java.lang.String"
+            resultMap="BaseUserInfoMap">
+        SELECT
+        <include refid="Base_Column"/>
+        ,tblUser.report_level,tblUser.main_id,tblRole.role_id,tblUser.is_Default,tblUser.is_inint_syspass
+        FROM
+        tbl_user AS tblUser
+        LEFT JOIN tbl_maintenance_organization tblmain ON tblUser.main_id = tblmain.main_id
+        LEFT JOIN tbl_user_role userRole ON tblUser.userId = userRole.user_id
+        LEFT JOIN tbl_role tblRole ON userRole.role_id = tblRole.role_id
+        <include refid="tblUserCondition"/>
+    </select>
+
+    <select id="selectUserInfo" parameterType="java.lang.String"
+            resultMap="BaseUserInfoMap">
+        SELECT
+        <include refid="Base_Column"/>
+        ,tblUser.report_level,report.report_level_name,tblUser.main_id,tblRole.role_id,tblUser.is_Default
+        FROM
+        tbl_user AS tblUser
+        LEFT JOIN tbl_maintenance_organization tblmain ON tblUser.main_id = tblmain.main_id
+        LEFT JOIN tbl_user_role userRole ON tblUser.userId = userRole.user_id
+        LEFT JOIN tbl_role tblRole ON userRole.role_id = tblRole.role_id
+        LEFT JOIN tbl_report_level AS report ON tblUser.report_level = report.report_level_id
+        <include refid="tblUserCondition"/>
+    </select>
+
+
+    <select id="selectByCondition" resultMap="BaseResultMap" parameterType="java.util.Map">
+        select
+        <include refid="Base_User_Column"/>
+        from tbl_user
+        <include refid="tblUserCondition"/>
+    </select>
+
+    <!-- 查询用户 -->
+    <select id="selectUser" parameterType="java.util.Map"
+            resultMap="BaseResultMap">
+        select * from tbl_user
+        where 1=1
+        <if test="userTblName != null">
+            AND binary user_name = #{userTblName}
+        </if>
+        <if test="passUserWord != null">
+            AND password = #{passUserWord}
+        </if>
+    </select>
+
+    <update id="updateUser"
+            parameterType="com.huawei.vi.entity.po.UserPO">
+        update tbl_user
+        <set>
+            <if test="passUserWord != null">
+                password = #{passUserWord},
+            </if>
+            <if test="isInintSyspass >0">
+                is_inint_syspass = #{isInintSyspass},
+            </if>
+            <if test="userSalt != null">
+                user_salt = #{userSalt},
+            </if>
+            <if test="mainId >0">
+                main_id = #{mainId},
+            </if>
+            <if test="reportLevel >= 0">
+                report_level = #{reportLevel},
+            </if>
+        </set>
+        where 1=1
+        <if test="userTblName != null">
+            AND binary user_name=#{userTblName}
+        </if>
+    </update>
+
+    <delete id="deleteUserAndRole"
+            parameterType="java.util.Map">
+        DELETE t1,t2 FROM tbl_user AS t1
+        LEFT JOIN tbl_user_role AS t2 ON t1.userId = t2.user_id
+        WHERE 1=1
+        <if test="userTblName != null">
+            AND binary t1.user_name=#{userTblName}
+        </if>
+    </delete>
+    <select id="getTotalByUserId" resultType="java.lang.Long">
+        select count(0) as total FROM tbl_user WHERE userId=#{userId , jdbcType=VARCHAR}
+    </select>
+
+    <select id="getFrozenByUserId" resultType="java.lang.Integer">
+        select
+        frozen
+        from tbl_user
+        where user_id = #{user_id,jdbcType=VARCHAR}
+    </select>
+
+    <select id="getUser" resultMap="BaseResultMap">
+        select
+        userId,user_name,is_inint_syspass,user_salt,main_id,report_level,is_default
+        from tbl_user
+        where userId = #{userId}
+    </select>
+
+    <select id="getInfo" resultMap="BaseResultMap">
+        select
+        *
+        from tbl_user
+        where userId = #{userId}
+    </select>
+
+    <update id="updatePassword" parameterType="java.util.Map">
+        update tbl_user set password = #{password},is_inint_syspass=1 where userId = #{userId}
+    </update>
+
+    <!--查询用户角色-->
+    <select id="getRole" parameterType="java.lang.String" resultType="java.util.Map">
+        select t1.* from tbl_user_role t1 INNER JOIN tbl_user t2 on t1.user_id =t2.userId
+        WHERE t2.user_name=#{userName}
+    </select>
+</mapper>

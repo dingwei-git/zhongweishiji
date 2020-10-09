@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+	转义符号：5个预定义的实体引用
+	&lt;	<	小于
+	&gt;	>	大于
+	&amp;	&	和号
+	&apos;	'	单引号
+	&quot;	"	引号
+-->
+<!--故障类型：offline（摄像机离线）、lost视频丢失（无法获取图像）、  normal视频质量差（黑屏、严重马赛克）、 poor 视频质量一般（马赛克）
+name:指故障类型
+class:指级别，如果符合第一级别，就无需查询其他级别
+number:指tcp的会话记录为几条
+rule:sql 查询时的where条件
+add_duration_time：指是否需要累加持续时间
+condition：指通过where条件查询后，还需要配置的条件，例如：视频丢失的条件是累加持续时间>0,小于10分钟，持续时间单位为秒，所以是小于600
+interfaceType:1:科来  2:东智
+isServiceMode：0：代表共用的故障类型；1代表未开启服务化改造所特有的故障类型；2代表开启服务化改造所特有的故障类型
+-->
+<!--
+alarmLevels 告警等级
+id 主键，不能重复
+name 告警等级名称
+colour 告警等级颜色
+-->
+<baseCofig>
+	<faultTypes>
+		<faultType key="001" name="Offline IPC" CNname="摄像机离线" isAnylse="1" isState="0" interfaceType="1" isServiceMode="0" alarmId="1" />
+		<faultType key="002" name="Record Loss" CNname="录像丢失" isAnylse="1" isState="0" interfaceType="1" isServiceMode="0" alarmId="1" />
+		<faultType key="003" name="Poor Video Quality" CNname="视频传输质量差" isAnylse="1" isState="0" interfaceType="1" isServiceMode="0" />
+		<faultType key="004" name="Fair Video Quality" CNname="视频传输质量一般" isAnylse="1" isState="0" interfaceType="1" isServiceMode="0" />
+        <faultType key="005" name="Normal" CNname="正常" isAnylse="1" isState="0" interfaceType="1" isServiceMode="0" />
+        <faultType key="016" name="No Image" CNname="无图故障" isAnylse="1" isState="0" interfaceType="2" isServiceMode="0" alarmId="1" />
+		<faultType key="006" name="Image Blur" CNname="视频模糊" isAnylse="1" isState="0" interfaceType="2" isServiceMode="0" alarmId="3" />
+        <faultType key="007" name="Abnormal Brightness" CNname="亮度异常" isAnylse="1" isState="0" interfaceType="2" isServiceMode="0" alarmId="4" />
+        <faultType key="008" name="Snow" CNname="雪花干扰" isAnylse="1" isState="0" interfaceType="2" isServiceMode="1"/>
+        <faultType key="009" name="Video Interference" CNname="视频干扰" isAnylse="1" isState="0" interfaceType="2" isServiceMode="0" alarmId="3" />
+        <faultType key="010" name="Color Distortion" CNname="色彩失真" isAnylse="1" isState="0" interfaceType="2" isServiceMode="0" alarmId="4" />
+        <faultType key="011" name="Frame Freezing" CNname="视频卡顿" isAnylse="1" isState="0" interfaceType="2" isServiceMode="0" alarmId="2" />
+        <faultType key="012" name="Lens Blocking" CNname="视频遮挡" isAnylse="1" isState="0" interfaceType="2" isServiceMode="0" alarmId="3" />
+        <faultType key="013" name="Video Loss" CNname="视频丢失" isAnylse="1" isState="0" interfaceType="2" isServiceMode="0" alarmId="1" />
+        <faultType key="014" name="Scene Change" CNname="场景变更" isAnylse="1" isState="0" interfaceType="2" isServiceMode="0" alarmId="2" />
+        <faultType key="015" name="PTZ Fault" CNname="云镜故障" isAnylse="1" isState="0" interfaceType="2" isServiceMode="0" alarmId="2" /> 
+        <faultType key="017" name="Abnormal Annotation" CNname="标注异常" isAnylse="1" isState="0" interfaceType="2" isServiceMode="0" alarmId="3" /> 
+        <faultType key="018" name="Abnormal Image Movement" CNname="画面异动" isAnylse="1" isState="0" interfaceType="2" isServiceMode="2" alarmId="3" /> 
+        <faultType key="019" name="Image Jitter" CNname="抖动异常" isAnylse="1" isState="0" interfaceType="2" isServiceMode="2" alarmId="3" /> 
+		<!--<faultType key="020" name="Dusty lens" CNname="镜头灰斑" isAnylse="1" interfaceType="2" isServiceMode="2" alarmId="3" /> -->
+		<!--faultType key="021" name="Image flicker" CNname="图像闪烁" isAnylse="1" interfaceType="2" isServiceMode="2" alarmId="3" /--> 
+	</faultTypes>
+	<!--监控界面三个率名称的适配-->
+	<rateNames>
+		<rateName key="001" enName="Online IPC Rate" cnName="摄像机在线率"/>
+		<rateName key="002" enName="Video Completeness Rate" cnName="视频记录完整率"/>
+		<rateName key="003" enName="Video Image Integrity Rate" cnName="视频图像完好率"/>
+		<rateName key="004" enName="Networking Rate" cnName="联网率"/>
+		<rateName key="005" enName="GisAcquisition Rate" cnName="GIS采集率"/>
+	</rateNames>
+	<fault key="ALL">
+    	<faultType key="001" class="1" number="0" add_duration_time="" rule=""/>
+    </fault>
+        <fault key="TCP">
+    	<faultType key="002" class="2" number="" add_duration_time="1" rule=" AND ((target_port=5504) OR (target_port=8200) OR (target_port=37777) OR (target_port=8000) OR (target_port=99999) OR (target_port=554 AND network_application='Multimedia'))"/>
+    	<faultType key="003" class="2" number="" add_duration_time="" rule=" AND (retransmission_rate&gt;=10.00) AND ((target_port=5504) OR (target_port=8200) OR (target_port=37777) OR (target_port=8000)  OR (target_port=99999) OR (target_port=554 AND network_application='Multimedia'))"/>
+    	<faultType key="004" class="2" number="" add_duration_time="" rule=" AND retransmission_rate&gt;=6.00 AND retransmission_rate&lt;10.00 AND ((target_port=5504) OR (target_port=8200) OR (target_port=37777) OR (target_port=8000) OR (target_port=99999) OR (target_port=554 AND network_application='Multimedia'))"/>	
+    </fault>
+    <fault key="UDP">
+    	<faultType key="002" class="2" number="" add_duration_time="1" rule=" AND flow_type='视频流'"/>
+    	<faultType key="003" class="2" number="" add_duration_time="" rule=" AND bit_rate&lt;20 AND flow_type='视频流'"/>
+    	<faultType key="004" class="2" number="" add_duration_time="" rule=" AND average_packet_loss_rate&gt;5.00 AND average_packet_loss_rate&lt;10.00 AND bit_rate&gt;=20 AND flow_type='视频流'"/>
+    </fault>
+    <fault key="DZ">
+        <!-- 东智的离线，判断device_status_online=0，则为离线 -->
+        <faultType key="002" class="2" number="" isServiceMode="0" add_duration_time="" rule=" AND record_integrity=2"/>
+        <faultType key="016" class="2" number="" isServiceMode="0" add_duration_time="" rule=" AND connected_staus=3"/>
+        <faultType key="006" class="2" number="" isServiceMode="0" add_duration_time="" rule=" AND definition&lt;=59 AND definition&gt;=0"/>
+        <faultType key="007" class="2" number="" isServiceMode="0" add_duration_time="" rule=" AND brightness&lt;=59 AND brightness&gt;=0"/>
+        <faultType key="008" class="2" number="" isServiceMode="1" add_duration_time="" rule=" AND snow&lt;=59 AND snow&gt;=0"/>
+        <faultType key="009" class="2" number="" isServiceMode="0" add_duration_time="" rule=" AND stripe&lt;=59 AND stripe&gt;=0"/>
+        <faultType key="010" class="2" number="" isServiceMode="0" add_duration_time="" rule=" AND colour_cast&lt;=59 AND colour_cast&gt;=0"/>
+        <faultType key="011" class="2" number="" isServiceMode="0" add_duration_time="" rule=" AND freeze&lt;=59 AND freeze&gt;=0"/>
+        <faultType key="012" class="2" number="" isServiceMode="0" add_duration_time="" rule=" AND cover&lt;=59 AND cover&gt;=0"/>
+        <faultType key="013" class="2" number="" isServiceMode="0" add_duration_time="" rule=" AND signal_lost&lt;=59 AND signal_lost&gt;=0"/>
+        <faultType key="014" class="2" number="" isServiceMode="0" add_duration_time="" rule=" AND scene_change&lt;=59 AND scene_change&gt;=0"/>
+        <faultType key="015" class="2" number="" isServiceMode="0" add_duration_time="" rule=" AND ptz_speed&lt;=59 AND ptz_speed&gt;=0"/>
+        <faultType key="017" class="2" number="" isServiceMode="0" add_duration_time="" rule=" AND indicia&lt;=59 AND indicia&gt;=0"/>
+        <faultType key="018" class="2" number="" isServiceMode="2" add_duration_time="" rule=" AND static_image&lt;=59 AND static_image&gt;=0"/>
+        <faultType key="019" class="2" number="" isServiceMode="2" add_duration_time="" rule=" AND image_jitter&lt;=59 AND image_jitter&gt;=0"/>
+    </fault>
+	
+	<!-- 初始化告警级别的配置-->
+	<!--该告警信息只用于初次部署时刷新数据库使用，用户对告警名称的修改，不会同步到该配置文件。color为预留字段-->
+    <alarmLevels>
+        <alarm id="1" name="严重告警" color="#fff"/>
+		<alarm id="2" name="重要告警" color="#fff"/>
+		<alarm id="3" name="次要告警" color="#fff"/>
+		<alarm id="4" name="普通告警" color="#fff"/>
+		<alarm id="5" name="提示告警" color="#fff"/>
+    </alarmLevels>
+	<!-- 该分组主要用于解耦故障类型和告警等级的关系，当用户指定了分组时，实现不同告警等级下的不同分组的故障类型相独立-->
+	<tblGroupName id="1" groupName="默认分组" />
+	<!-- 初始化监控类型，告警状态，复检状态的配置-->
+	<!-- 该信息只用于初次部署时刷新数据库使用-->
+	<alarmParam>
+        <!-- 监控类型-->
+        <monitorTypes>
+            <monitorType id="1" type="摄像机状态"/>
+            <monitorType id="2" type="视频质量"/>
+            <monitorType id="3" type="录像质量"/>
+            <monitorType id="4" type="录像完整性"/>
+        </monitorTypes>
+		
+        <!-- 告警状态-->
+        <alarmStatus>
+            <alarms id="1" status="自动恢复"/>
+            <alarms id="2" status="未恢复"/>
+            <alarms id="3" status="手动恢复"/>
+        </alarmStatus>
+        <!-- 复检状态-->
+        <reviewStatus>
+            <review id="1" status="已复检"/>
+            <review id="2" status="未复检"/>
+        </reviewStatus>
+	    <!-- 恢复告警时长-->
+        <reviewAlarmHours>
+            <reviewAlarm id="1" hours="72" name="短期恢复"/>
+            <reviewAlarm id="2" hours="168" name="中期恢复"/>
+            <reviewAlarm id="3" hours="720" name="长期恢复"/>
+            <reviewAlarm id="4" hours="87600" name="永久"/>
+        </reviewAlarmHours>
+        <!-- 故障状态 -->
+        <orderStates>
+        	<orderState id="0" name="未确认"/>
+        	<orderState id="1" name="自动确认"/>
+        	<orderState id="2" name="手动确认"/>
+        	<orderState id="3" name="已忽略"/>
+        </orderStates>
+    </alarmParam>
+	
+	<topParam time24="86400" video24OnlinePercent="50" video24OkPercent="50" />
+	
+	<pingParam maxPingNum="50" />
+    																			
+    <!--门阀值配置:表示每个比率>=配置的数值   cameraOnlineRate:摄像机在线率，videoOnlineRate:视频在线率，videoOkRate:视频完好率-->
+    <thresholdValue>
+    	<threshold key="green" cameraOnlineRate="95" videoOnlineRate="90" videoOkRate="90"/>
+    	<threshold key="yellow" cameraOnlineRate="75" videoOnlineRate="70" videoOkRate="70"/>
+    	<threshold key="red" cameraOnlineRate="0" videoOnlineRate="0" videoOkRate="0"/>
+    </thresholdValue>
+    
+    <!--折线图周期选择配置,单位为分钟,viewTime表示在界面上显示的节点时间，totalTime指显示多久时间的-->
+    <selectTimeConfig>
+    	<pointTime viewTime="10" totalTime="120"/>
+    	<pointTime viewTime="60" totalTime="1440"/>
+    	<pointTime viewTime="1440" totalTime="43200"/>
+    </selectTimeConfig>
+    <!-- 需要删除所有后缀带周期的表, deleteTable标签中的表需要清空,deleteFile需要清空的文件夹目录,
+         dropDayTable需要删除带后缀的天表，moveDateTable需要转移数据到天表的表-->
+    <deleteConfig>
+    	<dropTable>tbl_fault_record,tbl_tcp_session,tbl_statistics_by_station,tbl_report,tbl_original_data,tbl_udp_session,tbl_original_data_udp,tbl_dz_original_data,tbl_camera_manager_original,tbl_image_day_statistics,tbl_fault_statistical</dropTable>
+    	<dropDayTable>tbl_trend_graph_data,tbl_image_hour_statistics,tbl_fault_statistical_day,tbl_report_day,tbl_dz_diagnosis_org_result,tbl_dz_diagnosis_did_relation</dropDayTable>
+    	<moveDataTable>tbl_dz_diagnosis_org_result,tbl_dz_diagnosis_did_relation</moveDataTable>
+    	<deleteTable>tbl_period_manage,tbl_statistics_all,tbl_statistics_organization,tbl_statistics_platform,tbl_period_network,tbl_statistical_report_ipc</deleteTable>
+    	<deleteFile>D:\VideoInsight\data\input</deleteFile>
+    </deleteConfig>
+    <!-- 性能监控页面3个more要导出的字段,中文,NameTag不需要替换-->
+    <fileMoreConfig>
+    	<topMore>诊断周期@分局@派出所@摄像机名称@摄像机IP@摄像机编码@故障类型</topMore>
+    	<barMore>诊断周期@NameTag@摄像机在线率(%)@视频记录完整率(%)@视频图像完好率(%)@摄像机离线(故障占比%)@录像丢失(故障占比%)@视频传输质量差(故障占比%)@视频传输质量一般(故障占比%)@无图故障(故障占比%)@视频模糊(故障占比%)@亮度异常(故障占比%)@雪花干扰(故障占比%)@视频干扰(故障占比%)@色彩失真(故障占比%)@视频卡顿(故障占比%)@视频遮挡(故障占比%)@视频丢失(故障占比%)@场景变更(故障占比%)@云镜故障(故障占比%)@标注异常(故障占比%)@画面异动(故障占比%)@抖动异常(故障占比%)</barMore>
+    	<bottomMore>统计周期@分局@派出所@摄像机名称@摄像机IP@摄像机编码@TOP故障类型</bottomMore>
+    	<addedIpcDown>分局@派出所@摄像机名称@摄像机IP地址@摄像机编码</addedIpcDown>
+    	<warningOrganization>分组@时间点2@人脸抓拍数@车辆抓拍数@时间点1@人脸抓拍数@车辆抓拍数@人脸抓拍数对比@车辆抓拍数对比</warningOrganization>
+        <warningGroup>分组@时间点2@人脸抓拍数@车辆抓拍数@时间点1@人脸抓拍数@车辆抓拍数@人脸抓拍数对比@车辆抓拍数对比</warningGroup>
+        <warningCamera>分组@摄像机@摄像机编码@摄像机IP@时间点2@人脸抓拍数@车辆抓拍数@时间点1@人脸抓拍数@车辆抓拍数@人脸抓拍数对比@车辆抓拍数对比</warningCamera>
+        <realtimeAlarm>时间@摄像机名称@IP@摄像机编码@分组@告警描述</realtimeAlarm>
+        <comparativeAnalysisCamera>分组@摄像机@摄像机编码@摄像机IP@基准时间点@人脸抓拍数@车辆抓拍数@环比时间点@人脸抓拍数@人脸抓拍数环比@车辆抓拍数@车辆抓拍数环比@同比时间点@人脸抓拍数@人脸抓拍数同比@车辆抓拍数@车辆抓拍数同比</comparativeAnalysisCamera>
+		<comparativeAnalysisGroup>分组@基准时间点@人脸抓拍数@车辆抓拍数@环比时间点@人脸抓拍数@人脸抓拍数环比@车辆抓拍数@车辆抓拍数环比@同比时间点@人脸抓拍数@人脸抓拍数同比@车辆抓拍数@车辆抓拍数同比</comparativeAnalysisGroup>
+		<comparativeAnalysisTip>用户所选时间无数据</comparativeAnalysisTip>
+		<trendAnalysisGroup>分组@时间@过脸抓拍数@过车抓拍数@人脸抓拍摄像机在线率@过车抓拍摄像机在线率</trendAnalysisGroup>
+		<trendAnalysisCamera>分组@时间@摄像机名称@摄像机编码@摄像机IP@过脸抓拍数@过车抓拍数</trendAnalysisCamera>
+		<xingHuoHead>诊断开始时间@诊断结束时间@故障类型@故障时长占比@故障现象@故障摄像机名称@故障摄像机IP@故障摄像机编码@最近一次在线时间@分局@派出所@重传率(%)@码率(Kbps)@MOS值@丢包率(%)@信令延时(s)@视频流延时(s)@关键帧延时(s)@状态@录像规则@录像保存时长@诊断建议@共杆编码@故障图片URL@故障状态</xingHuoHead>
+		<exportReportHead>查询开始时间@查询结束时间@故障摄像机名称@故障摄像机IP@故障摄像机编码#摄像机离线@录像丢失@视频传输质量差@视频传输质量一般@无图故障@视频模糊@亮度异常@雪花干扰@视频干扰@色彩失真@视频卡顿@视频遮挡@视频丢失@场景变更@云镜故障@标注异常@画面异动@抖动异常</exportReportHead>
+		<tableHeadData>诊断开始时间@诊断结束时间@故障类型@故障时长占比(%)@故障现象@故障摄像机名称@故障摄像机IP@故障摄像机编码@最近一次在线时间#重传率(%)@码率(Kbps)@MOS值@丢包率(%)@状态@诊断建议</tableHeadData>
+		<tableHeadDataDongzhi>诊断开始时间@诊断结束时间@故障类型@故障时长占比(%)@故障现象@故障摄像机名称@故障摄像机IP@故障摄像机编码@最近一次在线时间#重传率(%)@码率(Kbps)@MOS值@丢包率(%)@信令时延(s)@媒体流时延(s)@关键帧时延(s)@状态@录像规则@录像保存时长@诊断建议@故障图片</tableHeadDataDongzhi>
+		<tableHeadFaultDetails>故障时间#共杆编码@摄像机名称@摄像机编码@监控类型@故障类型@详情</tableHeadFaultDetails>
+		<!-- 页面配置显示分局派出所还是区组等 -->
+	    <firstaryInstitutions>分局</firstaryInstitutions>
+	    <secondaryInstitutions>派出所</secondaryInstitutions>
+	    <dossiersCamera>摄像机</dossiersCamera>
+	    <dossiersInfrastructure>基础设施</dossiersInfrastructure>
+	    <dossiersNo>序号</dossiersNo>
+	    <dossiersAttribute>属性</dossiersAttribute>
+	    <dossiersDataName>数据名称</dossiersDataName>
+	    <dossiersValueRequirement>取值要求</dossiersValueRequirement>
+	    <dossiersExclName>一机一档导入模版</dossiersExclName>
+		<!-- 某派出所大面积掉线门限值 -->
+	    <gateThreshold></gateThreshold>
+    </fileMoreConfig>
+    
+    <!-- 组网关系表表头校验配置 -->
+    <netWorkFieldConfig>([\u4E00-\u9FA5]+,)+共杆设备编码,摄像机名称,摄像机IP地址,(摄像机编码,)?(camera_id,)?摄像机类型,经度,纬度,存储平台IP地址,IVS摄像机编码,分组名称,是否考核</netWorkFieldConfig>
+    <!-- 需要筛选的连接状态类型，多个状态值得时候用“,”号隔开，不需要筛选配置ALL -->
+     <!-- 1、[]和[]之间是或的关系；2、[]里面的connect/port/sessiontime是与的关系 -->
+    <connectionTypeConfig>[connect=连接已建立;port=37777,8000,99999,8200,5504;sessiontime=10][connect=连接已建立;port=554][connect=连接被重置;port=554;sessiontime=30][connect=连接被重置;port=37777,8000,99999,8200,5504;sessiontime=30]</connectionTypeConfig>
+    <!-- <targetPortConfig>554,8000,37777</targetPortConfig>-->
+    <udpFilterConfig>CallID,流类型</udpFilterConfig>
+    <!-- 数据入库筛选字段（注意不是配置页面显示） -->
+    <filterOrganization>分局</filterOrganization>
+    <filterplatform>所</filterplatform>
+	
+	<!--和派单相关的配置-->
+	<automaticOrder>
+		<!-- 逻辑条件配置 -->
+		<selectCondition statisticTime="6" statisticNumber="6"/>
+		<!-- 故障时间占比门阀 -->
+		<thresholdValue faultRate="60"/>
+		<!-- 忽略故障时长配置 -->
+		<ignoreFault ignoreTime="24"></ignoreFault>
+		<!-- 确认类型的配置:1:手动确认，2：自动确认 -->
+		<confirmTypes>
+			<orderType key="1" isSelected="1"></orderType>
+			<orderType key="2" isSelected="0"></orderType>
+		</confirmTypes>
+		<!-- 派单类型的配置:1:手动派单，2：自动派单 -->
+		<orderTypes>
+			<orderType key="1" isSelected="1"></orderType>
+			<orderType key="2" isSelected="0"></orderType>
+		</orderTypes>
+	</automaticOrder>
+</baseCofig>
+
+
+

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.huawei.vi.thirddata.mapper.TblDossierContentMapper">
+
+
+    <select id="getDossier" parameterType="map" resultType="map">
+        select distinct a.id as `id`,a.value as `value`
+        from tbl_dossier_content a
+        WHERE
+        1=1 and a.value is not null and
+       ((a.category_id = #{categoryId}
+	    AND a.attribute_id = #{attributeId}
+	    AND a.type_id = #{typeId})
+	    or
+	    (a.category_id = '200'
+	    AND a.attribute_id = '200001'
+	    AND a.type_id = '200001001'))
+        <if test="cameraIdList!=null">
+            and a.value in (
+            <foreach collection="cameraIdList" item="ipcId" separator=",">
+                #{ipcId}
+            </foreach>
+            )
+        </if>
+    </select>
+
+    <select id="getDossierContent" parameterType="map" resultType="map">
+      select id,dossiers_status as dossiersStatus
+      from tbl_dossier_content_base
+    </select>
+
+    <select id="getDossierMap" parameterType="list" resultType="map">
+    SELECT
+        DOSSIERS_STATUS as `dossiersStatus`,count(DOSSIERS_STATUS) as `count(dossiers_status)`
+    FROM
+        TBL_DOSSIER_CONTENT_BASE
+        <if test="teamLists!=null">
+        WHERE
+        ID IN
+        (
+        <foreach collection="teamLists" item="teamList" separator=",">
+            #{teamList}
+        </foreach>
+        )
+        </if>
+    group by DOSSIERS_STATUS
+    </select>
+
+    <select id="getDossierCount" resultType="int" >
+        select count(DOSSIERS_STATUS) as `dossiersStatus`
+        from TBL_DOSSIER_CONTENT_BASE
+    </select>
+
+
+</mapper>

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.huawei.vi.thirddata.mapper.UserIpResourceMapper">
+
+    <resultMap id="OrganizationResultMap"
+               type="java.util.Map">
+        <result column="id" property="id" jdbcType="VARCHAR"/>
+        <result column="pid" property="pid" jdbcType="VARCHAR"/>
+        <result column="orgName" property="name" jdbcType="VARCHAR"/>
+        <result column="orgPname" property="pname" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!-- 默认用户即admin用户查询所有ipc -->
+    <sql id="selectAllIp">
+        select * from ${table} where checkflag = 1
+        <if test="id!=null">
+            and ${id} in (
+            <foreach collection="idList" item="ipcId" separator=",">
+                #{ipcId}
+            </foreach>
+            )
+        </if>
+    </sql>
+
+    <!-- 根据用户查询其权限下的ipc -->
+    <sql id="ipcByUser">
+        SELECT a.* FROM ${table} as a
+        INNER JOIN tbl_user as b
+        INNER JOIN tbl_user_ipc_resource as c
+        WHERE b.userId = c.user_id
+        AND b.user_name=#{userTblName}
+        AND a.ip = c.ip
+        <if test="id!=null">
+            and a.${id} in (
+            <foreach collection="idList" item="ipcId" separator=",">
+                #{ipcId}
+            </foreach>
+            )
+        </if>
+    </sql>
+    <!-- 根据用户名查询用户权限下的ipc -->
+    <select id="selectIpcsByUser" parameterType="java.util.Map" resultType="java.util.Map">
+        <choose>
+            <when test="isDefault == 1">
+                <include refid="selectAllIp"/>
+            </when>
+            <otherwise>
+                <include refid="ipcByUser"/>
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="getOrganizationsByUser" resultMap="OrganizationResultMap"
+            parameterType="org.apache.commons.collections4.map.CaseInsensitiveMap">
+        SELECT DISTINCT
+        id${levelNum} as id,
+        <if test="levelNum != 0">
+            id${levelNum - 1} as pid,
+            filed${levelNum - 1} as orgPname,
+        </if>
+        filed${levelNum} as orgName
+        FROM
+        ${table}
+        WHERE checkflag = 1
+        <if test="ipList != null and ipList.size > 0">
+            and
+            ip IN(
+            <foreach collection="ipList" item="ip" index="index" separator=",">
+                #{ip}
+            </foreach>
+            )
+        </if>
+        <if test="orgIds!= null and orgIds.size > 0">
+            AND id${levelNum - 1} IN(
+            <foreach collection="orgIds" index="index" item="org" separator=",">
+                #{org}
+            </foreach>
+            )
+        </if>
+    </select>
+
+
+</mapper>

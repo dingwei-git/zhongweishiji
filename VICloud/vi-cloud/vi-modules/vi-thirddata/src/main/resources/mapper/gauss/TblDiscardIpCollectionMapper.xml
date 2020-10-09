@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.huawei.vi.thirddata.mapper.TblDiscardIpCollectionMapper">
+	<resultMap id="BaseResultMap" type="com.huawei.vi.thirddata.service.binary.pojo.TblDiscardIpCollection">
+		<result column="ip" jdbcType="VARCHAR" property="ip" />
+		<result column="ip_name" jdbcType="VARCHAR" property="ipName" />
+		<result column="pip" jdbcType="VARCHAR" property="pip" />
+		<result column="pip_name" jdbcType="VARCHAR" property="pipName" />
+	</resultMap>
+	<!-- GAUSSDB -->
+	<!-- 删除原始表数据 -->
+	<update id="dropTable" parameterType="map">
+		drop table IF
+		EXISTS
+		${tabName}
+	</update>
+	<!--无法匹配网段配置的ip新建表保存 -->
+	<insert id="insertDiscardIp" parameterType="map">
+		INSERT into
+		tbl_discardIp_collection (ip,ip_name,pip,pip_name)
+		VALUES
+		<foreach collection="tdicList" item="tbdc" index="index"
+			separator=",">
+			(
+			#{tbdc.ip},
+			#{tbdc.ipName},
+			#{tbdc.pip},
+			#{tbdc.pipName}
+			)
+		</foreach>
+	</insert>
+	<!--存在即更新 -->
+	<update id="updateDiscardIp" parameterType="map">
+		UPDATE tbl_discardIp_collection
+		<set>
+			<if test="ipName != null">
+				ip_name = #{ipName},
+			</if>
+			<if test="pip != null">
+				pip = #{pip},
+			</if>
+			<if test="pipName != null">
+				pip_name = #{pipName},
+			</if>
+		</set>
+		WHERE ip=#{ip}
+	</update>
+	<select id="getDiscardIpInNetworkconfig" resultType="String">
+		SELECT
+		discardip.ip
+		FROM
+		tbl_discardip_collection discardip,
+		tbl_network_config netconfig
+		WHERE
+		discardip.ip = netconfig.network_rules
+	</select>
+	<delete id="deleteIpList" parameterType="map">
+		DELETE FROM tbl_discardip_collection WHERE ip IN (
+		<foreach collection="ipList" item="ip" index="index"
+			separator=",">
+			#{ip}
+		</foreach>
+		)
+	</delete>
+</mapper>

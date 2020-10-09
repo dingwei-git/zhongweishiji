@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.huawei.vi.thirddata.mapper.TblImageDayStatisticsVcnMapper">
+    <resultMap id="PictureNumByCamera" type="com.huawei.vi.entity.po.ImageDayStatisticsVcn">
+        <result column="domain_code" property="domainCode"></result>
+        <result column="camera_sn" property="cameraSn"></result>
+        <result column="start_time" property="startTime"></result>
+        <result column="end_time" property="endTime"></result>
+        <result column="camera_name" property="cameraName"></result>
+        <result column="type" property="type"></result>
+        <result column="pic_type" property="picType"></result>
+        <result column="tran_type" property="tranType"></result>
+        <result column="source" property="source"></result>
+        <result column="picture_count" property="pictureCount"></result>
+        <result column="effective_camera" property="effectiveCamera"></result>
+    </resultMap>
+
+    <select id="countPictureByCameraDay" parameterType="java.util.Map" resultType="Integer" >
+        SELECT
+        sum(PICTURE_COUNT)
+        FROM
+        ${tblName}
+        WHERE
+        <if test="domainCode!=null">
+            DOMAIN_CODE = #{domainCode}
+        </if>
+        <if test="startTime!=null">
+            AND DATE_FORMAT(START_TIME,'%Y%m%d') <![CDATA[>=]]> #{startTime}
+        </if>
+        <if test="endTime!=null">
+            AND DATE_FORMAT(END_TIME,'%Y%m%d') <![CDATA[<=]]> #{endTime}
+        </if>
+        <if test="type!=null">
+            AND TYPE = #{type}
+        </if>
+        <if test="picType!=null">
+            AND PIC_TYPE = #{picType}
+        </if>
+        <if test="tranType!=null">
+            AND TRAN_TYPE = #{tranType}
+        </if>
+        <if test="cameraSn">
+            AND CAMERA_SN IN (#{cameraSn})
+        </if>
+    </select>
+
+    <select id="countPictureByCameraHour" parameterType="java.util.Map" resultType="Integer" >
+        SELECT
+        sum(PICTURE_COUNT)
+        FROM
+        ${tblName}
+        WHERE
+        <if test="domainCode!=null">
+            DOMAIN_CODE = #{domainCode}
+        </if>
+        <if test="startTime!=null">
+            AND DATE_FORMAT(START_TIME,'%Y%m%d%H%i%s') <![CDATA[>=]]> #{startTime}
+        </if>
+        <if test="endTime!=null">
+            AND DATE_FORMAT(END_TIME,'%Y%m%d%H%i%s') <![CDATA[<=]]> #{endTime}
+        </if>
+        <if test="type!=null">
+            AND TYPE = #{type}
+        </if>
+        <if test="picType!=null">
+            AND PIC_TYPE = #{picType}
+        </if>
+        <if test="tranType!=null">
+            AND TRAN_TYPE = #{tranType}
+        </if>
+        <if test="cameraSn">
+            AND CAMERA_SN IN (#{cameraSn})
+        </if>
+    </select>
+
+    <select id="countPictureByCameraMonth" parameterType="java.util.Map" resultType="Integer" >
+        SELECT
+        sum(PICTURE_COUNT)
+        FROM
+        ${tblName}
+        WHERE
+        <if test="domainCode!=null">
+            DOMAIN_CODE = #{domainCode}
+        </if>
+        <if test="startTime!=null">
+            AND DATE_FORMAT(START_TIME,'%Y%m') <![CDATA[>=]]> #{startTime}
+        </if>
+        <if test="endTime!=null">
+            AND DATE_FORMAT(END_TIME,'%Y%m') <![CDATA[<=]]> #{endTime}
+        </if>
+        <if test="type!=null">
+            AND TYPE = #{type}
+        </if>
+        <if test="picType!=null">
+            AND PIC_TYPE = #{picType}
+        </if>
+        <if test="tranType!=null">
+            AND TRAN_TYPE = #{tranType}
+        </if>
+        <if test="cameraSn">
+            AND CAMERA_SN IN (#{cameraSn})
+        </if>
+    </select>
+
+    <select id="countPictureByRegionDay" parameterType="java.util.Map" resultType="Integer">
+        SELECT
+        sum(b.PICTURE_COUNT) as PICTURE_COUNT
+        FROM
+        ${tblName} a
+        LEFT JOIN  ${tableName} b ON
+        a.service_sub_id = b.SOURCE
+        where
+        <if test="source!=null">
+            b.SOURCE= #{source}
+        </if>
+        <if test="remark!=null">
+            and a.remark = #{remark}
+        </if>
+        <if test="type!=null">
+            and  b.type = #{type}
+        </if>
+        <if test="picType!=null">
+            and b.pic_type = #{picType}
+        </if>
+        <if test="tranType!=null">
+            and b.TRAN_TYPE = #{tranType}
+        </if>
+        <if test="startTime!=null">
+            AND DATE_FORMAT(b.START_TIME,'%Y%m%d') <![CDATA[>=]]> #{startTime}
+        </if>
+        <if test="endTime!=null">
+            AND DATE_FORMAT(b.END_TIME,'%Y%m%d') <![CDATA[<=]]> #{endTime}
+        </if>
+    </select>
+
+    <select id="countPictureByRegionHour" parameterType="java.util.Map" resultType="Integer">
+        SELECT
+        sum(b.PICTURE_COUNT) as PICTURE_COUNT
+        FROM
+        ${tblName} a
+        LEFT JOIN  ${tableName} b ON
+        a.service_sub_id = b.SOURCE
+        where
+        <if test="source!=null">
+            b.SOURCE= #{source}
+        </if>
+        <if test="remark!=null">
+            and a.remark = #{remark}
+        </if>
+        <if test="type!=null">
+            and  b.type = #{type}
+        </if>
+        <if test="picType!=null">
+            and b.pic_type = #{picType}
+        </if>
+        <if test="tranType!=null">
+            and b.TRAN_TYPE = #{tranType}
+        </if>
+        <if test="startTime!=null">
+            AND DATE_FORMAT(b.START_TIME,'%Y%m%d%H') <![CDATA[>=]]> #{startTime}
+        </if>
+        <if test="endTime!=null">
+            AND DATE_FORMAT(b.END_TIME,'%Y%m%d%H') <![CDATA[<=]]> #{endTime}
+        </if>
+    </select>
+
+    <select id="countPictureByRegionMonth" parameterType="java.util.Map" resultType="Integer">
+        SELECT
+        sum(b.PICTURE_COUNT) as PICTURE_COUNT
+        FROM
+        ${tblName} a
+        LEFT JOIN  ${tableName} b ON
+        a.service_sub_id = b.SOURCE
+        where
+        <if test="source!=null">
+            b.SOURCE= #{source}
+        </if>
+        <if test="remark!=null">
+            and a.remark = #{remark}
+        </if>
+        <if test="type!=null">
+            and  b.type = #{type}
+        </if>
+        <if test="picType!=null">
+            and b.pic_type = #{picType}
+        </if>
+        <if test="tranType!=null">
+            and b.TRAN_TYPE = #{tranType}
+        </if>
+        <if test="startTime!=null">
+            AND DATE_FORMAT(b.START_TIME,'%Y%m') <![CDATA[>=]]> #{startTime}
+        </if>
+        <if test="endTime!=null">
+            AND DATE_FORMAT(b.END_TIME,'%Y%m') <![CDATA[<=]]> #{endTime}
+        </if>
+    </select>
+</mapper>

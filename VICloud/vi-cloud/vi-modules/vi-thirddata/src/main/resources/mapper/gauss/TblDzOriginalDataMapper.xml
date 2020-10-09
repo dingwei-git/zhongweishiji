@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.huawei.db.repository.TblDzOriginalDataMapper">
+	<resultMap id="BaseResultMap"
+		type="com.huawei.vi.thirddata.service.binary.pojo.DzOriginalData">
+		<result column="camera_id" property="cameraId" jdbcType="VARCHAR" />
+		<result column="chn_name" property="chName" jdbcType="VARCHAR" />
+		<result column="sip_delay" property="sipDelay" jdbcType="VARCHAR" />
+		<result column="rtp_delay" property="rtpDelay" jdbcType="VARCHAR" />
+		<result column="error_code" property="errorCode" jdbcType="VARCHAR" />
+		<result column="if_rame_delay" property="ifRameDelay" jdbcType="VARCHAR" />
+		<result column="datetime" property="dateTime" jdbcType="VARCHAR" />
+		<result column="on_line" property="online" jdbcType="VARCHAR" />
+		<result column="scene_change" property="sceneChange" jdbcType="DOUBLE" />
+		<result column="signal_lost" property="signalLost" jdbcType="DOUBLE" />
+		<result column="colour_cast" property="colourCast" jdbcType="DOUBLE" />
+		<result column="brightness" property="brightness" jdbcType="DOUBLE" />
+		<result column="snow" property="snow" jdbcType="DOUBLE" />
+     	        <result column="indicia" property="indicia" javaType="DOUBLE"/>
+		<result column="picture_url" property="pictureUrl" jdbcType="VARCHAR" />
+		<result column="cover" property="cover" jdbcType="DOUBLE" />
+		<result column="stripe" property="stripe" jdbcType="DOUBLE" />
+		<result column="id" property="id" jdbcType="INTEGER" />
+		<result column="detecition_status" property="detecitionStatus" jdbcType="INTEGER" />
+		<result column="ptz_speed" property="ptzSpeed" jdbcType="DOUBLE" />
+		<result column="connected_staus" property="connectedStaus" jdbcType="INTEGER" />
+		<result column="freeze" property="freeze" jdbcType="DOUBLE" />
+		<result column="definition" property="definition" jdbcType="DOUBLE" />
+		<result column="latitude" property="latitude" jdbcType="VARCHAR" />
+		<result column="longtitude" property="longtitude" jdbcType="VARCHAR" />
+		<result column="lwsx" property="lwsx" jdbcType="INTEGER" />
+		<result column="device_status_online" property="deviceStatusOnline" jdbcType="INTEGER" />
+		<result column="record_integrity" property="recordIntegrity" jdbcType="INTEGER" />
+		<result column="camera_type" property="cameraType" jdbcType="INTEGER" />
+		<result column="diagResult_index" property="diagResultIndex" jdbcType="VARCHAR" />
+		<result column="old_diagResult_index" property="oldDiagResultIndex" jdbcType="VARCHAR" />
+		<result column="diagnosis_flag" property="diagnosisFlag" jdbcType="INTEGER" />
+		<result column="video_datetime" property="videoDateTime" jdbcType="VARCHAR" />
+		<result column="record_rule" property="recordRule" jdbcType="INTEGER" />
+		<result column="record_save_time" property="recordSaveTime" jdbcType="INTEGER" />
+		<result column="lost_record" property="lostRecord" jdbcType="VARCHAR" />
+		<result column="video_diagResult_index" property="videoDiagResultIndex" jdbcType="VARCHAR" />
+	</resultMap>
+	<!-- GAUSSDB -->
+	<update id="createDzOriginalDataTable" parameterType="java.util.Map">
+		CREATE TABLE ${tabName} (
+			camera_id varchar2 (100) NOT NULL,
+			chn_name varchar2 (100) DEFAULT NULL,
+			rtp_delay varchar2 (10) DEFAULT '-',
+			sip_delay varchar2 (10) DEFAULT '-',
+			error_code varchar2 (10) DEFAULT '-',
+			if_rame_delay varchar2 (10) DEFAULT '-',
+			datetime varchar2 (50) DEFAULT NULL,
+			on_line varchar2 (10) DEFAULT '-',
+			scene_change NUMERIC (10, 0) NOT NULL,
+			signal_lost NUMERIC (10, 0) NOT NULL,
+			colour_cast NUMERIC (10, 0) NOT NULL,
+			brightness NUMERIC (10, 0) NOT NULL,
+			snow NUMERIC (10, 0) NOT NULL,
+			indicia NUMERIC(10,0) NOT NULL,
+			picture_url varchar2 (200) DEFAULT NULL,
+			cover NUMERIC (10, 0) NOT NULL,
+			stripe NUMERIC (10, 0) NOT NULL,
+			id NUMBER (10) DEFAULT NULL,
+			detecition_status NUMBER (10) DEFAULT NULL,
+			ptz_speed NUMERIC (10, 0) NOT NULL,
+			connected_staus NUMBER (10) DEFAULT NULL,
+			freeze NUMERIC (10, 0) NOT NULL,
+			definition NUMERIC (10, 0) NOT NULL,
+			static_image NUMERIC (10, 0) NOT NULL DEFAULT 200 COMMENT '画面异动',
+			image_jitter NUMERIC (10, 0) NOT NULL DEFAULT 200 COMMENT '抖动异常',
+			dusty_lens NUMERIC (10, 0) NOT NULL DEFAULT 200 COMMENT '镜头灰斑',
+			latitude varchar2 (20) DEFAULT '-',
+			longtitude varchar2 (20) DEFAULT '-',
+			lwsx varchar2 (10) DEFAULT '-' COMMENT '0未知，1已联网，2未联网',
+			record_integrity NUMBER (10) NOT NULL DEFAULT - 1 COMMENT '是否存在视频丢失记录：0未检测，1正常，2异常(0默认按照正常)',
+			device_status_online NUMBER (10) NOT NULL DEFAULT - 1 COMMENT '摄像机在线结果：1在线，0不在线',
+			camera_type NUMBER (1) NOT NULL DEFAULT - 1 COMMENT '摄像机类型：1普通摄像机，2卡口摄像机',
+			diagResult_index varchar2 (60) DEFAULT '-' COMMENT '最新一次周期诊断标识',
+			old_diagResult_index varchar2 (60) DEFAULT '-' COMMENT '上一次周期诊断标识',
+			diagnosis_flag NUMBER (1) NOT NULL DEFAULT - 1 COMMENT '是否为最新一次诊断结果标识：1是最新诊断结果，0不是最新诊断结果',
+			video_datetime varchar2 (50) DEFAULT '-' COMMENT '摄像机论像巡检检测时间',
+			record_rule NUMBER (10) NOT NULL DEFAULT - 1 COMMENT '录像规则；0未检测，1正常，2异常',
+			record_save_time NUMBER (10) NOT NULL DEFAULT - 1 COMMENT '录像保存时长；0未检测，1正常，2异常',
+			lost_record TEXT COMMENT  '录像缺失时间段数组',
+			video_diagResult_index varchar2 (60) DEFAULT '-' COMMENT '诊断批次号'
+		)		
+	</update>
+
+	<!-- 删除原始表数据 -->
+	<update id="dropTable" parameterType="map">
+		drop table IF
+		EXISTS
+		${tabName}
+	</update>
+
+	<insert id="insertDzOriginalData" parameterType="map">
+		insert into
+		${tabName}(
+		camera_id,chn_name,datetime,scene_change,signal_lost,colour_cast,brightness,
+		snow,indicia,picture_url,cover,stripe,id,detecition_status,ptz_speed,connected_staus,
+		freeze,definition,latitude,longtitude,lwsx,device_status_online,camera_type,diagResult_index
+		<if test="rtpFlag != null">
+            ,rtp_delay,sip_delay,error_code,if_rame_delay,record_integrity,record_rule,record_save_time,
+            lost_record,static_image,image_jitter,dusty_lens,video_diagResult_index
+        </if>
+		)
+		values(
+		<foreach collection="lastDiagData" item="item" separator="),(">
+			#{item.cameraId},
+			#{item.chName},
+			#{item.dateTime},
+			#{item.sceneChange},
+			#{item.signalLost},
+			#{item.colourCast},
+			#{item.brightness},
+			#{item.snow},
+         	        #{item.indicia},
+			#{item.pictureUrl},
+			#{item.cover},
+			#{item.stripe},
+			#{item.id},
+			#{item.detecitionStatus},
+			#{item.ptzSpeed},
+			#{item.connectedStaus},
+			#{item.freeze},
+			#{item.definition},
+			#{item.latitude},
+			#{item.longtitude},
+			#{item.lwsx},
+			#{item.deviceStatusOnline},
+			#{item.cameraType},
+			#{item.diagResultIndex}
+			<if test="rtpFlag != null">
+                ,#{item.rtpDelay},
+                #{item.sipDelay},
+                #{item.errorCode},
+                #{item.ifRameDelay},
+                #{item.recordIntegrity},
+                #{item.recordRule},
+                #{item.recordSaveTime},
+                #{item.lostRecord},
+                #{item.staticImage},
+                #{item.imageJitter},
+                #{item.dustyLens},
+                #{item.videoDiagResultIndex}
+            </if>
+		</foreach>
+		)
+	</insert>
+
+
+	<select id="getAllTcpData" parameterType="java.util.Map"
+		resultType="map">
+		SELECT
+		*
+		FROM
+		${tabName}
+	</select>
+	<select id="showTableByname" parameterType="map"
+		resultType="String">
+		select TABLE_NAME from user_tables where table_name = #{tableName}
+	</select>
+
+	<update id="updateDlkDefaultData" parameterType="map" >
+		UPDATE ${tabName}
+		<set>
+			<if test="rtpDelay != null">
+				rtp_delay = #{rtpDelay},
+			</if>
+			<if test="sipDelay != null">
+				sip_delay = #{sipDelay},
+			</if>
+			<if test="errorCode != null">
+				error_code = #{errorCode},
+			</if>
+			<if test="ifRameDelay != null">
+				if_rame_delay = #{ifRameDelay},
+			</if>
+			<if test="online != null">
+				on_line = #{online},
+			</if>
+			<if test="recordIntegrity != null">
+				record_integrity = #{recordIntegrity},
+			</if>
+			<if test="deviceStatusOnline != null">
+				device_status_online = #{deviceStatusOnline},
+			</if>
+			<if test="videoDateTime != null">
+				video_datetime = #{videoDateTime},
+			</if>
+			<if test="recordRule != null">
+				record_rule = #{recordRule},
+			</if>
+			<if test="recordSaveTime != null">
+				record_save_time = #{recordSaveTime},
+			</if>
+			<if test="lostRecord != null">
+				lost_record = #{lostRecord},
+			</if>
+			<if test="videoDiagResultIndex != null">
+				video_diagResult_index = #{videoDiagResultIndex},
+			</if>
+		</set>
+		WHERE camera_id=#{cameraId}
+	</update>
+	<update id="updateOldDiagResultIndex" parameterType="map">
+		UPDATE
+		${newTable} newTable
+		INNER JOIN ${oldTable} oldTable ON
+		newTable.camera_id = oldTable.camera_id
+		SET
+		newTable.old_diagResult_index = oldTable.diagResult_index
+	</update>
+	<update id="updateDiagResultFlag" parameterType="map">
+		update ${tabName}
+		<if test="oneFlag!=null">
+			SET diagnosis_flag=#{oneFlag} WHERE
+			diagResult_index!=old_diagResult_index
+		</if>
+		<if test="zeroFlag!=null">
+			SET diagnosis_flag=#{zeroFlag} WHERE
+			diagResult_index=old_diagResult_index
+		</if>
+	</update>
+	<select id="getRepeatCameraId" parameterType="map"
+		resultType="String">
+		SELECT camera_id FROM ${tabName}
+		GROUP BY camera_id HAVING
+		COUNT(camera_id)&gt;1
+	</select>
+	<select id="getMinData" parameterType="map"
+		resultMap="BaseResultMap">
+		SELECT
+		MIN(camera_id) camera_id,
+		MIN(scene_change) scene_change,
+		MIN(signal_lost) signal_lost,
+		MIN(colour_cast) colour_cast,
+		MIN(brightness) brightness,
+		MIN(snow) snow,
+		MIN(cover) cover,
+		MIN(stripe) stripe,
+		MIN(ptz_speed) ptz_speed,
+		MIN(freeze) freeze,
+		MIN(definition) definition,
+		MIN(picture_url) picture_url,
+		MIN(id) id,
+		MIN(detecition_status) detecition_status,
+		MIN(chn_name) chn_name,
+		MIN(connected_staus) connected_staus,
+		MIN(datetime) "datetime",
+		MIN(latitude) latitude,
+		MIN(longtitude) longtitude,
+		MIN(lwsx) lwsx,
+		MIN(detecition_status) detecition_status,
+		MIN(camera_type) camera_type,
+		MIN(device_status_online) device_status_online
+		FROM
+		${tabName}
+		WHERE
+		camera_id = #{cameraId}
+		GROUP BY camera_id
+	</select>
+	<select id="getPictureUrl" parameterType="map"
+		resultMap="BaseResultMap">
+		SELECT DISTINCT(picture_url),diagResult_index FROM ${tabName}
+		WHERE
+		camera_id =
+		#{cameraId}
+		<if test="sceneChange!=null">
+			AND scene_change=#{sceneChange}
+		</if>
+		<if test="signalLost!=null">
+			AND signal_lost=#{signalLost}
+		</if>
+		<if test="colourCast!=null">
+			AND colour_cast=#{colourCast}
+		</if>
+		<if test="brightness!=null">
+			AND brightness=#{brightness}
+		</if>
+		<if test="snow!=null">
+			AND snow=#{snow}
+		</if>
+		<if test="cover!=null">
+			AND cover=#{cover}
+		</if>
+		<if test="strip!=null">
+			AND stripe=#{strip}
+		</if>
+		<if test="ptzSpeed!=null">
+			AND ptz_speed=#{ptzSpeed}
+		</if>
+		<if test="freezd!=null">
+			AND freeze=#{freezd}
+		</if>
+		<if test="definition!=null">
+			AND definition=#{definition}
+		</if>
+		LIMIT 1
+	</select>
+	<delete id="deleteRepeatInfo" parameterType="java.util.Map">
+		DELETE
+		FROM
+		${tabName}
+		WHERE 1=1 and (
+		<foreach collection="cameraIdList" item="cameraId"
+			index="index" separator="or">
+			camera_id=#{cameraId}
+		</foreach>
+		)
+	</delete>
+</mapper>

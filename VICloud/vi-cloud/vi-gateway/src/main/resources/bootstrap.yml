@@ -1,0 +1,14 @@
+spring:
+  profiles:
+    include: butils,fn
+  application:
+    name: vi-gateway
+  #允许多个feignclient名称一样
+  main:
+    allow-bean-definition-overriding: true
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+

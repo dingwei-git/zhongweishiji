@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huawei.vi.thirddata.mapper.TblIpcIpSyncLogMapper">
+  <resultMap id="BaseResultMap" type="com.huawei.vi.entity.model.TblIpcIpSyncLog">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="taskid" jdbcType="VARCHAR" property="taskid" />
+    <result column="cameraid" jdbcType="VARCHAR" property="cameraid" />
+    <result column="status" jdbcType="VARCHAR" property="status" />
+    <result column="details" jdbcType="VARCHAR" property="details" />
+    <result column="createtime" jdbcType="TIMESTAMP" property="createtime" />
+    <result column="operator" jdbcType="VARCHAR" property="operator" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, taskid, cameraid, status, details, createtime, operator
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from tbl_ipc_ip_sync_log
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from tbl_ipc_ip_sync_log
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.huawei.vi.entity.model.TblIpcIpSyncLog" useGeneratedKeys="true">
+    insert into tbl_ipc_ip_sync_log (taskid, cameraid, status, 
+      details, createtime, operator
+      )
+    values (#{taskid,jdbcType=VARCHAR}, #{cameraid,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, 
+      #{details,jdbcType=VARCHAR}, #{createtime,jdbcType=TIMESTAMP}, #{operator,jdbcType=VARCHAR}
+      )
+  </insert>
+
+  <insert id="insertBatch"  parameterType="java.util.List" >
+    insert into tbl_ipc_ip_sync_log (id,taskid, cameraid, status,
+      details, createtime, operator
+      )
+    values
+    <foreach collection="list" item="log" separator=",">
+    (#{log.id,jdbcType=VARCHAR},#{log.taskid,jdbcType=VARCHAR}, #{log.cameraid,jdbcType=VARCHAR}, #{log.status,jdbcType=VARCHAR},
+      #{log.details,jdbcType=VARCHAR}, #{log.createtime,jdbcType=TIMESTAMP}, #{log.operator,jdbcType=VARCHAR}
+      )
+    </foreach>
+  </insert>
+
+  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.huawei.vi.entity.model.TblIpcIpSyncLog" useGeneratedKeys="true">
+    insert into tbl_ipc_ip_sync_log
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="taskid != null">
+        taskid,
+      </if>
+      <if test="cameraid != null">
+        cameraid,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="details != null">
+        details,
+      </if>
+      <if test="createtime != null">
+        createtime,
+      </if>
+      <if test="operator != null">
+        operator,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="taskid != null">
+        #{taskid,jdbcType=VARCHAR},
+      </if>
+      <if test="cameraid != null">
+        #{cameraid,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="details != null">
+        #{details,jdbcType=VARCHAR},
+      </if>
+      <if test="createtime != null">
+        #{createtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="operator != null">
+        #{operator,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.huawei.vi.entity.model.TblIpcIpSyncLog">
+    update tbl_ipc_ip_sync_log
+    <set>
+      <if test="taskid != null">
+        taskid = #{taskid,jdbcType=VARCHAR},
+      </if>
+      <if test="cameraid != null">
+        cameraid = #{cameraid,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="details != null">
+        details = #{details,jdbcType=VARCHAR},
+      </if>
+      <if test="createtime != null">
+        createtime = #{createtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="operator != null">
+        operator = #{operator,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.huawei.vi.entity.model.TblIpcIpSyncLog">
+    update tbl_ipc_ip_sync_log
+    set taskid = #{taskid,jdbcType=VARCHAR},
+      cameraid = #{cameraid,jdbcType=VARCHAR},
+      status = #{status,jdbcType=VARCHAR},
+      details = #{details,jdbcType=VARCHAR},
+      createtime = #{createtime,jdbcType=TIMESTAMP},
+      operator = #{operator,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>

@@ -1,0 +1,598 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.huawei.vi.thirddata.mapper.TblIpcIpSyncRecordOperatorMapper" >
+  <resultMap id="BaseResultMap" type="com.huawei.vi.entity.model.TblIpcIpSyncRecordOperator" >
+    <id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="taskid" property="taskid" jdbcType="VARCHAR" />
+    <result column="copoleCode" property="copolecode" jdbcType="VARCHAR" />
+    <result column="ip" property="ip" jdbcType="VARCHAR" />
+    <result column="cameraNum" property="cameranum" jdbcType="VARCHAR" />
+    <result column="camera_name" property="cameraName" jdbcType="VARCHAR" />
+    <result column="cameraId" property="cameraid" jdbcType="VARCHAR" />
+    <result column="checkflag" property="checkflag" jdbcType="VARCHAR" />
+    <result column="ipType" property="iptype" jdbcType="VARCHAR" />
+    <result column="longitude" property="longitude" jdbcType="VARCHAR" />
+    <result column="latitude" property="latitude" jdbcType="VARCHAR" />
+    <result column="platformIp" property="platformip" jdbcType="VARCHAR" />
+    <result column="camera_sn" property="cameraSn" jdbcType="VARCHAR" />
+    <result column="group_name" property="groupName" jdbcType="VARCHAR" />
+    <result column="lastOnlineTime" property="lastonlinetime" jdbcType="VARCHAR" />
+    <result column="referTime" property="refertime" jdbcType="VARCHAR" />
+    <result column="createtime" property="createtime" jdbcType="TIMESTAMP" />
+    <result column="operator" property="operator" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="VARCHAR" />
+    <result column="manufacturer" property="manufacturer" jdbcType="VARCHAR" />
+    <result column="hd" property="hd" jdbcType="VARCHAR" />
+    <result column="model" property="model" jdbcType="VARCHAR" />
+    <result column="currentlevels" property="currentlevels" jdbcType="LONGVARCHAR" />
+    <result column="rawlevels" property="rawlevels" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, taskid, copoleCode, ip, cameraNum, camera_name, cameraId, checkflag, ipType, 
+    longitude, latitude, platformIp, camera_sn, group_name, lastOnlineTime, referTime, 
+    createtime, operator, status, currentlevels, rawlevels,manufacturer, hd, model
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from tbl_ipc_ip_record_operator
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectByTaskId" resultMap="BaseResultMap" parameterType="java.util.Map" >
+    select
+    <include refid="Base_Column_List" />
+    from tbl_ipc_ip_record_operator
+    <where>
+      <if test="taskid != null ">
+        and taskid = #{taskid}
+      </if>
+      <if test="status !=null">
+        and status = #{status}
+      </if>
+    </where>
+
+    <if test="pageindex != null and rows != null">
+      limit #{pageindex},#{rows}
+    </if>
+
+  </select>
+  <select id="getIpcWithLatestLevel" resultType="java.util.Map" parameterType="java.lang.String" >
+    select currentlevels , cameraid,camera_name as cameraname from tbl_ipc_ip_record_operator where taskid=#{taskid} and currentlevels is not null
+  </select>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from tbl_ipc_ip_record_operator
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.huawei.vi.entity.model.TblIpcIpSyncRecordOperator" >
+    insert into tbl_ipc_ip_record_operator (id, taskid, copoleCode, 
+      ip, cameraNum, camera_name, 
+      cameraId, checkflag, ipType, 
+      longitude, latitude, platformIp, 
+      camera_sn, group_name, lastOnlineTime, 
+      referTime, createtime, operator, 
+      status, manufacturer, hd, model,currentlevels, rawlevels
+      )
+    values (#{id,jdbcType=VARCHAR}, #{taskid,jdbcType=VARCHAR}, #{copolecode,jdbcType=VARCHAR}, 
+      #{ip,jdbcType=VARCHAR}, #{cameranum,jdbcType=VARCHAR}, #{cameraName,jdbcType=VARCHAR}, 
+      #{cameraid,jdbcType=VARCHAR}, #{checkflag,jdbcType=VARCHAR}, #{iptype,jdbcType=VARCHAR}, 
+      #{longitude,jdbcType=VARCHAR}, #{latitude,jdbcType=VARCHAR}, #{platformip,jdbcType=VARCHAR}, 
+      #{cameraSn,jdbcType=VARCHAR}, #{groupName,jdbcType=VARCHAR}, #{lastonlinetime,jdbcType=VARCHAR}, 
+      #{refertime,jdbcType=VARCHAR}, #{createtime,jdbcType=TIMESTAMP}, #{operator,jdbcType=VARCHAR}, 
+      #{status,jdbcType=VARCHAR}, #{manufacturer,jdbcType=VARCHAR},#{hd,jdbcType=VARCHAR},#{model,jdbcType=VARCHAR},#{currentlevels,jdbcType=LONGVARCHAR}, #{rawlevels,jdbcType=LONGVARCHAR}
+      )
+  </insert>
+
+  <insert id="insertBatch" parameterType="java.util.List" >
+    <foreach collection="list" index="index" item="item" separator=";">
+    insert into tbl_ipc_ip_record_operator
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="item.id != null" >
+        id,
+      </if>
+      <if test="item.taskid != null" >
+        taskid,
+      </if>
+      <if test="item.copolecode != null" >
+        copoleCode,
+      </if>
+      <if test="item.ip != null" >
+        ip,
+      </if>
+      <if test="item.cameranum != null" >
+        cameraNum,
+      </if>
+      <if test="item.cameraName != null" >
+        camera_name,
+      </if>
+      <if test="item.cameraid != null" >
+        cameraId,
+      </if>
+      <if test="item.checkflag != null" >
+        checkflag,
+      </if>
+      <if test="item.iptype != null" >
+        ipType,
+      </if>
+      <if test="item.longitude != null" >
+        longitude,
+      </if>
+      <if test="item.latitude != null" >
+        latitude,
+      </if>
+      <if test="item.platformip != null" >
+        platformIp,
+      </if>
+      <if test="item.cameraSn != null" >
+        camera_sn,
+      </if>
+      <if test="item.groupName != null" >
+        group_name,
+      </if>
+      <if test="item.lastonlinetime != null" >
+        lastOnlineTime,
+      </if>
+      <if test="item.refertime != null" >
+        referTime,
+      </if>
+      <if test="item.createtime != null" >
+        createtime,
+      </if>
+      <if test="item.operator != null" >
+        operator,
+      </if>
+      <if test="item.status != null" >
+        status,
+      </if>
+      <if test="item.currentlevels != null" >
+        currentlevels,
+      </if>
+      <if test="item.rawlevels != null" >
+        rawlevels,
+      </if>
+
+      <if test="item.manufacturer != null" >
+        manufacturer,
+      </if>
+
+      <if test="item.hd != null" >
+        hd,
+      </if>
+
+      <if test="item.model != null" >
+        model,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="item.id != null" >
+        #{item.id,jdbcType=VARCHAR},
+      </if>
+      <if test="item.taskid != null" >
+        #{item.taskid,jdbcType=VARCHAR},
+      </if>
+      <if test="item.copolecode != null" >
+        #{item.copolecode,jdbcType=VARCHAR},
+      </if>
+      <if test="item.ip != null" >
+        #{item.ip,jdbcType=VARCHAR},
+      </if>
+      <if test="item.cameranum != null" >
+        #{item.cameranum,jdbcType=VARCHAR},
+      </if>
+      <if test="item.cameraName != null" >
+        #{item.cameraName,jdbcType=VARCHAR},
+      </if>
+      <if test="item.cameraid != null" >
+        #{item.cameraid,jdbcType=VARCHAR},
+      </if>
+      <if test="item.checkflag != null" >
+        #{item.checkflag,jdbcType=VARCHAR},
+      </if>
+      <if test="item.iptype != null" >
+        #{item.iptype,jdbcType=VARCHAR},
+      </if>
+      <if test="item.longitude != null" >
+        #{item.longitude,jdbcType=VARCHAR},
+      </if>
+      <if test="item.latitude != null" >
+        #{item.latitude,jdbcType=VARCHAR},
+      </if>
+      <if test="item.platformip != null" >
+        #{item.platformip,jdbcType=VARCHAR},
+      </if>
+      <if test="item.cameraSn != null" >
+        #{item.cameraSn,jdbcType=VARCHAR},
+      </if>
+      <if test="item.groupName != null" >
+        #{item.groupName,jdbcType=VARCHAR},
+      </if>
+      <if test="item.lastonlinetime != null" >
+        #{item.lastonlinetime,jdbcType=VARCHAR},
+      </if>
+      <if test="item.refertime != null" >
+        #{item.refertime,jdbcType=VARCHAR},
+      </if>
+      <if test="item.createtime != null" >
+        #{item.createtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="item.operator != null" >
+        #{item.operator,jdbcType=VARCHAR},
+      </if>
+      <if test="item.status != null" >
+        #{item.status,jdbcType=VARCHAR},
+      </if>
+      <if test="item.currentlevels != null" >
+        #{item.currentlevels,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="item.rawlevels != null" >
+        #{item.rawlevels,jdbcType=LONGVARCHAR},
+      </if>
+
+      <if test="item.manufacturer != null" >
+        #{item.manufacturer,jdbcType=VARCHAR},
+      </if>
+      <if test="item.hd != null" >
+        #{item.hd,jdbcType=VARCHAR},
+      </if>
+      <if test="item.model != null" >
+        #{item.model,jdbcType=VARCHAR},
+      </if>
+    </trim>
+    </foreach>
+  </insert>
+
+  <insert id="insertSelective" parameterType="com.huawei.vi.entity.model.TblIpcIpSyncRecordOperator" >
+    insert into tbl_ipc_ip_record_operator
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="taskid != null" >
+        taskid,
+      </if>
+      <if test="copolecode != null" >
+        copoleCode,
+      </if>
+      <if test="ip != null" >
+        ip,
+      </if>
+      <if test="cameranum != null" >
+        cameraNum,
+      </if>
+      <if test="cameraName != null" >
+        camera_name,
+      </if>
+      <if test="cameraid != null" >
+        cameraId,
+      </if>
+      <if test="checkflag != null" >
+        checkflag,
+      </if>
+      <if test="iptype != null" >
+        ipType,
+      </if>
+      <if test="longitude != null" >
+        longitude,
+      </if>
+      <if test="latitude != null" >
+        latitude,
+      </if>
+      <if test="platformip != null" >
+        platformIp,
+      </if>
+      <if test="cameraSn != null" >
+        camera_sn,
+      </if>
+      <if test="groupName != null" >
+        group_name,
+      </if>
+      <if test="lastonlinetime != null" >
+        lastOnlineTime,
+      </if>
+      <if test="refertime != null" >
+        referTime,
+      </if>
+      <if test="createtime != null" >
+        createtime,
+      </if>
+      <if test="operator != null" >
+        operator,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="currentlevels != null" >
+        currentlevels,
+      </if>
+      <if test="rawlevels != null" >
+        rawlevels,
+      </if>
+
+      <if test="manufacturer != null" >
+        manufacturer,
+      </if>
+      <if test="hd != null" >
+        hd,
+      </if>
+      <if test="model != null" >
+        model,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="taskid != null" >
+        #{taskid,jdbcType=VARCHAR},
+      </if>
+      <if test="copolecode != null" >
+        #{copolecode,jdbcType=VARCHAR},
+      </if>
+      <if test="ip != null" >
+        #{ip,jdbcType=VARCHAR},
+      </if>
+      <if test="cameranum != null" >
+        #{cameranum,jdbcType=VARCHAR},
+      </if>
+      <if test="cameraName != null" >
+        #{cameraName,jdbcType=VARCHAR},
+      </if>
+      <if test="cameraid != null" >
+        #{cameraid,jdbcType=VARCHAR},
+      </if>
+      <if test="checkflag != null" >
+        #{checkflag,jdbcType=VARCHAR},
+      </if>
+      <if test="iptype != null" >
+        #{iptype,jdbcType=VARCHAR},
+      </if>
+      <if test="longitude != null" >
+        #{longitude,jdbcType=VARCHAR},
+      </if>
+      <if test="latitude != null" >
+        #{latitude,jdbcType=VARCHAR},
+      </if>
+      <if test="platformip != null" >
+        #{platformip,jdbcType=VARCHAR},
+      </if>
+      <if test="cameraSn != null" >
+        #{cameraSn,jdbcType=VARCHAR},
+      </if>
+      <if test="groupName != null" >
+        #{groupName,jdbcType=VARCHAR},
+      </if>
+      <if test="lastonlinetime != null" >
+        #{lastonlinetime,jdbcType=VARCHAR},
+      </if>
+      <if test="refertime != null" >
+        #{refertime,jdbcType=VARCHAR},
+      </if>
+      <if test="createtime != null" >
+        #{createtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="operator != null" >
+        #{operator,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="currentlevels != null" >
+        #{currentlevels,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="rawlevels != null" >
+        #{rawlevels,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="manufacturer != null" >
+        #{manufacturer,jdbcType=VARCHAR},
+      </if>
+      <if test="hd != null" >
+        #{hd,jdbcType=VARCHAR},
+      </if>
+      <if test="model != null" >
+        #{model,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.huawei.vi.entity.model.TblIpcIpSyncRecordOperator" >
+    update tbl_ipc_ip_record_operator
+    <set >
+      <if test="taskid != null" >
+        taskid = #{taskid,jdbcType=VARCHAR},
+      </if>
+      <if test="copolecode != null" >
+        copoleCode = #{copolecode,jdbcType=VARCHAR},
+      </if>
+      <if test="ip != null" >
+        ip = #{ip,jdbcType=VARCHAR},
+      </if>
+      <if test="cameranum != null" >
+        cameraNum = #{cameranum,jdbcType=VARCHAR},
+      </if>
+      <if test="cameraName != null" >
+        camera_name = #{cameraName,jdbcType=VARCHAR},
+      </if>
+      <if test="cameraid != null" >
+        cameraId = #{cameraid,jdbcType=VARCHAR},
+      </if>
+      <if test="checkflag != null" >
+        checkflag = #{checkflag,jdbcType=VARCHAR},
+      </if>
+      <if test="iptype != null" >
+        ipType = #{iptype,jdbcType=VARCHAR},
+      </if>
+      <if test="longitude != null" >
+        longitude = #{longitude,jdbcType=VARCHAR},
+      </if>
+      <if test="latitude != null" >
+        latitude = #{latitude,jdbcType=VARCHAR},
+      </if>
+      <if test="platformip != null" >
+        platformIp = #{platformip,jdbcType=VARCHAR},
+      </if>
+      <if test="cameraSn != null" >
+        camera_sn = #{cameraSn,jdbcType=VARCHAR},
+      </if>
+      <if test="groupName != null" >
+        group_name = #{groupName,jdbcType=VARCHAR},
+      </if>
+      <if test="lastonlinetime != null" >
+        lastOnlineTime = #{lastonlinetime,jdbcType=VARCHAR},
+      </if>
+      <if test="refertime != null" >
+        referTime = #{refertime,jdbcType=VARCHAR},
+      </if>
+      <if test="createtime != null" >
+        createtime = #{createtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="operator != null" >
+        operator = #{operator,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="currentlevels != null" >
+        currentlevels = #{currentlevels,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="rawlevels != null" >
+        rawlevels = #{rawlevels,jdbcType=LONGVARCHAR},
+      </if>
+
+      <if test="manufacturer != null" >
+        manufacturer = #{manufacturer,jdbcType=VARCHAR},
+      </if>
+      <if test="hd != null" >
+        hd = #{hd,jdbcType=VARCHAR},
+      </if>
+      <if test="model != null" >
+        model = #{model,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+
+
+  <update id="updateByTaskid" parameterType="com.huawei.vi.entity.model.TblIpcIpSyncRecordOperator" >
+    update tbl_ipc_ip_record_operator
+    <set >
+      <if test="taskid != null" >
+        taskid = #{taskid,jdbcType=VARCHAR},
+      </if>
+      <if test="copolecode != null" >
+        copoleCode = #{copolecode,jdbcType=VARCHAR},
+      </if>
+      <if test="ip != null" >
+        ip = #{ip,jdbcType=VARCHAR},
+      </if>
+      <if test="cameranum != null" >
+        cameraNum = #{cameranum,jdbcType=VARCHAR},
+      </if>
+      <if test="cameraName != null" >
+        camera_name = #{cameraName,jdbcType=VARCHAR},
+      </if>
+      <if test="cameraid != null" >
+        cameraId = #{cameraid,jdbcType=VARCHAR},
+      </if>
+      <if test="checkflag != null" >
+        checkflag = #{checkflag,jdbcType=VARCHAR},
+      </if>
+      <if test="iptype != null" >
+        ipType = #{iptype,jdbcType=VARCHAR},
+      </if>
+      <if test="longitude != null" >
+        longitude = #{longitude,jdbcType=VARCHAR},
+      </if>
+      <if test="latitude != null" >
+        latitude = #{latitude,jdbcType=VARCHAR},
+      </if>
+      <if test="platformip != null" >
+        platformIp = #{platformip,jdbcType=VARCHAR},
+      </if>
+      <if test="cameraSn != null" >
+        camera_sn = #{cameraSn,jdbcType=VARCHAR},
+      </if>
+      <if test="groupName != null" >
+        group_name = #{groupName,jdbcType=VARCHAR},
+      </if>
+      <if test="lastonlinetime != null" >
+        lastOnlineTime = #{lastonlinetime,jdbcType=VARCHAR},
+      </if>
+      <if test="refertime != null" >
+        referTime = #{refertime,jdbcType=VARCHAR},
+      </if>
+      <if test="createtime != null" >
+        createtime = #{createtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="operator != null" >
+        operator = #{operator,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="currentlevels != null" >
+        currentlevels = #{currentlevels,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="rawlevels != null" >
+        rawlevels = #{rawlevels,jdbcType=LONGVARCHAR},
+      </if>
+
+      <if test="manufacturer != null" >
+        manufacturer = #{manufacturer,jdbcType=VARCHAR},
+      </if>
+      <if test="hd != null" >
+        hd = #{hd,jdbcType=VARCHAR},
+      </if>
+      <if test="model != null" >
+        model = #{model,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where taskid = #{taskid,jdbcType=VARCHAR}
+  </update>
+
+
+
+  <update id="updateByPrimaryKey" parameterType="com.huawei.vi.entity.model.TblIpcIpSyncRecordOperator" >
+    update tbl_ipc_ip_record_operator
+    set taskid = #{taskid,jdbcType=VARCHAR},
+      copoleCode = #{copolecode,jdbcType=VARCHAR},
+      ip = #{ip,jdbcType=VARCHAR},
+      cameraNum = #{cameranum,jdbcType=VARCHAR},
+      camera_name = #{cameraName,jdbcType=VARCHAR},
+      cameraId = #{cameraid,jdbcType=VARCHAR},
+      checkflag = #{checkflag,jdbcType=VARCHAR},
+      ipType = #{iptype,jdbcType=VARCHAR},
+      longitude = #{longitude,jdbcType=VARCHAR},
+      latitude = #{latitude,jdbcType=VARCHAR},
+      platformIp = #{platformip,jdbcType=VARCHAR},
+      camera_sn = #{cameraSn,jdbcType=VARCHAR},
+      group_name = #{groupName,jdbcType=VARCHAR},
+      lastOnlineTime = #{lastonlinetime,jdbcType=VARCHAR},
+      referTime = #{refertime,jdbcType=VARCHAR},
+      createtime = #{createtime,jdbcType=TIMESTAMP},
+      operator = #{operator,jdbcType=VARCHAR},
+      status = #{status,jdbcType=VARCHAR},
+      currentlevels = #{currentlevels,jdbcType=LONGVARCHAR},
+      rawlevels = #{rawlevels,jdbcType=LONGVARCHAR},
+      manufacturer = #{manufacturer,jdbcType=VARCHAR},
+      hd = #{hd,jdbcType=VARCHAR},
+      model = #{model,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+
+
+  <update id="updateCurrentLevels" parameterType="java.util.Map" >
+    update tbl_ipc_ip_record_operator
+    set
+      currentlevels = #{currentlevels,jdbcType=LONGVARCHAR}
+    where taskid = #{taskid,jdbcType=VARCHAR} and cameraId = #{cameraid,jdbcType=VARCHAR}
+  </update>
+
+  <update id="updateCurrentLevelsForEmpty" parameterType="java.util.Map" >
+    update tbl_ipc_ip_record_operator
+    set
+      currentlevels = null
+    where taskid = #{taskid,jdbcType=VARCHAR}
+  </update>
+
+
+</mapper>

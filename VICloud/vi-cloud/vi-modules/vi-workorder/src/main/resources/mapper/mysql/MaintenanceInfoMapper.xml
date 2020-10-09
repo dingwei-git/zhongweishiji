@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huawei.vi.workorder.mapper.MaintenanceInfoMapper">
+    <resultMap id="BaseResultMap" type="com.huawei.vi.entity.po.MaintenanceInfoEntity">
+        <result column="order_code" jdbcType="VARCHAR" property="orderCode"/>
+        <result column="department_id" jdbcType="INTEGER" property="departmentId"/>
+        <result column="person_id" jdbcType="INTEGER" property="personId"/>
+        <result column="feedback_time" jdbcType="TIMESTAMP" property="feedbackTime"/>
+        <result column="demand_time" jdbcType="TIMESTAMP" property="demandTime"/>
+        <result column="done_time" jdbcType="TIMESTAMP" property="doneTime"/>
+        <result column="is_timeout" jdbcType="BIT" property="isTimeout"/>
+        <result column="review_status" jdbcType="VARCHAR" property="reviewStatus"/>
+        <result column="review_result" jdbcType="VARCHAR" property="reviewResult"/>
+        <result column="delay" jdbcType="INTEGER" property="delay"/>
+        <result column="dz_fault_num" jdbcType="INTEGER" property="dzFaultNum"/>
+        <result column="received_num" jdbcType="INTEGER" property="receivedNum"/>
+    </resultMap>
+    <select id="selectByCode" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        *
+        from tbl_maintenance_info
+        where order_code = #{orderCode}
+    </select>
+
+    <update id="updateRepairInfo" parameterType="com.huawei.vi.entity.po.MaintenanceInfoEntity">
+        update tbl_maintenance_info set
+        feedback_time = #{feedbackTime},
+        done_time = #{doneTime}
+        where order_code = #{orderCode}
+    </update>
+
+    <update id="updateByOrderCode" parameterType="com.huawei.vi.entity.po.MaintenanceInfoEntity">
+            update tbl_maintenance_info
+            <set>
+                <if test="departmentId > 0">
+                    department_id=#{departmentId},
+                </if>
+                <if test="personId > 0">
+                    person_id=#{personId},
+                </if>
+                <if test="demandTime != null">
+                    demand_time=#{demandTime},
+                </if>
+                <if test="feedbackTime != null">
+                    feedback_time=#{feedbackTime},
+                </if>
+                <if test="doneTime != null">
+                    done_time = #{doneTime},
+                </if>
+                <if test="isTimeout > 0">
+                    is_timeout = #{isTimeout}
+                </if>
+                <if test="reviewStatus != null">
+                    review_status = #{reviewStatus}
+                </if>
+                <if test="reviewResult != null">
+                    review_result = #{reviewResult}
+                </if>
+                <if test="delay > 0">
+                    delay = #{delay}
+                </if>
+                <if test="dzFaultNum > 0">
+                    dz_fault_num = #{dzFaultNum}
+                </if>
+                <if test="receivedNum > 0">
+                    received_num = #{receivedNum}
+                </if>
+
+            </set>
+            where order_code=#{orderCode}
+    </update>
+</mapper>

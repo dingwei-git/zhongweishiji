@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.huawei.vi.login.mapper.WebUserIpResourceMapper">
+
+    <select id="selectIpcsByUser" parameterType="java.util.Map" resultType="java.util.Map">
+        <choose>
+            <when test="isDefault == 1">
+                <include refid="selectAllIp"/>
+            </when>
+            <otherwise>
+                <include refid="ipcByUser"/>
+            </otherwise>
+        </choose>
+    </select>
+
+    <!-- 默认用户即admin用户查询所有ipc -->
+    <sql id="selectAllIp">
+        select * from ${table} where checkflag = 1
+        <if test="id!=null">
+            and ${id} in (
+            <foreach collection="idList" item="ipcId" separator=",">
+                #{ipcId}
+            </foreach>
+            )
+        </if>
+    </sql>
+
+    <!-- 根据用户查询其权限下的ipc -->
+    <sql id="ipcByUser">
+        SELECT a.* FROM ${table} as a
+        INNER JOIN tbl_user as b
+        INNER JOIN tbl_user_ipc_resource as c
+        WHERE b.userId = c.user_id
+        AND b.user_name=#{userTblName}
+        AND a.ip = c.ip
+        <if test="id!=null">
+            and a.${id} in (
+            <foreach collection="idList" item="ipcId" separator=",">
+                #{ipcId}
+            </foreach>
+            )
+        </if>
+    </sql>
+
+    <!-- 根据userName查询信息 -->
+    <select id="selectByUserName" parameterType="String" resultType="com.huawei.vi.login.po.WebLoginRecordPO">
+		SELECT userName userLoginName,lockFlag,failureNum,loginDate
+		FROM tbl_login_record
+		where userName=#{userName}
+	</select>
+
+    <!-- 插入信息 -->
+    <insert id="insertRecord"
+            parameterType="com.huawei.vi.login.po.WebLoginRecordPO">
+		insert into
+		tbl_login_record (
+		userName,
+		lockFlag,
+		failureNum,
+		loginDate
+		)
+		values(
+		#{userLoginName},
+		#{lockFlag},
+		#{failureNum},
+		#{loginDate}
+		)
+	</insert>
+
+    <!-- 根据userName修改信息 -->
+    <update id="updateByName" parameterType="java.util.Map">
+        update tbl_login_record
+        <set>
+            <if test="lockFlag != null">
+                lockFlag = #{lockFlag},
+            </if>
+            <if test="failureNum != null">
+                failureNum = #{failureNum},
+            </if>
+            <if test="loginDate != null">
+                loginDate = #{loginDate},
+            </if>
+        </set>
+        where userName=#{userName}
+    </update>
+
+</mapper>

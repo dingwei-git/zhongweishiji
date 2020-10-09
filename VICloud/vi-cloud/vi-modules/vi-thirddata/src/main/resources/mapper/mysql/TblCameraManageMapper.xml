@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+        namespace="com.huawei.vi.thirddata.mapper.TblCameraManageMapper">
+
+    <resultMap id="CameraManageVo" type="com.huawei.vi.thirddata.service.binary.pojo.TblCameraDetailOriginalData">
+        <result column="camera_sn" property="cameraSn"/>
+        <result column="camera_name" property="cameraName"/>
+        <result column="mount_height" property="mountHeight"/>
+        <result column="longitude" property="longitude"/>
+        <result column="latitude" property="latitude"/>
+        <result column="address" property="address"/>
+        <result column="stream_url" property="streamUrl"/>
+        <result column="direction" property="direction"/>
+        <result column="lane" property="lane"/>
+        <result column="camera_state" property="cameraState"/>
+        <result column="camera_type" property="cameraType"/>
+        <result column="camera_use" property="cameraUse"/>
+        <result column="camera_feature" property="cameraFeature"/>
+        <result column="plat_name" property="platName"/>
+        <result column="resolution_type" property="resolutionType"/>
+        <result column="field_no" property="fieldNo"/>
+        <result column="compass" property="compass"/>
+        <result column="nvr" property="nvr"/>
+        <result column="group_id" property="groupId"/>
+        <result column="camera_id" property="cameraId"/>
+        <result column="substatus" property="substatus"/>
+        <result column="vcn_camera_use" property="vcnCameraUse"/>
+        <result column="analysis_list" property="analysisList"/>
+        <result column="analysis_type" property="analysisType"/>
+        <result column="task_type_list" property="taskTypeList"/>
+        <result column="task_type" property="taskType"/>
+        <result column="discard_collection" property="discardCollection"/>
+        <result column="ip_ivs" property="ipIvs"/>
+    </resultMap>
+
+    <insert id="insert"
+            parameterType="com.huawei.vi.thirddata.service.binary.pojo.TblCameraDetailOriginalData">
+		insert into ${tabName}
+		(camera_sn,camera_name,mount_height,longitude,latitude,address,stream_url,direction,lane,
+		camera_state,camera_type,camera_use,camera_feature,plat_name,resolution_type,field_no,compass,nvr,group_id,camera_id,
+		substatus,vcn_camera_use,analysis_list,analysis_type,task_type_list,task_type,discard_collection,ip_ivs)
+		values
+		<foreach collection="relists" item="relist" index="index" separator=","> 
+		    (#{relist.cameraSn,jdbcType=VARCHAR},
+				#{relist.cameraName,jdbcType=VARCHAR},#{relist.mountHeight,jdbcType=VARCHAR},#{relist.longitude,jdbcType=VARCHAR},
+				#{relist.latitude,jdbcType=VARCHAR},#{relist.address,jdbcType=VARCHAR},#{relist.streamUrl,jdbcType=VARCHAR},
+				#{relist.direction,jdbcType=VARCHAR},#{relist.lane,jdbcType=VARCHAR},#{relist.cameraState,jdbcType=INTEGER},
+				#{relist.cameraType,jdbcType=VARCHAR},#{relist.cameraUse,jdbcType=VARCHAR},#{relist.cameraFeature,jdbcType=VARCHAR},
+				#{relist.platName,jdbcType=VARCHAR},#{relist.resolutionType,jdbcType=VARCHAR},#{relist.fieldNo,jdbcType=VARCHAR},
+				#{relist.compass,jdbcType=VARCHAR},#{relist.nvr,jdbcType=VARCHAR},#{relist.groupId,jdbcType=VARCHAR},
+				#{relist.cameraId,jdbcType=VARCHAR},#{relist.substatus,jdbcType=INTEGER},#{relist.vcnCameraUse,jdbcType=INTEGER},
+				#{relist.analysisList,jdbcType=VARCHAR},#{relist.analysisType,jdbcType=VARCHAR},#{relist.taskTypeList,jdbcType=VARCHAR},
+				#{relist.taskType,jdbcType=INTEGER},#{relist.discardCollection,jdbcType=INTEGER},#{relist.ipIvs,jdbcType=VARCHAR}
+		      )
+	      </foreach>
+		
+	</insert>
+
+    <select id="getValidateCameraList" parameterType="java.util.Map"
+            resultMap="CameraManageVo">
+		select * from ${tabName}
+         where discard_collection = 0
+            <if test="cameraSn!=null">
+				and	camera_sn=#{cameraSn}
+			</if>
+			<if test="cameraState!=null">
+				and	camera_state=#{cameraState}
+			</if>
+			<if test="groupId!=null">
+				and	group_id=#{groupId}
+			</if>
+	</select>
+
+    <update id="createTblOriginalData" parameterType="java.util.Map">
+		CREATE TABLE ${tabName} (
+			`CAMERA_SN` varchar(128) NOT NULL COMMENT '摄像机编码',
+		    `CAMERA_NAME` varchar(255) NOT NULL COMMENT '摄像机名称',
+		    `MOUNT_HEIGHT` varchar(10) NULL COMMENT '安装高度',
+		    `LONGITUDE` varchar(18) NULL COMMENT '摄像机经度',
+		    `LATITUDE` varchar(18) NULL COMMENT '摄像机纬度',
+		    `ADDRESS` varchar(255) NULL COMMENT '摄像机地址',
+		    `STREAM_URL` varchar(255) NULL COMMENT '摄像机IP,取流url',
+		    `DIRECTION` varchar(128) NULL COMMENT '摄像机方位',
+		    `LANE` VARCHAR(128) NULL COMMENT '车道',
+		    `CAMERA_STATE` INT NOT NULL COMMENT '摄像机在线状态0：离线，1：在线',
+		    `CAMERA_TYPE` VARCHAR(128) NULL COMMENT '摄像机类型',
+		    `CAMERA_USE` VARCHAR(128) NULL COMMENT '摄像机用途',
+		    `CAMERA_FEATURE` VARCHAR(128) NULL COMMENT '摄像机功能',
+		    `PLAT_NAME` VARCHAR(255) NULL COMMENT '平台名称',
+		    `RESOLUTION_TYPE` VARCHAR(128) NULL COMMENT '分辨率',
+		    `FIELD_NO` VARCHAR(128) NULL COMMENT '域编码',
+		    `COMPASS` VARCHAR(128) NULL COMMENT '罗盘',
+		    `NVR` VARCHAR(128) NULL COMMENT '摄像机nvr',
+		    `GROUP_ID` VARCHAR(128) NOT NULL COMMENT '组织id',
+		    `CAMERA_ID` VARCHAR(128) NULL COMMENT '摄像机id',
+		    `SUBSTATUS` INT NULL COMMENT '0:未订阅 1:已订阅',
+		    `VCN_CAMERA_USE` INT NULL COMMENT '相机属性0：普通相机 1：人脸卡口物理相机 2：车物理卡口相机 3：未知的其他相机 4：机非人相机',
+		    `ANALYSIS_LIST` text NULL COMMENT '智能分析列表',
+		    `ANALYSIS_TYPE` varchar(10) NULL COMMENT '分析类型0001，车牌识别；0010，人脸识别；0100，行为分析；1000，人体分析；1001，人车混合结构化；',
+		    `TASK_TYPE_LIST` text NULL COMMENT '智能任务列表',
+		    `TASK_TYPE` INT NULL COMMENT '智能任务类型0: 行为分析 1: 车牌分析 2: 人脸分析 4: 人体分析 9：人车混合结构化',
+		    `DISCARD_COLLECTION` INT NOT NULL DEFAULT '1' COMMENT '丢弃标识0:需采集 1: 丢弃',
+		    `IP_IVS` VARCHAR(128) NOT NULL COMMENT 'IVS平台IP地址',
+		    PRIMARY KEY (`CAMERA_SN`, `IP_IVS`)
+		) ENGINE = InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET = utf8;
+	</update>
+	
+	<!-- 删除原始表数据 -->
+	<update id="dropTable" parameterType="map">
+		drop table IF
+		EXISTS
+		`${tabName}`
+	</update>
+
+
+
+
+</mapper>
