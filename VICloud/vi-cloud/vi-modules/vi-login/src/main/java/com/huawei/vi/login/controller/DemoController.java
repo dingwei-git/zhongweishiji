@@ -20,6 +20,7 @@ import java.io.FileNotFoundException;
 public class DemoController {
     @GetMapping("test")
     public RestResult test(){
+        // asd
         return RestResult.generateRestResult(AppResultEnum.SUCCESS.getCode(),AppResultEnum.SUCCESS.getMessage(),null);
     }
 }
