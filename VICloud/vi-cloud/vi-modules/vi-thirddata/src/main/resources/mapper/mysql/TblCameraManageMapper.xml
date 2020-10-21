@@ -72,6 +72,7 @@
 			</if>
 	</select>
 
+
     <update id="createTblOriginalData" parameterType="java.util.Map">
 		CREATE TABLE ${tabName} (
 			`CAMERA_SN` varchar(128) NOT NULL COMMENT '摄像机编码',

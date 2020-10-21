@@ -68,6 +68,7 @@ public class StatisticsServiceImpl implements StatisticsService {
         String filed2 = null;
         String filed3 = null;
         List<String> stringList = Arrays.asList(organ);
+        Map<String,Object> maps = new HashedMap();
         for(int x=0;x<stringList.size();x++) {
             String organList = stringList.get(x);
             String id = organList;
@@ -76,6 +77,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                 map.put("id0", id);
                 filed0 = "filed0";
                 map.put("filed0", filed0);
+                maps.put("ipcLevel",1);
             }
             if (id.length() == 6) {
                 map.put("id1", id);
@@ -83,6 +85,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                 map.put("filed0", filed0);
                 filed1 = "filed1";
                 map.put("filed1", filed1);
+                maps.put("ipcLevel",2);
             }
             if (id.length() == 9) {
                 map.put("id2", id);
@@ -92,6 +95,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                 map.put("filed1", filed1);
                 filed2 = "filed2";
                 map.put("filed2", filed2);
+                maps.put("ipcLevel",3);
             }
             if (id.length() == 12) {
                 map.put("id3", id);
@@ -103,6 +107,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                 map.put("filed2", filed2);
                 filed3 = "filed3";
                 map.put("filed3", filed3);
+                maps.put("ipcLevel",4);
             }
             //获取所有的cameraId
             camerId = tblIpcIpMapper.getCameraIds(map);
@@ -143,7 +148,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                 organization3 = camerId.get(0).get("filed3").toString();
             }
             //设备总数：
-            int cameraCount = cameraIdList.size()-1;
+            int cameraCount = cameraIdList.size();
             //将id放
             List<Map> list = tblDossierContentMapper.getDossierMap(dossierIdList);
             if (list == null || list.size() == 0) {
@@ -161,18 +166,18 @@ public class StatisticsServiceImpl implements StatisticsService {
             String yshCount = null;
             String jdsCount = null;
             for (int k = 0; k < list.size(); k++) {
-                Map<String, Object> maps = list.get(k);
-                if (maps.get("dossiersStatus")!=null && maps.get("dossiersStatus").toString().equals("待审核")) {
-                    //提交数
-                    dshCount = maps.get("count(dossiers_status)").toString();
+                Map<String, Object> mapDc = list.get(k);
+                if (mapDc.get("dossiersStatus")!=null && mapDc.get("dossiersStatus").toString().equals(messageSourceUtil.getMessage("device.toBeReviewed"))) {
+                    //提交数  待审核
+                    dshCount = mapDc.get("count(dossiers_status)").toString();
                 }
-                if (maps.get("dossiersStatus")!=null&&maps.get("dossiersStatus").toString().equals("已审核")) {
-                    //审核数
-                    yshCount = maps.get("count(dossiers_status)").toString();
+                if (mapDc.get("dossiersStatus")!=null&&mapDc.get("dossiersStatus").toString().equals(messageSourceUtil.getMessage("device.reviewed"))) {
+                    //审核数 已审核
+                    yshCount = mapDc.get("count(dossiers_status)").toString();
                 }
-                if (maps.get("dossiersStatus")!=null&&maps.get("dossiersStatus").toString().equals("已提交")) {
-                    //审核数
-                    jdsCount = maps.get("count(dossiers_status)").toString();
+                if (mapDc.get("dossiersStatus")!=null&&mapDc.get("dossiersStatus").toString().equals(messageSourceUtil.getMessage("device.submitted"))) {
+                    //已提交
+                    jdsCount = mapDc.get("count(dossiers_status)").toString();
                 }
             }
             //审核通过率
@@ -185,18 +190,20 @@ public class StatisticsServiceImpl implements StatisticsService {
             if (StringUtils.isEmpty(jdsCount)) {
                 jdsCount = "0";
             }
-            //device.numberOfFiles：
+            //device.numberOfFiles：  建档数=待审核+已审核+已提交
             Integer dossierInteger = Integer.parseInt(dshCount) + Integer.parseInt(yshCount) + Integer.parseInt(jdsCount);
             double passPerccent = Integer.parseInt(yshCount);
-            double passPerccents = passPerccent / cameraCount;
+            double passPerccentes = dossierInteger;
+            //审核通过率
+            double passPerccents = passPerccent / passPerccentes;
             String passPer = passPerccents * 100 + "";
             if (passPer.length() <= 4) {
                 passPer = passPer + "00";
             }
             passPer = passPer.substring(0, 5) + "%";
             //建档率
-            double creatDossier = Integer.parseInt(yshCount);
-            double creatDossierPercent = creatDossier / cameraCount;
+            double cameraCounts = cameraCount;
+            double creatDossierPercent = dossierInteger / cameraCounts;
             String creatDossierPer = creatDossierPercent * 100 + "";
             if (creatDossierPer.length() <= 4) {
                 creatDossierPer = creatDossierPer + "00";
@@ -216,7 +223,6 @@ public class StatisticsServiceImpl implements StatisticsService {
         }
         total = dossierStatistices.size();
         List<DossierStatistics> dossierStatisticsLists = page(dossierStatistices,pageSize,currentPage);
-        Map<String,Object> maps = new HashedMap();
         maps.put("total",total);
         maps.put("dossierStatisticsLists",dossierStatisticsLists);
         restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
@@ -322,7 +328,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                 organization3 = camerId.get(0).get("filed3").toString();
             }
             //设备总数：
-            int cameraCount = cameraIdList.size()-1;
+            int cameraCount = cameraIdList.size();
             //将id放
             List<Map> list = tblDossierContentMapper.getDossierMap(dossierIdList);
             if (list == null || list.size() == 0) {
@@ -341,15 +347,15 @@ public class StatisticsServiceImpl implements StatisticsService {
             String jdsCount = null;
             for (int k = 0; k < list.size(); k++) {
                 Map<String, Object> maps = list.get(k);
-                if (maps.get("dossiersStatus")!=null && maps.get("dossiersStatus").toString().equals("待审核")) {
+                if (maps.get("dossiersStatus")!=null && maps.get("dossiersStatus").toString().equals(messageSourceUtil.getMessage("device.toBeReviewed"))) {
                     //提交数
                     dshCount = maps.get("count(dossiers_status)").toString();
                 }
-                if (maps.get("dossiersStatus")!=null&&maps.get("dossiersStatus").toString().equals("已审核")) {
+                if (maps.get("dossiersStatus")!=null&&maps.get("dossiersStatus").toString().equals(messageSourceUtil.getMessage("device.reviewed"))) {
                     //审核数
                     yshCount = maps.get("count(dossiers_status)").toString();
                 }
-                if (maps.get("dossiersStatus")!=null&&maps.get("dossiersStatus").toString().equals("已提交")) {
+                if (maps.get("dossiersStatus")!=null&&maps.get("dossiersStatus").toString().equals(messageSourceUtil.getMessage("device.submitted"))) {
                     //审核数
                     jdsCount = maps.get("count(dossiers_status)").toString();
                 }
@@ -367,7 +373,8 @@ public class StatisticsServiceImpl implements StatisticsService {
             //device.numberOfFiles：
             Integer dossierInteger = Integer.parseInt(dshCount) + Integer.parseInt(yshCount) + Integer.parseInt(jdsCount);
             double passPerccent = Integer.parseInt(yshCount);
-            double passPerccents = passPerccent / cameraCount;
+            double passPerccentes = dossierInteger;
+            double passPerccents = passPerccent / passPerccentes;
             String passPer = passPerccents * 100 + "";
             if (passPer.length() <= 4) {
                 passPer = passPer + "00";
@@ -375,7 +382,8 @@ public class StatisticsServiceImpl implements StatisticsService {
             passPer = passPer.substring(0, 5) + "%";
             //建档率
             double creatDossier = Integer.parseInt(yshCount);
-            double creatDossierPercent = creatDossier / cameraCount;
+            double cameraCounts = cameraCount;
+            double creatDossierPercent = dossierInteger / cameraCounts;
             String creatDossierPer = creatDossierPercent * 100 + "";
             if (creatDossierPer.length() <= 4) {
                 creatDossierPer = creatDossierPer + "00";
@@ -517,15 +525,15 @@ public class StatisticsServiceImpl implements StatisticsService {
                     String jdsCount = null;
                     for (int k = 0; k < list.size(); k++) {
                         Map<String, Object> maps = list.get(k);
-                        if (maps.get("dossiersStatus").toString().equals("待审核")) {
+                        if (maps.get("dossiersStatus").toString().equals(messageSourceUtil.getMessage("device.toBeReviewed"))) {
                             //提交数
                             dshCount = maps.get("count(dossiers_status)").toString();
                         }
-                        if (maps.get("dossiersStatus").toString().equals("已审核")) {
+                        if (maps.get("dossiersStatus").toString().equals(messageSourceUtil.getMessage("device.reviewed"))) {
                             //审核数
                             yshCount = maps.get("count(dossiers_status)").toString();
                         }
-                        if (maps.get("dossiersStatus").toString().equals("已提交")) {
+                        if (maps.get("dossiersStatus").toString().equals(messageSourceUtil.getMessage("device.submitted"))) {
                             //审核数
                             jdsCount = maps.get("count(dossiers_status)").toString();
                         }

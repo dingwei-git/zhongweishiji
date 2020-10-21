@@ -46,7 +46,7 @@ public interface IntelligentTraceMapper extends IbaseDao<ImageCountVO, String>{
 
     int deleteByTableName(@Param("tableName") String tableName) throws DataAccessException;
 
-
+    public List<Map> getServerInfo(Map<String,Object> map)throws DataAccessException;
 
 
 

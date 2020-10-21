@@ -5,15 +5,19 @@
         <id column="id" property="id" jdbcType="INTEGER"/>
         <result column="cameraId" property="cameraId" jdbcType="VARCHAR"/>
         <result column="monitor_type_id" property="monitorTypeId" jdbcType="INTEGER"/>
+        <result column="monitor_type_name" property="monitorTypeName" jdbcType="VARCHAR"/>
         <result column="fault_type_id" property="faultTypeId" jdbcType="VARCHAR"/>
+        <result column="fault_type_name" property="faultTypeName" jdbcType="VARCHAR"/>
         <result column="alarm_level_id" property="alarmLevelId" jdbcType="INTEGER"/>
+        <result column="alarm_level_name" property="alarmLevelName" jdbcType="VARCHAR"/>
         <result column="startTime" property="startTime" jdbcType="TIMESTAMP"/>
         <result column="endTime" property="endTime" jdbcType="TIMESTAMP"/>
         <result column="diagnosisNum" property="diagnosisNum" jdbcType="INTEGER"/>
         <result column="alarm_status_id" property="alarmStatusId" jdbcType="INTEGER"/>
+        <result column="alarm_status_name" property="alarmStatusName" jdbcType="VARCHAR"/>
         <result column="reCheckStatus" property="reCheckStatus" jdbcType="TINYINT"/>
         <result column="pictureUrl" property="pictureUrl" jdbcType="VARCHAR"/>
-        <result column="rePictureUrl" property="rePictureUrl" jdbcType="LONGVARCHAR"/>
+        <result column="rePictureUrl" property="rePictureUrl" jdbcType="VARCHAR"/>
         <result column="task_id" property="taskId" jdbcType="VARCHAR"/>
         <result column="faultRelationId" property="faultRelationId" jdbcType="INTEGER"/>
         <result column="alarm_code" property="alarmCode" jdbcType="INTEGER"/>
@@ -22,11 +26,34 @@
     </resultMap>
     <select id="queryAlarmInfo" resultMap="BaseResultMap">
         select
-        t1.id,t1.cameraId,t1.monitor_type_id,
-        t1.fault_type_id,t1.alarm_level_id,t1.startTime,t1.endTime,
-        t1.diagnosisNum,t1.alarm_status_id,
-        t1.reCheckStatus,t1.pictureUrl,t1.rePictureUrl,t1.task_id,t1.faultRelationId,t1.alarm_code,t2.camera_name,t2.ip
-        from tbl_alarm_${alarmTableDate} t1 left join tbl_ipc_ip_tmp t2 on t1.cameraId=t2.cameraId
+        t1.id,
+        t1.cameraId,
+        t1.monitor_type_id,
+        t4.TYPE monitor_type_name,
+        t1.fault_type_id,
+        t5.name fault_type_name,
+        t1.alarm_level_id,
+        t3.name alarm_level_name,
+        t1.startTime,
+        t1.endTime,
+        t1.diagnosisNum,
+        t1.alarm_status_id,
+        t6.status alarm_status_name,
+        CASE WHEN t1.reCheckStatus = '0' THEN '未复检'
+        WHEN t1.reCheckStatus = '1' THEN '已复检' END,
+        t1.pictureUrl,
+        t1.rePictureUrl,
+        t1.task_id,
+        t1.faultRelationId,
+        t1.alarm_code,
+        t2.camera_name,
+        t2.ip
+        from tbl_alarm_${alarmTableDate} t1
+        left join tbl_ipc_ip_tmp t2 on t1.cameraId=t2.cameraId
+        LEFT JOIN TBL_ALARM_LEVEL t3 ON t3.id=t1.ALARM_LEVEL_ID
+        LEFT JOIN TBL_MONITOR_TYPE t4 ON t4.id=t1.monitor_type_id
+        LEFT JOIN TBL_FAULT_TYPE t5 ON t5.id=t1.fault_type_id
+        LEFT JOIN TBL_ALARM_STATUS t6 ON t6.id=t1.alarm_status_id
         where t1.alarm_code=#{alarmCode}
     </select>
 

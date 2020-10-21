@@ -86,10 +86,10 @@ public class EquipmentServiceImpl implements EquipmentService {
                 organizeNames.add(messageSourceUtil.getMessage(hierarchy));
             }
         }
-        Map<String, Object> map = getConditions(request,levelInt);// 查询条件封装
+        Map<String, Object> map = getConditions(request,restResult);// 查询条件封装
         if("false".equals(map.get("flag"))){
             restResult.setCode(ServiceCommonConst.CODE_FAILURE);
-            restResult.setMessage(messageSourceUtil.getMessage("resultIsEmpt"));
+//            restResult.setMessage(messageSourceUtil.getMessage("resultIsEmpt"));
             return restResult;
         }
         String pageNum = request.getParameter("pageNum");// 页码
@@ -112,8 +112,8 @@ public class EquipmentServiceImpl implements EquipmentService {
         return restResult;
     }
 
-    private Map<String, Object> getConditions(HttpServletRequest request,int level){
-        int menuId = level;
+    private Map<String, Object> getConditions(HttpServletRequest request,RestResult restResult){
+        int menuId = 0;
         List<Menu> menuList = new ArrayList<Menu>();// 菜单
         Menu menu = null;
         Map<String, Object> map = new HashMap<String, Object>();
@@ -122,17 +122,19 @@ public class EquipmentServiceImpl implements EquipmentService {
         map.put("five",NumConstant.NUM_5);
         map.put("ten",NumConstant.NUM_10);
         List<String> list = new ArrayList<String>();
-        for(int i=0;i<level;i++){
-            list.add("views.id"+i);
-            menu = getMuse(i,organizeNames.get(i),"filed"+i);
-            menuList.add(menu);
-        }
         JSONObject json = JSONObject.parseObject(request.getParameter("data"));
         List<String> modelList = new ArrayList<String>();
         List<String> ipTypeList = new ArrayList<String>();
         List<String> shelveNameList = new ArrayList<String>();
         List<String> id = new ArrayList<String>();
         if(json!=null){
+            int layerLevel = json.getInteger("layerLevel");
+            for(int i=0;i<layerLevel;i++){
+                list.add("views.id"+i);
+                menu = getMuse(i,organizeNames.get(i),"filed"+i);
+                menuList.add(menu);
+            }
+            menuId = layerLevel;
             // 厂家
             JSONArray shelveName = json.getJSONArray("shelveName");
             if(shelveName!=null&&shelveName.size()>0){
@@ -146,7 +148,8 @@ public class EquipmentServiceImpl implements EquipmentService {
             JSONArray ipType = json.getJSONArray("ipType");
             if(ipType!=null&&ipType.size()>0){
                 list.add("views.ipType");
-                ipTypeList = ipType.toJavaList(String.class);
+                ipTypeList = TraverseObjectUtil.checkOther(ipType.toJavaList(String.class),messageSourceUtil.getMessage("other"));
+//                ipTypeList = ipType.toJavaList(String.class);
                 menuId = menuId+1;
                 menu = getMuse(menuId,"类型","ipType");
                 menuList.add(menu);
@@ -155,7 +158,8 @@ public class EquipmentServiceImpl implements EquipmentService {
             JSONArray model = json.getJSONArray("model");
             if(model!=null&&model.size()>0){
                 list.add("views.model");
-                modelList = model.toJavaList(String.class);
+                modelList = TraverseObjectUtil.checkOther(model.toJavaList(String.class),messageSourceUtil.getMessage("other"));
+//                modelList = model.toJavaList(String.class);
                 menuId = menuId+1;
                 menu = getMuse(menuId,"型号","model");
                 menuList.add(menu);
@@ -164,7 +168,7 @@ public class EquipmentServiceImpl implements EquipmentService {
             JSONArray ids = json.getJSONArray("id");
             if(ids!=null&&ids.size()>0){
                 id = ids.toJavaList(String.class);
-                int idSubscript = level-1;
+                int idSubscript = layerLevel-1;
                 map.put("ida","id"+idSubscript);// 分组条件
             }
         }
@@ -202,11 +206,12 @@ public class EquipmentServiceImpl implements EquipmentService {
                     map.put("userIp",userIp);
                     map.put("flag","true");//
                 }else{
+                    restResult.setMessage(messageSourceUtil.getMessage("resultIsEmpt"));
                     map.put("flag","false");//
                 }
             }
         }
-        map.put("dossierStatus","已审核");
+        map.put("dossierStatus",messageSourceUtil.getMessage("dossierStatus"));
         return map;
     }
 
@@ -281,10 +286,17 @@ public class EquipmentServiceImpl implements EquipmentService {
             return restResult;
         }
         int levelInt = Integer.parseInt(level);
+        if(organizeNames.size()!=levelInt){
+            for(int i=0;i<levelInt;i++){
+                String hierarchy = "hierarchy"+i;
+                organizeNames.add(messageSourceUtil.getMessage(hierarchy));
+            }
+        }
         Map<String, Object> map = getOrganiseInfo(loginName,levelInt);// 查询组织层级
         List<Dictionary> dictionary = getDicByPid(typeId);// 查询厂家
-        List<String> modelList= equipmentMapper.queryEquipment(model);// 查询类型
-        List<String> ipTypeList= equipmentMapper.queryEquipment(ipType);// 查询设备
+        String other = messageSourceUtil.getMessage("other");
+        List<String> modelList= equipmentMapper.queryEquipment(model,other);// 查询类型
+        List<String> ipTypeList= equipmentMapper.queryEquipment(ipType,other);// 查询设备
         JSONObject json = new JSONObject();
         json.put("netWork",map);
         json.put("dictionary",dictionary);
@@ -314,7 +326,7 @@ public class EquipmentServiceImpl implements EquipmentService {
                 organizeNames.add(messageSourceUtil.getMessage(hierarchy));
             }
         }
-        Map<String, Object> map = getConditions(request,levelInt);// 查询条件封装
+        Map<String, Object> map = getConditions(request,restResult);// 查询条件封装
         List<Menu> menuList  = (List<Menu>)map.get("menuList");
         List<String> sheetNameList = new ArrayList<String>();
         sheetNameList.add("设备使用年限统计");

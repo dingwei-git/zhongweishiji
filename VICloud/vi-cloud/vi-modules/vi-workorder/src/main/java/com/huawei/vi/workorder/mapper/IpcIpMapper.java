@@ -13,6 +13,6 @@ import java.util.Map;
 @Component
 public interface IpcIpMapper {
 
-    Map getIpcInfo(String cameraId);
+    Map getIpcInfo(Map<String, Object> param);
 
 }

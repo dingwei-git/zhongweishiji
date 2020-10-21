@@ -18,9 +18,26 @@
     </resultMap>
 
     <!--查询设备详情-->
-    <select id="getIpcInfo" resultType="java.util.Map" parameterType="java.lang.String">
+    <select id="getIpcInfo" resultType="java.util.Map" parameterType="java.util.Map">
         SELECT
-        *
+        ${fileds},
+        `COPOLECODE` AS `copoleCode`,
+        `IP` AS `ip`,
+        `CAMERANUM` AS `cameraNum`,
+        `CAMERA_NAME` AS `camera_name`,
+        `CAMERAID` AS `cameraId`,
+        `CHECKFLAG` AS `checkflag`,
+        `IPTYPE` AS `ipType`,
+        `LONGITUDE` AS `longitude`,
+        `LATITUDE` AS `latitude`,
+        `PLATFORMIP` AS `platformIp`,
+        `CAMERA_SN` AS `camera_sn`,
+        `GROUP_NAME` AS `group_name`,
+        `LASTONLINETIME` AS `lastOnlineTime`,
+        `REFERTIME` AS `referTime`,
+        `HD` AS `hd`,
+        `MANUFACTURER` AS `manufacturer`,
+        `MODEL` AS `model`
         FROM tbl_ipc_ip_tmp
         WHERE cameraId=#{cameraId}
     </select>

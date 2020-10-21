@@ -10,12 +10,14 @@ import com.jovision.jaws.common.controller.BaseController;
 import com.jovision.jaws.common.util.RestResult;
 import com.jovision.jaws.common.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/order/")
@@ -25,7 +27,8 @@ public class OrderController extends BaseController {
     private OrderService orderService;
     @Autowired
     private UserClient userClient;
-
+    @Autowired
+    private RedisTemplate redisTemplate;
     /**
      * 列表页：1、代办工单列表、2、进行中工单列表、3、已完成工单列表
      * */
@@ -67,6 +70,10 @@ public class OrderController extends BaseController {
      * */
     @PostMapping("update/repair")
     public RestResult updateRepair(HttpServletRequest request, @RequestParam(value= "filename",required=false) MultipartFile[] files, RepairVo repairVo, String recheck){
+        RestResult restResult = repeat("app:repair:"+repairVo.getOrderCode());
+        if(!(restResult.getCode()==AppResultEnum.SUCCESS.getCode())){
+            return restResult;
+        }
         String token = request.getHeader(HeaderParamEnum.AUTHORIZATION.getTitle()).substring(7);
         if(StringUtils.isEmpty(getUserNameFromAttribute())){
             return RestResult.generateRestResult(AppResultEnum.NOT_FIND_USER.getCode(),AppResultEnum.NOT_FIND_USER.getMessage(),null);
@@ -79,6 +86,10 @@ public class OrderController extends BaseController {
      * */
     @PostMapping("update/feedback")
     public RestResult updateClose(@RequestBody OrderOperateVo operateVo){
+        RestResult restResult = repeat("app:feedback:"+operateVo.getOrderCode());
+        if(!(restResult.getCode()==AppResultEnum.SUCCESS.getCode())){
+            return restResult;
+        }
         if(StringUtils.isEmpty(getUserNameFromAttribute())){
             return RestResult.generateRestResult(AppResultEnum.NOT_FIND_USER.getCode(),AppResultEnum.NOT_FIND_USER.getMessage(),null);
         }
@@ -89,5 +100,16 @@ public class OrderController extends BaseController {
 //            }
         // 二级工单
         return orderService.updateRepairFeedBack(operateVo, getUserNameFromAttribute());
+    }
+
+    private RestResult repeat(String key){
+        long count = redisTemplate.opsForValue().increment(key, 1);
+        if (count == 1) {
+            redisTemplate.expire(key, 5, TimeUnit.SECONDS);
+        }
+        if (count > 1) {
+            return RestResult.generateRestResult(AppResultEnum.REPEAT_COMMIT.getCode(),AppResultEnum.REPEAT_COMMIT.getMessage(),null);
+        }
+        return RestResult.generateRestResult(AppResultEnum.SUCCESS.getCode(),AppResultEnum.SUCCESS.getMessage(),null);
     }
 }

@@ -25,7 +25,7 @@ public interface GBsyncDataService {
 
     RestResult internationalizationTitle();
 
-    RestResult ipcipdatagird(Integer levelCount,String levelid,String offset,String rows);
+    RestResult ipcipdatagird(Integer levelCount,String levelid,String offset,String rows,String condition);
 
     RestResult editipc(Map<String,Object> param);
 }

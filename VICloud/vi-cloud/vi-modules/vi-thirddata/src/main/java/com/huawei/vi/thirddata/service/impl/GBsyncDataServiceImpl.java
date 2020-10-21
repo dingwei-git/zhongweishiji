@@ -105,6 +105,19 @@ public class GBsyncDataServiceImpl implements GBsyncDataService {
         if (ipcList == null || ipcList.size() == 0) {
             return RestResult.generateRestResult(NumConstant.NUM_1000,"success", null);
         }
+
+//        //todo （同步到的数据格式和最初做时不一致）临时解决方案，把不是设备的数据删除 start
+//        List<JSONObject> ipcListtmp = new ArrayList<>();
+//        ipcListtmp.addAll(ipcList);
+//        for(JSONObject jsonObject:ipcListtmp){
+//            String json = JSON.toJSONString(jsonObject);
+//            if(!json.contains("Manufacturer")&&!json.contains("IPAddress")){
+//                log.info("is not devive====>{}",jsonObject);
+//                ipcList.remove(jsonObject);
+//            }
+//        }
+//        //todo （同步到的数据格式和最初做时不一致）临时解决方案，把不是设备的数据删除 end
+
         Map<String, Object> resultMap = new HashMap<>();
         //同步到所有设备树形数据
         List<TblIpcIpSyncRecord> syncRecords = getLevelIpInfo(ipcList, 0);
@@ -434,7 +447,7 @@ public class GBsyncDataServiceImpl implements GBsyncDataService {
     }
 
     @Override
-    public RestResult ipcipdatagird(Integer levelCount, String levelid, String offset, String rows) {
+    public RestResult ipcipdatagird(Integer levelCount, String levelid, String offset, String rows,String condition) {
         Map<String, Object> param = new HashMap<>();
         StringBuilder builder = new StringBuilder();
         if (levelCount != null && levelCount.intValue() > 0) {
@@ -473,6 +486,7 @@ public class GBsyncDataServiceImpl implements GBsyncDataService {
             cloumnBuilder.append("*");
         }
         param.put("filds",cloumnBuilder.toString());
+        param.put("condition",condition);
         param.put("pageindex", (Integer.valueOf(offset) - 1) * Integer.valueOf(rows));
         param.put("rows", Integer.valueOf(rows));
         Integer total = tblIpcIpMapper.queryIpcByParamsCount(param);
@@ -507,6 +521,7 @@ public class GBsyncDataServiceImpl implements GBsyncDataService {
         List<TblIpcIpSyncRecord> recordWitheLevelTmp = new ArrayList<>();
         recordWitheLevelTmp.addAll(recordWitheLevel);
         List<String> deviceIds = recordWitheLevel.stream().map(TblIpcIpSyncRecord::getDeviceid).collect(Collectors.toList());
+        log.info("splitExistAndNotExistIpc====={}",deviceIds);
         List<String> cameraNums = tblIpcIpMapper.queryIpcExist(deviceIds);
         List<TblIpcIpSyncRecord> hasExistIps = new ArrayList<>();
         List<TblIpcIpSyncRecord> toAddIps = new ArrayList<>();
@@ -643,6 +658,16 @@ public class GBsyncDataServiceImpl implements GBsyncDataService {
                 JSONObject devObject = deviceListObject.getJSONObject("Item");
                 devices.add(devObject);
             }
+//            //todo （同步到的数据格式和最初做时不一致）临时解决方案，把不是设备的数据删除 start
+//            JSONArray devicesTmp = new JSONArray(devices);
+//            for(Object object:devicesTmp){
+//                JSONObject jsonobject = (JSONObject) object;
+//                if(jsonobject.containsKey("Manufacturer")&&!jsonobject.containsKey("IPAddress")){
+//                    devices.remove(object);
+//                }
+//            }
+//            //todo （同步到的数据格式和最初做时不一致）临时解决方案，把不是设备的数据删除 end
+
             //原始完整数据的树形接口数据
             if (removeExist == 0) {
                 dealLevelIpInfo(topParentId, devices, tblIpcIpSyncRecord);

@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.huawei.utils.NumConstant;
 import com.huawei.utils.*;
 import com.huawei.vi.entity.vo.ImageDayStatisticsVcnVO;
+import com.huawei.vi.thirddata.mapper.TblCameraManageMapper;
 import com.huawei.vi.thirddata.mapper.TblCameraManageOnceMapper;
 import com.huawei.vi.thirddata.mapper.TblOriginalDataMapper;
 import com.huawei.vi.thirddata.service.baseserv.impl.BaseServImpl;
@@ -14,6 +15,7 @@ import com.huawei.vi.thirddata.service.ivsserver.IvsService;
 import com.huawei.vi.thirddata.service.ivsserver.ServiceCommonConst;
 import com.huawei.vi.thirddata.service.ivsserver.common.PlateData;
 import com.huawei.vi.thirddata.service.ivsserver.common.PlateResponse;
+import com.jovision.jaws.common.config.i18n.MessageSourceUtil;
 import com.jovision.jaws.common.constant.CommonConst;
 import com.jovision.jaws.common.util.SslClient;
 import com.jovision.jaws.common.util.StringNumConstant;
@@ -100,6 +102,14 @@ public class IvsServiceImpl extends BaseServImpl<CaptureImageOriginal, String> i
 
     @Autowired
     private TblCameraManageOnceMapper tblCameraManageOnceMapper;
+
+
+    @Autowired
+    private TblCameraManageMapper tblCameraManageMappers;
+
+
+    @Autowired
+    private MessageSourceUtil messageSourceUtil;
 
     /*
      * 采集数据处理线程池
@@ -839,6 +849,7 @@ public class IvsServiceImpl extends BaseServImpl<CaptureImageOriginal, String> i
             }
             List<TblCameraDatailOriginalImageData> list2 = tblCameraManageOnceMapper.getCameraInfoAndImage(strMaps);
             List<String> titleLists = new ArrayList<>();
+            titleLists = getTableTitles();
             if(list2!=null && list2.size()>0){
                 for(int i = 0;i<list2.size();i++){
                     String strTime = list2.get(i).getStartTime();
@@ -846,7 +857,6 @@ public class IvsServiceImpl extends BaseServImpl<CaptureImageOriginal, String> i
                     list2.get(i).setStartTime(strTime);
                     list2.get(i).setEndTime(strEndTime);
                 }
-                titleLists = getTableTitles();
             }
             creatTblCameraDetailOriginalCell(list1.toArray(),cameraOnline,cameraOffLine,titleLists.toArray(),list2,response);
         }catch (DataAccessException e){
@@ -890,43 +900,43 @@ public class IvsServiceImpl extends BaseServImpl<CaptureImageOriginal, String> i
 
     private List<String> getTableTitle(){
         List<String> list = new LinkedList<>();
-        list.add("摄像机编码");
-        list.add("摄像机名称");
-        list.add("安装高度");
-        list.add("摄像机经度");
-        list.add("摄像机纬度");
-        list.add("摄像机地址");
-        list.add("摄像机IP,取流url");
-        list.add("摄像机方位");
-        list.add("车道");
-        list.add("摄像机在线状态");
-        list.add("摄像机类型");
-        list.add("摄像机用途");
-        list.add("摄像机功能");
-        list.add("平台名称");
-        list.add("分辨率");
-        list.add("域编码");
-        list.add("罗盘");
-        list.add("摄像机nvr");
-        list.add("组织id");
-        list.add("摄像机id");
-        list.add("0:未订阅 1:已订阅");
-        list.add("0：普通相机 1：人脸卡口物理相机 2：车物理卡口相机 3：未知的其他相机 4：机非人相机");
-        list.add("智能分析列表");
-        list.add("0001，车牌识别；0010，人脸识别；0100，行为分析；1000，人体分析；1001，人车混合结构化");
-        list.add("智能任务列表");
-        list.add("0: 行为分析 1: 车牌分析 2: 人脸分析 4: 人体分析 9：人车混合结构化");
-        list.add("IVS平台IP地址");
+        list.add(messageSourceUtil.getMessage("device.cameraCode"));
+        list.add(messageSourceUtil.getMessage("device.cameraName"));
+        //list.add(messageSourceUtil.getMessage("device.installationHeight"));
+        list.add(messageSourceUtil.getMessage("device.cameraLongitude"));
+        list.add(messageSourceUtil.getMessage("device.cameraLatitude"));
+        list.add(messageSourceUtil.getMessage("device.cameraAddress"));
+        list.add(messageSourceUtil.getMessage("device.cameraIpAndUrl"));
+        list.add(messageSourceUtil.getMessage("device.cameraOrientation"));
+        //list.add(messageSourceUtil.getMessage("device.vehicleLane"));
+        list.add(messageSourceUtil.getMessage("device.CameraOnlineStatus"));
+        list.add(messageSourceUtil.getMessage("device.cameraType"));
+        //list.add(messageSourceUtil.getMessage("device.cameraUsage"));
+        //list.add(messageSourceUtil.getMessage("device.cameraFunction"));
+        list.add(messageSourceUtil.getMessage("device.platformName"));
+        list.add(messageSourceUtil.getMessage("device.resolvingPower"));
+        list.add(messageSourceUtil.getMessage("device.fieldCode"));
+        //list.add(messageSourceUtil.getMessage("device.compass"));
+        //list.add(messageSourceUtil.getMessage("device.cameraNVR"));
+        //list.add(messageSourceUtil.getMessage("device.organizationID"));
+        //list.add(messageSourceUtil.getMessage("device.cameraID"));
+        //list.add(messageSourceUtil.getMessage("device.subscriptionStatues"));
+        list.add(messageSourceUtil.getMessage("device.cameraTypes"));
+        //list.add(messageSourceUtil.getMessage("device.intelligentAnalysisList"));
+        list.add(messageSourceUtil.getMessage("device.identificationType"));
+        //list.add(messageSourceUtil.getMessage("device.smartTaskList"));
+        list.add(messageSourceUtil.getMessage("device.categoryAnalysis"));
+        list.add(messageSourceUtil.getMessage("device.IVSPlatform"));
         return list;
     }
 
     private List<String> getTableTitles(){
         List<String> list = getTableTitle();
-        list.add("开始时间");
-        list.add("结束时间");
-        list.add("0为过车，1为过脸");
-        list.add("图片数量");
-        list.add("0：无效 1：有效");
+        list.add(messageSourceUtil.getMessage("device.startTimes"));
+        list.add(messageSourceUtil.getMessage("device.endTimes"));
+        list.add(messageSourceUtil.getMessage("device.plateAndFace"));
+        list.add(messageSourceUtil.getMessage("device.numberOfPictures"));
+        list.add(messageSourceUtil.getMessage("device.effective"));
         return list;
     }
 
@@ -936,11 +946,11 @@ public class IvsServiceImpl extends BaseServImpl<CaptureImageOriginal, String> i
         //创建excel工作簿
         HSSFWorkbook workbook=new HSSFWorkbook();
         //创建工作表sheet
-        HSSFSheet sheet=workbook.createSheet("摄像机在线信息");
-        HSSFSheet sheet1=workbook.createSheet("摄像机离线信息");
-        HSSFSheet sheet2=workbook.createSheet("有效抓拍机");
+        HSSFSheet sheet=workbook.createSheet(messageSourceUtil.getMessage("device.cameraOnlineInformation"));
+        HSSFSheet sheet1=workbook.createSheet(messageSourceUtil.getMessage("device.cameraOfflineInformation"));
+        HSSFSheet sheet2=workbook.createSheet(messageSourceUtil.getMessage("device.effectiveMachine"));
         //创建工作表sheet2
-        HSSFSheet sheet3=workbook.createSheet("字段说明");
+        HSSFSheet sheet3=workbook.createSheet(messageSourceUtil.getMessage("device.fieldDescription"));
         //创建第一行
         HSSFRow row=sheet.createRow(0);
         HSSFRow row1=sheet1.createRow(0);
@@ -951,16 +961,16 @@ public class IvsServiceImpl extends BaseServImpl<CaptureImageOriginal, String> i
         for(int i=0;i<str.length;i++){
             if(i==20){
                 hssfCell=row.createCell(i);
-                hssfCell.setCellValue("订阅状态");
-            } else if(i==21){
+                hssfCell.setCellValue(messageSourceUtil.getMessage("device.subscriptionStatus"));
+            } else if(i==12){
                 hssfCell=row.createCell(i);
-                hssfCell.setCellValue("相机属性");
-            } else if(i==23){
+                hssfCell.setCellValue(messageSourceUtil.getMessage("device.cameraProperties"));
+            } else if(i==13){
                 hssfCell=row.createCell(i);
-                hssfCell.setCellValue("分析类型");
-            } else if(i==25){
+                hssfCell.setCellValue(messageSourceUtil.getMessage("device.analysisType"));
+            } else if(i==14){
                 hssfCell=row.createCell(i);
-                hssfCell.setCellValue("智能任务类型");
+                hssfCell.setCellValue(messageSourceUtil.getMessage("device.intelligentTaskType"));
             }else {
                 hssfCell = row.createCell(i);
                 hssfCell.setCellValue(str[i]);
@@ -970,16 +980,16 @@ public class IvsServiceImpl extends BaseServImpl<CaptureImageOriginal, String> i
         for(int i=0;i<str.length;i++){
             if(i==20){
                 hssfCell=row1.createCell(i);
-                hssfCell.setCellValue("订阅状态");
-            } else if(i==21){
+                hssfCell.setCellValue(messageSourceUtil.getMessage("device.subscriptionStatus"));
+            } else if(i==12){
                 hssfCell=row1.createCell(i);
-                hssfCell.setCellValue("相机属性");
-            } else if(i==23){
+                hssfCell.setCellValue(messageSourceUtil.getMessage("device.cameraProperties"));
+            } else if(i==13){
                 hssfCell=row1.createCell(i);
-                hssfCell.setCellValue("分析类型");
-            } else if(i==25){
+                hssfCell.setCellValue(messageSourceUtil.getMessage("device.analysisType"));
+            } else if(i==14){
                 hssfCell=row1.createCell(i);
-                hssfCell.setCellValue("智能任务类型");
+                hssfCell.setCellValue(messageSourceUtil.getMessage("device.intelligentTaskType"));
             }else {
                 hssfCell = row1.createCell(i);
                 hssfCell.setCellValue(str[i]);
@@ -1009,24 +1019,24 @@ public class IvsServiceImpl extends BaseServImpl<CaptureImageOriginal, String> i
         //有效抓拍机
         String strs[]=Arrays.copyOf(titlesList, titlesList.length, String[].class);
         for(int i=0;i<strs.length;i++){
-            if(i==20){
+            if(i==26){
                 hssfCell=row2.createCell(i);
-                hssfCell.setCellValue("订阅状态");
-            } else if(i==21){
+                hssfCell.setCellValue(messageSourceUtil.getMessage("device.subscriptionStatus"));
+            } else if(i==12){
                 hssfCell=row2.createCell(i);
-                hssfCell.setCellValue("相机属性");
-            } else if(i==23){
+                hssfCell.setCellValue(messageSourceUtil.getMessage("device.cameraProperties"));
+            } else if(i==13){
                 hssfCell=row2.createCell(i);
-                hssfCell.setCellValue("分析类型");
-            } else if(i==25){
+                hssfCell.setCellValue(messageSourceUtil.getMessage("device.analysisType"));
+            } else if(i==14){
                 hssfCell=row2.createCell(i);
-                hssfCell.setCellValue("智能任务类型");
-            }else if(i==29){
+                hssfCell.setCellValue(messageSourceUtil.getMessage("device.intelligentTaskType"));
+            }else if(i==25){
                 hssfCell=row2.createCell(i);
-                hssfCell.setCellValue("类型");
-            }else if(i==31){
+                hssfCell.setCellValue(messageSourceUtil.getMessage("device.type"));
+            }else if(i==20){
                 hssfCell=row2.createCell(i);
-                hssfCell.setCellValue("有效摄像机标志");
+                hssfCell.setCellValue(messageSourceUtil.getMessage("device.validCameraLogo"));
             }else {
                 hssfCell = row2.createCell(i);
                 hssfCell.setCellValue(strs[i]);
@@ -1049,49 +1059,49 @@ public class IvsServiceImpl extends BaseServImpl<CaptureImageOriginal, String> i
         * */
         HSSFCell hssfCell2=null;
         hssfCell2=row3.createCell(0);
-        hssfCell2.setCellValue("摄像机在线离线字段说明");
+        hssfCell2.setCellValue(messageSourceUtil.getMessage("device.fieldDescriptionOfCamera"));
         for(int i=0;i<titles.length;i++){
             //第二行
             for(int j=0;j<1;j++){
-                if(i==20){
+                if(i==26){
                     HSSFRow nrow=sheet3.createRow(1);
                     HSSFCell ncell=nrow.createCell(j);
-                    ncell.setCellValue("订阅状态");
+                    ncell.setCellValue(messageSourceUtil.getMessage("device.subscriptionStatus"));
                     HSSFCell ncell1=nrow.createCell(j+1);
                     ncell1.setCellValue(titles[i].toString());
                 }
-                if(i==21){
+                if(i==12){
                     HSSFRow nrow=sheet3.createRow(2);
                     HSSFCell ncell=nrow.createCell(j);
-                    ncell.setCellValue("相机属性");
+                    ncell.setCellValue(messageSourceUtil.getMessage("device.cameraProperties"));
                     HSSFCell ncell1=nrow.createCell(j+1);
                     ncell1.setCellValue(titles[i].toString());
                 }
-                if(i==23){
+                if(i==13){
                     HSSFRow nrow=sheet3.createRow(3);
                     HSSFCell ncell=nrow.createCell(j);
-                    ncell.setCellValue("分析类型");
+                    ncell.setCellValue(messageSourceUtil.getMessage("device.analysisType"));
                     HSSFCell ncell1=nrow.createCell(j+1);
                     ncell1.setCellValue(titles[i].toString());
                 }
-                if(i==25){
+                if(i==14){
                     HSSFRow nrow=sheet3.createRow(4);
                     HSSFCell ncell=nrow.createCell(j);
-                    ncell.setCellValue("智能任务类型");
+                    ncell.setCellValue(messageSourceUtil.getMessage("device.intelligentTaskType"));
                     HSSFCell ncell1=nrow.createCell(j+1);
                     ncell1.setCellValue(titles[i].toString());
                 }
                 if(i==29){
                     HSSFRow nrow=sheet3.createRow(5);
                     HSSFCell ncell=nrow.createCell(j);
-                    ncell.setCellValue("类型");
+                    ncell.setCellValue(messageSourceUtil.getMessage("device.type"));
                     HSSFCell ncell1=nrow.createCell(j+1);
                     ncell1.setCellValue(titles[i].toString());
                 }
                 if(i==31){
                     HSSFRow nrow=sheet3.createRow(6);
                     HSSFCell ncell=nrow.createCell(j);
-                    ncell.setCellValue("有效摄像机标志");
+                    ncell.setCellValue(messageSourceUtil.getMessage("device.validCameraLogo"));
                     HSSFCell ncell1=nrow.createCell(j+1);
                     ncell1.setCellValue(titles[i].toString());
                 }
@@ -1100,12 +1110,12 @@ public class IvsServiceImpl extends BaseServImpl<CaptureImageOriginal, String> i
 
         HSSFRow nrow1=sheet3.createRow(8);
         HSSFCell ncells=nrow1.createCell(0);
-        ncells.setCellValue("有效抓拍机字段说明");
+        ncells.setCellValue(messageSourceUtil.getMessage("device.descriptionOfTheEffective"));
         HSSFRow nrow=sheet3.createRow(9);
         HSSFCell ncell=nrow.createCell(0);
-        ncell.setCellValue("摄像机在线状态");
+        ncell.setCellValue(messageSourceUtil.getMessage("device.CameraOnlineStatus"));
         HSSFCell ncell1=nrow.createCell(1);
-        ncell1.setCellValue("0：离线，1：在线");
+        ncell1.setCellValue(messageSourceUtil.getMessage("device.onlineStatus"));
         //创建excel文件
         File file=new File("/tmp/poi.xls");
         String path = file.getPath();
@@ -1140,7 +1150,19 @@ public class IvsServiceImpl extends BaseServImpl<CaptureImageOriginal, String> i
         }
         return path;
     }
-
+       /* File file=new File("D://poi.xlsx");
+        String path = file.getPath();
+        try {
+            file.createNewFile();
+            //将excel写入
+            FileOutputStream stream= FileUtils.openOutputStream(file);
+            workbook.write(stream);
+            stream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return path;
+    }*/
 
 
 
@@ -1162,22 +1184,22 @@ public class IvsServiceImpl extends BaseServImpl<CaptureImageOriginal, String> i
         for(int i=0;i<str.length;i++){
             if(i==20){
                 hssfCell=row.createCell(i);
-                hssfCell.setCellValue("订阅状态");
+                hssfCell.setCellValue(messageSourceUtil.getMessage("device.subscriptionStatus"));
             } else if(i==21){
                 hssfCell=row.createCell(i);
-                hssfCell.setCellValue("相机属性");
+                hssfCell.setCellValue(messageSourceUtil.getMessage("device.cameraProperties"));
             } else if(i==23){
                 hssfCell=row.createCell(i);
-                hssfCell.setCellValue("分析类型");
+                hssfCell.setCellValue(messageSourceUtil.getMessage("device.analysisType"));
             } else if(i==25){
                 hssfCell=row.createCell(i);
-                hssfCell.setCellValue("智能任务类型");
+                hssfCell.setCellValue(messageSourceUtil.getMessage("device.intelligentTaskType"));
             }else if(i==29){
                 hssfCell=row.createCell(i);
-                hssfCell.setCellValue("类型");
+                hssfCell.setCellValue(messageSourceUtil.getMessage("device.type"));
             }else if(i==31){
                 hssfCell=row.createCell(i);
-                hssfCell.setCellValue("有效摄像机标志");
+                hssfCell.setCellValue(messageSourceUtil.getMessage("device.validCameraLogo"));
             }else {
                 hssfCell = row.createCell(i);
                 hssfCell.setCellValue(str[i]);
@@ -1206,42 +1228,42 @@ public class IvsServiceImpl extends BaseServImpl<CaptureImageOriginal, String> i
                 if(i==20){
                     HSSFRow nrow=sheet1.createRow(1);
                     HSSFCell ncell=nrow.createCell(j);
-                    ncell.setCellValue("订阅状态");
+                    ncell.setCellValue(messageSourceUtil.getMessage("device.subscriptionStatus"));
                     HSSFCell ncell1=nrow.createCell(j+1);
                     ncell1.setCellValue(titles[i].toString());
                 }
-                if(i==21){
+                if(i==12){
                     HSSFRow nrow=sheet1.createRow(2);
                     HSSFCell ncell=nrow.createCell(j);
-                    ncell.setCellValue("相机属性");
+                    ncell.setCellValue(messageSourceUtil.getMessage("device.cameraProperties"));
                     HSSFCell ncell1=nrow.createCell(j+1);
                     ncell1.setCellValue(titles[i].toString());
                 }
-                if(i==23){
+                if(i==13){
                     HSSFRow nrow=sheet1.createRow(3);
                     HSSFCell ncell=nrow.createCell(j);
-                    ncell.setCellValue("分析类型");
+                    ncell.setCellValue(messageSourceUtil.getMessage("device.analysisType"));
                     HSSFCell ncell1=nrow.createCell(j+1);
                     ncell1.setCellValue(titles[i].toString());
                 }
-                if(i==25){
+                if(i==14){
                     HSSFRow nrow=sheet1.createRow(4);
                     HSSFCell ncell=nrow.createCell(j);
-                    ncell.setCellValue("智能任务类型");
+                    ncell.setCellValue(messageSourceUtil.getMessage("device.intelligentTaskType"));
                     HSSFCell ncell1=nrow.createCell(j+1);
                     ncell1.setCellValue(titles[i].toString());
                 }
                 if(i==29){
                     HSSFRow nrow=sheet1.createRow(5);
                     HSSFCell ncell=nrow.createCell(j);
-                    ncell.setCellValue("类型");
+                    ncell.setCellValue(messageSourceUtil.getMessage("device.type"));
                     HSSFCell ncell1=nrow.createCell(j+1);
                     ncell1.setCellValue(titles[i].toString());
                 }
                 if(i==31){
                     HSSFRow nrow=sheet1.createRow(6);
                     HSSFCell ncell=nrow.createCell(j);
-                    ncell.setCellValue("有效摄像机标志");
+                    ncell.setCellValue(messageSourceUtil.getMessage("device.validCameraLogo"));
                     HSSFCell ncell1=nrow.createCell(j+1);
                     ncell1.setCellValue(titles[i].toString());
                 }
@@ -1277,39 +1299,42 @@ public class IvsServiceImpl extends BaseServImpl<CaptureImageOriginal, String> i
             ncell.setCellValue(tblCameraDetailOriginalData.getLongitude() ==null ? "":tblCameraDetailOriginalData.getLongitude());
         }
         if(j==4){
-            ncell.setCellValue(tblCameraDetailOriginalData.getLatitude() ==null ? "":tblCameraDetailOriginalData.getLatitude());
-        }
-        if(j==5){
             ncell.setCellValue(tblCameraDetailOriginalData.getAddress() ==null ? "":tblCameraDetailOriginalData.getAddress());
         }
-        if(j==6){
+        if(j==5){
             ncell.setCellValue(tblCameraDetailOriginalData.getStreamUrl() ==null ? "":tblCameraDetailOriginalData.getStreamUrl());
         }
-        if(j==7){
+        if(j==6){
             ncell.setCellValue(tblCameraDetailOriginalData.getDirection() ==null ? "":tblCameraDetailOriginalData.getDirection());
         }
+        if(j==7){
+            ncell.setCellValue(tblCameraDetailOriginalData.getCameraState() ==null ? "":tblCameraDetailOriginalData.getCameraState().toString());
+        }
         if(j==8){
-            ncell.setCellValue(tblCameraDetailOriginalData.getLane()  ==null ? "":tblCameraDetailOriginalData.getLane());
-        }
-        if(j==9){
-            ncell.setCellValue(tblCameraDetailOriginalData.getCameraState()==null ? "":tblCameraDetailOriginalData.getLane());
-        }
-        if(j==10){
             ncell.setCellValue(tblCameraDetailOriginalData.getCameraType() ==null ? "":tblCameraDetailOriginalData.getCameraType());
         }
+        if(j==9){
+            ncell.setCellValue(tblCameraDetailOriginalData.getPlatName()  ==null ? "":tblCameraDetailOriginalData.getPlatName());
+        }
+        if(j==10){
+            ncell.setCellValue(tblCameraDetailOriginalData.getResolutionType()==null ? "":tblCameraDetailOriginalData.getResolutionType());
+        }
         if(j==11){
-            ncell.setCellValue(tblCameraDetailOriginalData.getCameraUse() ==null ? "":tblCameraDetailOriginalData.getCameraUse());
+            ncell.setCellValue(tblCameraDetailOriginalData.getFieldNo() ==null ? "":tblCameraDetailOriginalData.getFieldNo());
         }
         if(j==12){
-            ncell.setCellValue(tblCameraDetailOriginalData.getCameraFeature() ==null ? "":tblCameraDetailOriginalData.getCameraFeature());
+            ncell.setCellValue(tblCameraDetailOriginalData.getVcnCameraUse() ==null ? "":tblCameraDetailOriginalData.getVcnCameraUse());
         }
         if(j==13){
-            ncell.setCellValue(tblCameraDetailOriginalData.getPlatName() ==null ? "":tblCameraDetailOriginalData.getPlatName());
+            ncell.setCellValue(tblCameraDetailOriginalData.getAnalysisType() ==null ? "":tblCameraDetailOriginalData.getAnalysisType());
         }
         if(j==14){
-            ncell.setCellValue(tblCameraDetailOriginalData.getResolutionType() ==null ? "":tblCameraDetailOriginalData.getResolutionType());
+            ncell.setCellValue(tblCameraDetailOriginalData.getTaskType() ==null ? "":tblCameraDetailOriginalData.getTaskType().toString());
         }
         if(j==15){
+            ncell.setCellValue(tblCameraDetailOriginalData.getIpIvs() ==null ? "":tblCameraDetailOriginalData.getIpIvs());
+        }
+        /*if(j==15){
             ncell.setCellValue(tblCameraDetailOriginalData.getFieldNo() ==null ? "":tblCameraDetailOriginalData.getFieldNo());
         }
         if(j==16){
@@ -1344,7 +1369,7 @@ public class IvsServiceImpl extends BaseServImpl<CaptureImageOriginal, String> i
         }
         if(j==26){
             ncell.setCellValue(tblCameraDetailOriginalData.getIpIvs() ==null ? "":tblCameraDetailOriginalData.getIpIvs());
-        }
+        }*/
     }
 
     private void getCones(HSSFCell ncell, TblCameraDetailOriginalData tblCameraDetailOriginalData, int j){
@@ -1356,48 +1381,48 @@ public class IvsServiceImpl extends BaseServImpl<CaptureImageOriginal, String> i
             ncell.setCellValue(tblCameraDetailOriginalData.getCameraName()== null ? "":tblCameraDetailOriginalData.getCameraName());
         }
         if(j==2){
-            ncell.setCellValue(tblCameraDetailOriginalData.getMountHeight() ==null ? "":tblCameraDetailOriginalData.getMountHeight());
-        }
-        if(j==3){
             ncell.setCellValue(tblCameraDetailOriginalData.getLongitude() ==null ? "":tblCameraDetailOriginalData.getLongitude());
         }
-        if(j==4){
+        if(j==3){
             ncell.setCellValue(tblCameraDetailOriginalData.getLatitude() ==null ? "":tblCameraDetailOriginalData.getLatitude());
         }
-        if(j==5){
+        if(j==4){
             ncell.setCellValue(tblCameraDetailOriginalData.getAddress() ==null ? "":tblCameraDetailOriginalData.getAddress());
         }
-        if(j==6){
+        if(j==5){
             ncell.setCellValue(tblCameraDetailOriginalData.getStreamUrl() ==null ? "":tblCameraDetailOriginalData.getStreamUrl());
         }
-        if(j==7){
+        if(j==6){
             ncell.setCellValue(tblCameraDetailOriginalData.getDirection() ==null ? "":tblCameraDetailOriginalData.getDirection());
         }
+        if(j==7){
+            ncell.setCellValue(tblCameraDetailOriginalData.getCameraState()==null ? "":tblCameraDetailOriginalData.getCameraState().toString());
+        }
         if(j==8){
-            ncell.setCellValue(tblCameraDetailOriginalData.getLane()  ==null ? "":tblCameraDetailOriginalData.getLane());
-        }
-        if(j==9){
-            ncell.setCellValue(tblCameraDetailOriginalData.getCameraState()==null ? "":tblCameraDetailOriginalData.getLane());
-        }
-        if(j==10){
             ncell.setCellValue(tblCameraDetailOriginalData.getCameraType() ==null ? "":tblCameraDetailOriginalData.getCameraType());
         }
-        if(j==11){
-            ncell.setCellValue(tblCameraDetailOriginalData.getCameraUse() ==null ? "":tblCameraDetailOriginalData.getCameraUse());
-        }
-        if(j==12){
-            ncell.setCellValue(tblCameraDetailOriginalData.getCameraFeature() ==null ? "":tblCameraDetailOriginalData.getCameraFeature());
-        }
-        if(j==13){
+        if(j==9){
             ncell.setCellValue(tblCameraDetailOriginalData.getPlatName() ==null ? "":tblCameraDetailOriginalData.getPlatName());
         }
-        if(j==14){
+        if(j==10){
             ncell.setCellValue(tblCameraDetailOriginalData.getResolutionType() ==null ? "":tblCameraDetailOriginalData.getResolutionType());
         }
-        if(j==15){
+        if(j==11){
             ncell.setCellValue(tblCameraDetailOriginalData.getFieldNo() ==null ? "":tblCameraDetailOriginalData.getFieldNo());
         }
-        if(j==16){
+        if(j==12){
+            ncell.setCellValue(tblCameraDetailOriginalData.getVcnCameraUse() ==null ? "":tblCameraDetailOriginalData.getVcnCameraUse());
+        }
+        if(j==13){
+            ncell.setCellValue(tblCameraDetailOriginalData.getAnalysisType() ==null ? "":tblCameraDetailOriginalData.getAnalysisType());
+        }
+        if(j==14){
+            ncell.setCellValue(tblCameraDetailOriginalData.getTaskType()==null ? "":tblCameraDetailOriginalData.getTaskType().toString());
+        }
+        if(j==15){
+            ncell.setCellValue(tblCameraDetailOriginalData.getIpIvs() ==null ? "":tblCameraDetailOriginalData.getIpIvs());
+        }
+        /*if(j==16){
             ncell.setCellValue(tblCameraDetailOriginalData.getCompass() ==null ? "":tblCameraDetailOriginalData.getCompass());
         }
         if(j==17){
@@ -1429,60 +1454,75 @@ public class IvsServiceImpl extends BaseServImpl<CaptureImageOriginal, String> i
         }
         if(j==26){
             ncell.setCellValue(tblCameraDetailOriginalData.getIpIvs() ==null ? "":tblCameraDetailOriginalData.getIpIvs());
-        }
+        }*/
     }
 
     private void getCons(HSSFCell ncell, TblCameraDatailOriginalImageData tblCameraDetailOriginalData, int j){
 
         if(j==0){
-            ncell.setCellValue(tblCameraDetailOriginalData.getCameraSn() ==null ? "":tblCameraDetailOriginalData.getCameraSn());
+            ncell.setCellValue(tblCameraDetailOriginalData.getCameraSn()== null ? "":tblCameraDetailOriginalData.getCameraSn());
         }
         if(j==1){
-            ncell.setCellValue(tblCameraDetailOriginalData.getCameraName() ==null ? "":tblCameraDetailOriginalData.getCameraName());
+            ncell.setCellValue(tblCameraDetailOriginalData.getCameraName()== null ? "":tblCameraDetailOriginalData.getCameraName());
         }
         if(j==2){
-            ncell.setCellValue(tblCameraDetailOriginalData.getMountHeight() ==null ? "":tblCameraDetailOriginalData.getMountHeight());
-        }
-        if(j==3){
             ncell.setCellValue(tblCameraDetailOriginalData.getLongitude() ==null ? "":tblCameraDetailOriginalData.getLongitude());
         }
-        if(j==4){
+        if(j==3){
             ncell.setCellValue(tblCameraDetailOriginalData.getLatitude() ==null ? "":tblCameraDetailOriginalData.getLatitude());
         }
-        if(j==5){
+        if(j==4){
             ncell.setCellValue(tblCameraDetailOriginalData.getAddress() ==null ? "":tblCameraDetailOriginalData.getAddress());
         }
-        if(j==6){
+        if(j==5){
             ncell.setCellValue(tblCameraDetailOriginalData.getStreamUrl() ==null ? "":tblCameraDetailOriginalData.getStreamUrl());
         }
-        if(j==7){
+        if(j==6){
             ncell.setCellValue(tblCameraDetailOriginalData.getDirection() ==null ? "":tblCameraDetailOriginalData.getDirection());
         }
+        if(j==7){
+            ncell.setCellValue(tblCameraDetailOriginalData.getCameraState()==null ? "":tblCameraDetailOriginalData.getCameraState());
+        }
         if(j==8){
-            ncell.setCellValue(tblCameraDetailOriginalData.getLane() ==null ? "":tblCameraDetailOriginalData.getLane());
-        }
-        if(j==9){
-            ncell.setCellValue(tblCameraDetailOriginalData.getCameraState()==null ? "":tblCameraDetailOriginalData.getLane());
-        }
-        if(j==10){
             ncell.setCellValue(tblCameraDetailOriginalData.getCameraType() ==null ? "":tblCameraDetailOriginalData.getCameraType());
         }
-        if(j==11){
-            ncell.setCellValue(tblCameraDetailOriginalData.getCameraUse() ==null ? "":tblCameraDetailOriginalData.getCameraUse());
-        }
-        if(j==12){
-            ncell.setCellValue(tblCameraDetailOriginalData.getCameraFeature() ==null ? "":tblCameraDetailOriginalData.getCameraFeature());
-        }
-        if(j==13){
+        if(j==9){
             ncell.setCellValue(tblCameraDetailOriginalData.getPlatName() ==null ? "":tblCameraDetailOriginalData.getPlatName());
         }
-        if(j==14){
+        if(j==10){
             ncell.setCellValue(tblCameraDetailOriginalData.getResolutionType() ==null ? "":tblCameraDetailOriginalData.getResolutionType());
         }
-        if(j==15){
+        if(j==11){
             ncell.setCellValue(tblCameraDetailOriginalData.getFieldNo() ==null ? "":tblCameraDetailOriginalData.getFieldNo());
         }
+        if(j==12){
+            ncell.setCellValue(tblCameraDetailOriginalData.getVcnCameraUse() ==null ? "":tblCameraDetailOriginalData.getVcnCameraUse());
+        }
+        if(j==13){
+            ncell.setCellValue(tblCameraDetailOriginalData.getAnalysisType() ==null ? "":tblCameraDetailOriginalData.getAnalysisType());
+        }
+        if(j==14){
+            ncell.setCellValue(tblCameraDetailOriginalData.getTaskType()==null ? "":tblCameraDetailOriginalData.getTaskType());
+        }
+        if(j==15){
+            ncell.setCellValue(tblCameraDetailOriginalData.getIpIvs() ==null ? "":tblCameraDetailOriginalData.getIpIvs());
+        }
         if(j==16){
+            ncell.setCellValue(tblCameraDetailOriginalData.getStartTime() ==null ? "":tblCameraDetailOriginalData.getStartTime());
+        }
+        if(j==17){
+            ncell.setCellValue(tblCameraDetailOriginalData.getEndTime() ==null ? "":tblCameraDetailOriginalData.getEndTime());
+        }
+        if(j==18){
+            ncell.setCellValue(tblCameraDetailOriginalData.getType() ==null ? "":tblCameraDetailOriginalData.getType());
+        }
+        if(j==19){
+            ncell.setCellValue(tblCameraDetailOriginalData.getPictureCount()==null ? "":tblCameraDetailOriginalData.getPictureCount());
+        }
+        if(j==20){
+            ncell.setCellValue(tblCameraDetailOriginalData.getEffectiveCamera() ==null ? "":tblCameraDetailOriginalData.getEffectiveCamera());
+        }
+       /* if(j==16){
             ncell.setCellValue(tblCameraDetailOriginalData.getCompass() ==null ? "":tblCameraDetailOriginalData.getCompass());
         }
         if(j==17){
@@ -1514,22 +1554,8 @@ public class IvsServiceImpl extends BaseServImpl<CaptureImageOriginal, String> i
         }
         if(j==26){
             ncell.setCellValue(tblCameraDetailOriginalData.getIpIvs() ==null ? "":tblCameraDetailOriginalData.getIpIvs());
-        }
-        if(j==27){
-            ncell.setCellValue(tblCameraDetailOriginalData.getStartTime() ==null ? "":tblCameraDetailOriginalData.getStartTime());
-        }
-        if(j==28){
-            ncell.setCellValue(tblCameraDetailOriginalData.getEndTime() ==null ? "":tblCameraDetailOriginalData.getEndTime());
-        }
-        if(j==29){
-            ncell.setCellValue(tblCameraDetailOriginalData.getType() ==null ? "":tblCameraDetailOriginalData.getType());
-        }
-        if(j==30){
-            ncell.setCellValue(tblCameraDetailOriginalData.getPictureCount()==null ? "":tblCameraDetailOriginalData.getLane());
-        }
-        if(j==31){
-            ncell.setCellValue(tblCameraDetailOriginalData.getEffectiveCamera() ==null ? "":tblCameraDetailOriginalData.getEffectiveCamera());
-        }
+        }*/
+
     }
 
     /**

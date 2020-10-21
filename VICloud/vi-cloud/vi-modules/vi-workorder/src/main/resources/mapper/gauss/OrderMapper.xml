@@ -40,7 +40,7 @@
             t1.id,
             t1.order_code,
             t1.order_title,
-            t2.demand_time creat_time,
+            TRUNC(t2.demand_time,'SS') creat_time,
             t1.order_type,
             t1.order_status,
             t2.delay,
@@ -59,12 +59,12 @@
         GROUP BY t1.id,
         t1.order_code,
         t1.order_title,
-        t2.demand_time,
+        TRUNC(t2.demand_time,'SS'),
         t1.order_type,
         t1.order_status,
         t2.delay,
         t3.camera_name
-        ORDER BY t2.demand_time DESC
+        ORDER BY TRUNC(t2.demand_time,'SS') DESC
         limit #{startLimit},#{endLimit}
     </select>
     <select id="queryOrderListCount" resultType="java.lang.Integer" parameterType="java.util.Map">

@@ -29,8 +29,13 @@ public enum AppResultEnum {
     PICTURE_IS_NULL(1125,"图片不能为空"),
     REVIEW_IS_FAULT(1126,"复检失败"),
     LOGIN_COUNT_OUT(1127,"登录失败，当前在线人数达到最大值"),
-    TIKEN_TIME_OUT(1128,"tiken失效");
-
+    TIKEN_TIME_OUT(1128,"tiken失效"),
+    PARSE_TOKEN_FAIL(1129 , "token解析失败"),
+    TOKEN_OVER_LOCAL(1130 , "token到期时间小于服务器时间"),
+    TOKEN_USER_NOT_FOUND(1131 , "无法从token中获取用户信息"),
+    TOKEN_NOT_FOUND(1132 , "没找到token"),
+    TOKEN_NOT_SAME(1133 , "传入的token与服务器上的不同"),
+    REPEAT_COMMIT(1134,"请勿重复提交");
     private int code;
     private String message;
     public int getCode() {

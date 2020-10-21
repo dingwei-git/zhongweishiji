@@ -13,7 +13,6 @@ public class TokenConstant {
     public static final Long WEB_TOKEN_EXPIRE = 1800L;
     /**tiken过期时间*/
     public static final Long TIKEN_EXPIRE = 259200L;
-    //public static final Long TIKEN_EXPIRE = 180L;
     /**账号锁定时间*/
     public static final Long LOCH_EXPIRE = 300L;
     /**web验证码过期时间*/
@@ -33,7 +32,7 @@ public class TokenConstant {
     /**
      * 用户登录tikenIv前缀 + tiken
      */
-    public final static String TIKEN_IV = "_app_tiken_iv_";
+    public final static String TIKEN_IV = "_app_iv_";
     /**
      * 用户登录唯一标识 + userid
      */

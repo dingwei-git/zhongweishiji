@@ -63,4 +63,5 @@ public interface TblCameraManageMapper extends IbaseDao<TblCameraDetailOriginalD
 
 
 
+
 }

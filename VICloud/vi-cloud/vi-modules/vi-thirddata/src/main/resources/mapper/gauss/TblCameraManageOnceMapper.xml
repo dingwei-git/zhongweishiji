@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper
-        namespace="com.huawei.db.repository.TblCameraManageOnceMapper">
+        namespace="com.huawei.vi.thirddata.mapper.TblCameraManageOnceMapper">
 
     <resultMap id="CameraManageVo" type="com.huawei.vi.thirddata.service.binary.pojo.TblCameraDetailOriginalData">
         <result column="camera_sn" property="cameraSn"/>
@@ -33,7 +33,26 @@
         <result column="discard_collection" property="discardCollection"/>
         <result column="ip_ivs" property="ipIvs"/>
     </resultMap>
-	
+
+	<resultMap id="CameraManageVos" type="com.huawei.vi.thirddata.service.binary.pojo.TblCameraDetailOriginalData">
+		<result column="camera_sn" property="cameraSn"/>
+		<result column="camera_name" property="cameraName"/>
+		<result column="longitude" property="longitude"/>
+		<result column="latitude" property="latitude"/>
+		<result column="address" property="address"/>
+		<result column="stream_url" property="streamUrl"/>
+		<result column="direction" property="direction"/>
+		<result column="camera_state" property="cameraState"/>
+		<result column="camera_type" property="cameraType"/>
+		<result column="plat_name" property="platName"/>
+		<result column="resolution_type" property="resolutionType"/>
+		<result column="field_no" property="fieldNo"/>
+		<result column="vcn_camera_use" property="vcnCameraUse"/>
+		<result column="analysis_type" property="analysisType"/>
+		<result column="task_type" property="taskType"/>
+		<result column="ip_ivs" property="ipIvs"/>
+	</resultMap>
+
 	<resultMap id="IvsImageResultMap"  type="com.huawei.vi.thirddata.service.binary.pojo.CaptureHourStatistics">
 		<result column="camera_sn" property="cameraSn" jdbcType="VARCHAR" />
 		<result column="start_hour" property="startHour" jdbcType="TIMESTAMP" />
@@ -71,6 +90,30 @@
 		<result column="analysis_list" property="analysisList"/>
 		<result column="analysis_type" property="analysisType"/>
 		<result column="task_type_list" property="taskTypeList"/>
+		<result column="task_type" property="taskType"/>
+		<result column="ip_ivs" property="ipIvs"/>
+		<result column="start_time" property="startTime"/>
+		<result column="end_time" property="endTime"/>
+		<result column="type" property="type"/>
+		<result column="picture_count" property="pictureCount"/>
+		<result column="effective_camera" property="effectiveCamera"/>
+	</resultMap>
+
+	<resultMap id="CameraManageImageVos" type="com.huawei.vi.thirddata.service.binary.pojo.TblCameraDatailOriginalImageData">
+		<result column="camera_sn" property="cameraSn"/>
+		<result column="camera_name" property="cameraName"/>
+		<result column="longitude" property="longitude"/>
+		<result column="latitude" property="latitude"/>
+		<result column="address" property="address"/>
+		<result column="stream_url" property="streamUrl"/>
+		<result column="direction" property="direction"/>
+		<result column="camera_state" property="cameraState"/>
+		<result column="camera_type" property="cameraType"/>
+		<result column="plat_name" property="platName"/>
+		<result column="resolution_type" property="resolutionType"/>
+		<result column="field_no" property="fieldNo"/>
+		<result column="vcn_camera_use" property="vcnCameraUse"/>
+		<result column="analysis_type" property="analysisType"/>
 		<result column="task_type" property="taskType"/>
 		<result column="ip_ivs" property="ipIvs"/>
 		<result column="start_time" property="startTime"/>
@@ -254,21 +297,20 @@
 
 
 	<select id="getCameraInfoByState" parameterType="java.util.Map"
-			resultMap="CameraManageVo">
+			resultMap="CameraManageVos">
 		select
-		camera_sn,camera_name,mount_height,longitude,latitude,address,stream_url,direction,lane,camera_state,camera_type,camera_use,camera_feature,plat_name,resolution_type,
-		field_no,compass,nvr,group_id,camera_id,substatus,vcn_camera_use,analysis_list,analysis_type,task_type_list,task_type,ip_ivs
+		camera_sn,camera_name,longitude,latitude,address,stream_url,direction,camera_state,camera_type,plat_name,resolution_type,
+	    field_no,vcn_camera_use,analysis_type,task_type,ip_ivs
 		from
 		${tabName}
 		order by camera_sn desc
 	</select>
 
 	<select id="getCameraInfoAndImage" parameterType="java.util.Map"
-			resultMap="CameraManageImageVo">
+			resultMap="CameraManageImageVos">
 		select
-		a.camera_sn,a.camera_name,a.mount_height,a.longitude,a.latitude,a.address,a.stream_url,a.direction,a.lane,a.camera_state,a.camera_type,a.camera_use,a.camera_feature,
-		a.plat_name,a.resolution_type,a.field_no,a.compass,a.nvr,a.group_id,a.camera_id,a.substatus,a.vcn_camera_use,a.analysis_list,a.analysis_type,a.task_type_list,a.task_type,
-		a.ip_ivs,b.start_time,b.end_time,b.type,b.picture_count,b.effective_camera
+		a.camera_sn,a.camera_name,a.longitude,a.latitude,a.address,a.stream_url,a.direction,a.camera_state,a.camera_type,a.plat_name,a.resolution_type,
+		a.field_no,a.vcn_camera_use,a.analysis_type,a.task_type,a.ip_ivs,b.start_time,b.end_time,b.type,b.picture_count,b.effective_camera
 		from
 		${tabName} a
 		left join ${tableName} b on
@@ -278,8 +320,6 @@
 			b.effective_camera=#{effectiveCamera}
 		</if>
 	</select>
-
-
 
 
 

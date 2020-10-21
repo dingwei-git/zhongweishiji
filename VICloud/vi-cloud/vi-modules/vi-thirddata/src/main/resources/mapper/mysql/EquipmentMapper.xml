@@ -207,7 +207,7 @@
     </select>
 
     <select id="queryEquipment" parameterType="String" resultType="String">
-        select ${type} from tbl_ipc_ip_tmp group by ${type}
+        select CASE WHEN ${type} = '-' THEN #{other}  ELSE ${type} END as model from tbl_ipc_ip_tmp  group by ${type}
     </select>
 
     <select id="getUserEquipmentIp" parameterType="String" resultType="String">

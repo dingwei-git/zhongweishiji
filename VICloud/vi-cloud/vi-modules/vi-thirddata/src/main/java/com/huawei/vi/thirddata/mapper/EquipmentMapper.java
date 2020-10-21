@@ -25,7 +25,7 @@ public interface EquipmentMapper {
 
     Boolean checkEquipment(@Param("cameraSn") String cameraSn);
 
-    List<String> queryEquipment(@Param("type") String type);
+    List<String> queryEquipment(@Param("type") String type,@Param("other") String other);
 
     List<String> getUserEquipmentIp(@Param("userId") String userId);
 }

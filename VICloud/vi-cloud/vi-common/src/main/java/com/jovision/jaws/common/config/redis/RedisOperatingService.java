@@ -129,18 +129,18 @@ public class RedisOperatingService {
      *
      * @param userId
      */
-    public void delToken(String userId) {
-        redisTemplate.delete(TokenConstant.TOKEN + userId);
+    public void delTokenByUserId(String userId) {
+        redisTemplate.delete(userId+TokenConstant.TOKEN+"*");
     }
-    public void delTokenByKey(String key) {
-        redisTemplate.delete(key);
-    }
+
     public void delTikenByKey(String key) {
         redisTemplate.delete(key);
     }
     public void delByKey(String key){
-        redisTemplate.delete(key);
+        Set<String> keys = redisTemplate.keys(key);
+        redisTemplate.delete(keys);
     }
+
     /**
      * 设置tiken和iv
      *
@@ -156,7 +156,6 @@ public class RedisOperatingService {
     }
     /**
      * 设置登录成功次数
-     *
      */
     public void setLoginSuccessCount(String userId,int index){
         Object redisValue = redisTemplate.opsForValue().get(userId+ TokenConstant.LOGIN_COUNT);

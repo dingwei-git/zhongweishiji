@@ -39,6 +39,8 @@ public class APPKeyExpiredListener extends KeyExpirationEventMessageListener {
             logger.info("=====================================app redis key 过期：删除tiken={}",key);
             String userId = key.substring(0,key.indexOf(TokenConstant.TIKEN));
             redisOperatingService.delTikenByKey(key);
+            //删除token
+            redisOperatingService.delTokenByUserId(userId);
             redisOperatingService.setLoginSuccessCount(userId,-1);
         }
     }

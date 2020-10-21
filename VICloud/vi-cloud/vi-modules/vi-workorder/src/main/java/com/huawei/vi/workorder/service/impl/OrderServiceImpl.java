@@ -107,6 +107,12 @@ public class OrderServiceImpl implements OrderService {
                         e.printStackTrace();
                     }
                 }
+                try {
+                    Date date1 = sdf.parse(orderListVO.getCreatTime().toString());
+                    orderListVO.setCreatTime(sdf.format(new Date(date1.getTime())));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
             }
         }
         return RestResult.generateRestResult(AppResultEnum.SUCCESS.getCode(),AppResultEnum.SUCCESS.getMessage(),PageResult.success(total, currPage, pageSize, result));

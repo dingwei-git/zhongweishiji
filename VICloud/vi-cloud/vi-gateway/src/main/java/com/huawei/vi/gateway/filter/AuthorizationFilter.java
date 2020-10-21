@@ -39,6 +39,10 @@ public class AuthorizationFilter implements GatewayFilter, Ordered {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
+        log.info("request.getURI().getPath()============>{}"+request.getURI().getPath());
+        if(request.getURI().getPath().equals("/api/thirddata/image/getImageStream")){
+          return  chain.filter(exchange);
+        }
         String authorization = request.getHeaders().getFirst("Authorization");
         log.info("AuthorizationFilter url:{}  Authorization:{}",request.getURI(),authorization);
         if (StringUtils.isEmpty(authorization)) {

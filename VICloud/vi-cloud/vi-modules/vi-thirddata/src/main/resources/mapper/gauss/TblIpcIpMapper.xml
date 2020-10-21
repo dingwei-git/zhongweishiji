@@ -558,7 +558,10 @@
         select ${filds} from tbl_ipc_ip_tmp
         <where>
             <if test="levelid != null">
-                ${levelid}
+              and  (${levelid})
+            </if>
+            <if test="condition != null and condition != '' ">
+                and (ip like concat('%',#{condition},'%') or camera_name like concat('%',#{condition},'%')  or cameraNum like concat('%',#{condition},'%') )
             </if>
         </where>
         <if test="pageindex != null and rows != null">
@@ -571,11 +574,13 @@
         select count(*) from tbl_ipc_ip_tmp
         <where>
         <if test="levelid != null">
-             ( ${levelid} )
+            and ( ${levelid} )
         </if>
+            <if test="condition != null and condition != '' ">
+                and (ip like concat('%',#{condition},'%') or camera_name like concat('%',#{condition},'%')  or cameraNum like concat('%',#{condition},'%') )
+            </if>
         </where>
     </select>
-
 
     <select id="getNewestNetworkTable" resultType="String">
 		SELECT
@@ -687,6 +692,356 @@
            and cameraId = #{cameraId}
         </if>
     </select>
+
+    <select id="qryCameraManagerOriList" parameterType="map" resultType="String">
+        select table_name  from user_tables a where a.table_name in (
+        <foreach collection="periodList" item="period" index="index" separator="," >
+            concat('TBL_CAMERA_MANAGER_ORIGINAL_',#{period.key2})
+        </foreach>
+     )
+    </select>
+
+    <select id="getPicturesCount" parameterType="map" resultType="map">
+        SELECT
+        LEFT(to_char(e.PERIOD_START_TIME,'YYYY-MM-DD HH24:MI:SS'),13) AS `PERIOD_START_TIME`
+        <foreach collection="cityLists" item="cityList" index="index1">
+            <foreach collection="ivsNameStr" item="relist" index="index2"  >
+                ,COALESCE (max(CASE WHEN e.FILED${index1} = #{cityList} AND e.IP_IVS = #{relist} THEN e.PICTURE_COUNT END ),0 ) ${cityList}_vcm${index2}
+            </foreach>
+        </foreach>
+            FROM (
+              SELECT
+                    period.PERIOD_START_TIME,c.CAMERA_SN,c.START_TIME,c.PICTURE_COUNT,b.IP_IVS,b.CAMERA_SN
+                    <if test="filed0!=null">
+                        ,d.FILED0
+                    </if>
+                    <if test="filed1!=null">
+                        ,d.FILED1
+                    </if>
+                    <if test="filed2!=null">
+                        ,d.FILED2
+                    </if>
+                    <if test="filed3!=null">
+                        ,d.FILED3
+                    </if>
+                FROM
+                (SELECT * FROM TBL_PERIOD_MANAGE WHERE PERIOD_START_TIME BETWEEN   #{startTime} AND #{endTime} and IS_TABLE_EXIST=1) period
+                LEFT JOIN (
+                <foreach collection="dayList" item="day" index="index2" separator=" union all " >
+                    SELECT  CAMERA_SN,START_TIME,PICTURE_COUNT FROM ${day} WHERE START_TIME BETWEEN #{startTime} AND #{endTime}
+                </foreach>
+                 )
+                c ON period.PERIOD_START_TIME = c.START_TIME
+                LEFT JOIN (
+                    <foreach collection="cameraList" item="period" index="index" separator=" union all " >
+                        SELECT #{period.key1} zhouqi,a.* FROM TBL_CAMERA_MANAGER_ORIGINAL_${period.key2} a WHERE VCN_CAMERA_USE IN (1,2) AND a.IP_IVS IN
+                        <foreach collection="ivsNameStr" item="item" index="index" open="(" separator="," close=")">
+                         #{item}
+                        </foreach>
+                    </foreach>
+                ) b
+                ON c.CAMERA_SN = b.CAMERA_SN AND period.PERIOD_START_TIME = b.zhouqi
+                LEFT JOIN (SELECT * FROM TBL_IPC_IP WHERE 1=1
+                <if test="id0!=null">
+                 and id0 = #{id0}
+                </if>
+                <if test="id1!=null">
+                    and id1= #{id1}
+                </if>)d
+                ON c.camera_sn = d.CAMERA_SN
+        ) e
+            GROUP BY
+        LEFT(to_char(e.PERIOD_START_TIME,'YYYY-MM-DD HH24:MI:SS'),13)
+        ORDER BY LEFT(to_char(e.PERIOD_START_TIME,'YYYY-MM-DD HH24:MI:SS'),13) ASC
+    </select>
+
+    <select id="getPicturesCountDay" parameterType="map" resultType="map">
+        SELECT
+        LEFT(to_char(e.PERIOD_START_TIME,'YYYY-MM-DD HH24:MI:SS'),10) AS `PERIOD_START_TIME`
+        <foreach collection="cityLists" item="cityList" index="index1">
+            <foreach collection="ivsNameStr" item="relist" index="index2"  >
+                ,COALESCE (max(CASE WHEN e.FILED${index1} = #{cityList} AND e.IP_IVS = #{relist} THEN e.PICTURE_COUNT END ),0 ) ${cityList}_vcm${index2}
+            </foreach>
+        </foreach>
+        FROM (
+        SELECT
+        period.PERIOD_START_TIME,c.CAMERA_SN,c.START_TIME,c.PICTURE_COUNT,b.IP_IVS,b.CAMERA_SN
+        <if test="filed0!=null">
+            ,d.FILED0
+        </if>
+        <if test="filed1!=null">
+            ,d.FILED1
+        </if>
+        <if test="filed2!=null">
+            ,d.FILED2
+        </if>
+        <if test="filed3!=null">
+            ,d.FILED3
+        </if>
+        FROM
+        (SELECT * FROM TBL_PERIOD_MANAGE WHERE PERIOD_START_TIME BETWEEN   #{startTime} AND #{endTime} and IS_TABLE_EXIST=1) period
+        LEFT JOIN (
+        <foreach collection="dayList" item="day" index="index2" separator=" union all " >
+            SELECT  CAMERA_SN,START_TIME,PICTURE_COUNT FROM ${day} WHERE START_TIME BETWEEN #{startTime} AND #{endTime}
+        </foreach>
+        )
+        c ON period.PERIOD_START_TIME = c.START_TIME
+        LEFT JOIN (
+        <foreach collection="cameraList" item="period" index="index" separator=" union all " >
+            SELECT #{period.key1} zhouqi,a.* FROM TBL_CAMERA_MANAGER_ORIGINAL_${period.key2} a WHERE VCN_CAMERA_USE IN (1,2) AND a.IP_IVS IN
+            <foreach collection="ivsNameStr" item="item" index="index" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </foreach>
+        ) b
+        ON c.CAMERA_SN = b.CAMERA_SN AND period.PERIOD_START_TIME = b.zhouqi
+        LEFT JOIN (SELECT * FROM TBL_IPC_IP WHERE 1=1
+        <if test="id0!=null">
+            and id0 = #{id0}
+        </if>
+        <if test="id1!=null">
+            and id1= #{id1}
+        </if>)d
+        ON c.camera_sn = d.CAMERA_SN
+        ) e
+        GROUP BY
+        LEFT(to_char(e.PERIOD_START_TIME,'YYYY-MM-DD HH24:MI:SS'),10)
+        ORDER BY LEFT(to_char(e.PERIOD_START_TIME,'YYYY-MM-DD HH24:MI:SS'),10)  asc
+    </select>
+
+
+    <select id="getPicturesCountWD" parameterType="map" resultType="map">
+        SELECT
+        LEFT(to_char(e.PERIOD_START_TIME,'YYYY-MM-DD HH24:MI:SS'),10) AS `PERIOD_START_TIME`
+            <foreach collection="ivsNameStr" item="relist" index="index2"  >
+                ,COALESCE (max(CASE WHEN  e.IP_IVS = #{relist} THEN e.PICTURE_COUNT END ),0 ) _vcm${index2}
+            </foreach>
+        FROM (
+        SELECT
+        period.PERIOD_START_TIME,c.CAMERA_SN,c.START_TIME,c.PICTURE_COUNT,b.IP_IVS,b.CAMERA_SN
+        FROM
+        (SELECT * FROM TBL_PERIOD_MANAGE WHERE PERIOD_START_TIME BETWEEN   #{startTime} AND #{endTime} and IS_TABLE_EXIST=1) period
+        LEFT JOIN (
+        <foreach collection="dayList" item="day" index="index2" separator=" union all " >
+            SELECT  CAMERA_SN,START_TIME,PICTURE_COUNT FROM ${day} WHERE START_TIME BETWEEN #{startTime} AND #{endTime}
+        </foreach>
+        )
+        c ON period.PERIOD_START_TIME = c.START_TIME
+        LEFT JOIN (
+        <foreach collection="cameraList" item="period" index="index" separator=" union all " >
+            SELECT #{period.key1} zhouqi,a.* FROM TBL_CAMERA_MANAGER_ORIGINAL_${period.key2} a WHERE VCN_CAMERA_USE IN (1,2) AND a.IP_IVS IN
+            <foreach collection="ivsNameStr" item="item" index="index" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </foreach>
+        ) b
+        ON c.CAMERA_SN = b.CAMERA_SN AND period.PERIOD_START_TIME = b.zhouqi
+        LEFT JOIN (SELECT * FROM TBL_IPC_IP WHERE 1=1)d
+        ON c.camera_sn = d.CAMERA_SN
+        ) e
+        GROUP BY
+        LEFT(to_char(e.PERIOD_START_TIME,'YYYY-MM-DD HH24:MI:SS'),10)
+        order by LEFT(to_char(e.PERIOD_START_TIME,'YYYY-MM-DD HH24:MI:SS'),10) asc
+    </select>
+
+    <select id="getPicturesCountHour" parameterType="map" resultType="map">
+        SELECT
+        LEFT(to_char(e.PERIOD_START_TIME,'YYYY-MM-DD HH24:MI:SS'),13) AS `PERIOD_START_TIME`
+        <foreach collection="ivsNameStr" item="relist" index="index2"  >
+            ,COALESCE (max(CASE WHEN  e.IP_IVS = #{relist} THEN e.PICTURE_COUNT END ),0 ) _vcm${index2}
+        </foreach>
+        FROM (
+        SELECT
+        period.PERIOD_START_TIME,c.CAMERA_SN,c.START_TIME,c.PICTURE_COUNT,b.IP_IVS,b.CAMERA_SN
+        FROM
+        (SELECT * FROM TBL_PERIOD_MANAGE WHERE PERIOD_START_TIME BETWEEN   #{startTime} AND #{endTime} and IS_TABLE_EXIST=1) period
+        LEFT JOIN (
+        <foreach collection="dayList" item="day" index="index2" separator=" union all " >
+            SELECT  CAMERA_SN,START_TIME,PICTURE_COUNT FROM ${day} WHERE START_TIME BETWEEN #{startTime} AND #{endTime}
+        </foreach>
+        )
+        c ON period.PERIOD_START_TIME = c.START_TIME
+        LEFT JOIN (
+        <foreach collection="cameraList" item="period" index="index" separator=" union all " >
+            SELECT #{period.key1} zhouqi,a.* FROM TBL_CAMERA_MANAGER_ORIGINAL_${period.key2} a WHERE VCN_CAMERA_USE IN (1,2) AND a.IP_IVS IN
+            <foreach collection="ivsNameStr" item="item" index="index" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </foreach>
+        ) b
+        ON c.CAMERA_SN = b.CAMERA_SN AND period.PERIOD_START_TIME = b.zhouqi
+        LEFT JOIN (SELECT * FROM TBL_IPC_IP WHERE 1=1)d
+        ON c.camera_sn = d.CAMERA_SN
+        ) e
+        GROUP BY
+        LEFT(to_char(e.PERIOD_START_TIME,'YYYY-MM-DD HH24:MI:SS'),13)
+        order by LEFT(to_char(e.PERIOD_START_TIME,'YYYY-MM-DD HH24:MI:SS'),13) asc
+    </select>
+
+
+    <select id="getRelationShip" resultType="string">
+        SELECT NAME FROM TBL_PERIOD_NETWORK WHERE PERIOD_START_TIME = (SELECT MAX(PERIOD_START_TIME)  FROM TBL_PERIOD_NETWORK b  ORDER BY PERIOD_START_TIME DESC)
+    </select>
+
+    <select id="getlevelNames" parameterType="map" resultType="map">
+       select id,name
+        from ${relationShip}
+        where
+        id in
+        <foreach collection="organization" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="getTime" parameterType="map" resultType="string">
+        SELECT distinct CONCAT(LEFT(to_char(PERIOD_START_TIME,'YYYY-MM-DD HH24:MI:SS'),9),0)  AS `PERIOD_START_TIME` FROM TBL_PERIOD_MANAGE
+        WHERE IS_TABLE_EXIST = 1 AND PERIOD_START_TIME BETWEEN #{startTime} and #{endTime}
+    </select>
+
+    <select id="getTimes" parameterType="map" resultType="string">
+       select DISTINCT to_char(PERIOD_START_TIME, 'YYYY-MM-DD') AS `PERIOD_START_TIME` FROM TBL_PERIOD_MANAGE
+        WHERE IS_TABLE_EXIST = 1 AND PERIOD_START_TIME BETWEEN #{startTime} and #{endTime}
+    </select>
+
+    <select id="getPeriodTime" parameterType="map" resultType="string">
+        SELECT to_char(PERIOD_START_TIME,'YYYY-MM-DD HH24:MI:SS') AS `PERIOD_START_TIME` FROM TBL_PERIOD_MANAGE
+        WHERE IS_TABLE_EXIST = 1 AND PERIOD_START_TIME BETWEEN #{startTime} and #{endTime}
+    </select>
+
+    <select id="getPeriodTimes" parameterType="map" resultType="string">
+        SELECT
+        LEFT(to_char(e.PERIOD_START_TIME,'YYYY-MM-DD HH24:MI:SS'),13) AS `PERIOD_START_TIME` FROM TBL_PERIOD_MANAGE
+        WHERE IS_TABLE_EXIST = 1 AND PERIOD_START_TIME BETWEEN #{startTime} and #{endTime}
+    </select>
+
+    <select id="getPicturesCountCamera" parameterType="map" resultType="map">
+        SELECT
+        LEFT(to_char(e.PERIOD_START_TIME,'YYYY-MM-DD HH24:MI:SS'),13) AS `PERIOD_START_TIME`
+        <foreach collection="ipListes" item="ipListe" index="index1">
+            <foreach collection="ivsNameStr" item="relist" index="index2"  >
+                ,COALESCE (max(CASE WHEN e.ip = #{ipListe} AND e.IP_IVS = #{relist} THEN e.PICTURE_COUNT END ),0 ) _vcm${index2}
+            </foreach>
+        </foreach>
+        FROM (
+        SELECT
+        period.PERIOD_START_TIME,c.CAMERA_SN,c.START_TIME,c.PICTURE_COUNT,b.IP_IVS,b.CAMERA_SN,d.camera_sn,d.ip
+        <if test="filed0!=null">
+            ,d.FILED0
+        </if>
+        <if test="filed1!=null">
+            ,d.FILED1
+        </if>
+        <if test="filed2!=null">
+            ,d.FILED2
+        </if>
+        <if test="filed3!=null">
+            ,d.FILED3
+        </if>
+        FROM
+        (SELECT * FROM TBL_PERIOD_MANAGE WHERE PERIOD_START_TIME BETWEEN   #{startTime} AND #{endTime} and IS_TABLE_EXIST=1) period
+        LEFT JOIN (
+        <foreach collection="dayList" item="day" index="index2" separator=" union all " >
+            SELECT  CAMERA_SN,START_TIME,PICTURE_COUNT FROM ${day} WHERE START_TIME BETWEEN #{startTime} AND #{endTime}
+        </foreach>
+        )
+        c ON period.PERIOD_START_TIME = c.START_TIME
+        LEFT JOIN (
+        <foreach collection="periodList" item="period" index="index" separator=" union all " >
+            SELECT #{period.key1} zhouqi,a.* FROM TBL_CAMERA_MANAGER_ORIGINAL_${period.key2} a WHERE VCN_CAMERA_USE IN (1,2) AND a.IP_IVS IN
+            <foreach collection="ivsNameStr" item="item" index="index" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </foreach>
+        ) b
+        ON c.CAMERA_SN = b.CAMERA_SN AND period.PERIOD_START_TIME = b.zhouqi
+        LEFT JOIN (SELECT * FROM TBL_IPC_IP WHERE 1=1
+         and camera_sn in
+        <foreach collection="camernStrList" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+         )d
+        ON c.camera_sn = d.CAMERA_SN
+        ) e
+        GROUP BY
+        LEFT(to_char(e.PERIOD_START_TIME,'YYYY-MM-DD HH24:MI:SS'),13)
+        order by LEFT(to_char(e.PERIOD_START_TIME,'YYYY-MM-DD HH24:MI:SS'),13) asc
+    </select>
+
+    <select id="getCamernSns" parameterType="map" resultType="map">
+       select ip,CAMERA_SN
+       from tbl_ipc_ip
+       where ip in
+        <foreach collection="organization" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="getMaxTime" resultType="string">
+        SELECT to_char(MAX(PERIOD_START_TIME)) AS `PERIOD_START_TIME` FROM TBL_PERIOD_MANAGE
+        WHERE IS_TABLE_EXIST = 1
+    </select>
+
+    <select id="getcamSns" parameterType="map" resultType="map">
+        SELECT ip,CAMERA_SN  FROM ${cameraTable}  WHERE IP_IVS in
+        <foreach collection="ipLists" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="getPicturesCountCameraDay" parameterType="map" resultType="map">
+        SELECT
+        LEFT(to_char(e.PERIOD_START_TIME,'YYYY-MM-DD HH24:MI:SS'),10) AS `PERIOD_START_TIME`
+        <foreach collection="ipListes" item="ipListe" index="index1">
+            <foreach collection="ivsNameStr" item="relist" index="index2"  >
+                ,COALESCE (max(CASE WHEN e.ip = #{ipListe} AND e.IP_IVS = #{relist} THEN e.PICTURE_COUNT END ),0 ) _vcm${index2}
+            </foreach>
+        </foreach>
+        FROM (
+        SELECT
+        period.PERIOD_START_TIME,c.CAMERA_SN,c.START_TIME,c.PICTURE_COUNT,b.IP_IVS,b.CAMERA_SN,d.camera_sn,d.ip
+        <if test="filed0!=null">
+            ,d.FILED0
+        </if>
+        <if test="filed1!=null">
+            ,d.FILED1
+        </if>
+        <if test="filed2!=null">
+            ,d.FILED2
+        </if>
+        <if test="filed3!=null">
+            ,d.FILED3
+        </if>
+        FROM
+        (SELECT * FROM TBL_PERIOD_MANAGE WHERE PERIOD_START_TIME BETWEEN   #{startTime} AND #{endTime} and IS_TABLE_EXIST=1) period
+        LEFT JOIN (
+        <foreach collection="dayList" item="day" index="index2" separator=" union all " >
+            SELECT  CAMERA_SN,START_TIME,PICTURE_COUNT FROM ${day} WHERE START_TIME BETWEEN #{startTime} AND #{endTime}
+        </foreach>
+        )
+        c ON period.PERIOD_START_TIME = c.START_TIME
+        LEFT JOIN (
+        <foreach collection="periodList" item="period" index="index" separator=" union all " >
+            SELECT #{period.key1} zhouqi,a.* FROM TBL_CAMERA_MANAGER_ORIGINAL_${period.key2} a WHERE VCN_CAMERA_USE IN (1,2) AND a.IP_IVS IN
+            <foreach collection="ivsNameStr" item="item" index="index" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </foreach>
+        ) b
+        ON c.CAMERA_SN = b.CAMERA_SN AND period.PERIOD_START_TIME = b.zhouqi
+        LEFT JOIN (SELECT * FROM TBL_IPC_IP WHERE 1=1
+        and camera_sn in
+        <foreach collection="camernStrList" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        )d
+        ON c.camera_sn = d.CAMERA_SN
+        ) e
+        GROUP BY
+        LEFT(to_char(e.PERIOD_START_TIME,'YYYY-MM-DD HH24:MI:SS'),10)
+        order by LEFT(to_char(e.PERIOD_START_TIME,'YYYY-MM-DD HH24:MI:SS'),10) asc
+    </select>
+
+
 
 
 </mapper>

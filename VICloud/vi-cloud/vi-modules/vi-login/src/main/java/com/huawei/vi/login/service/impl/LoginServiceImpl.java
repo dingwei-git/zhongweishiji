@@ -61,8 +61,10 @@ public class LoginServiceImpl implements LoginService {
     @Autowired
     private TikenUtil tikenUtil;
 
-    @Value("${login.lock.duration}")
+    @Value("${app.login.lock.duration}")
     private Long duration;
+    @Value("${app.login.success.max}")
+    private Long maxCount;
 
     @Override
     public RestResult login(LoginDto body) {
@@ -89,7 +91,7 @@ public class LoginServiceImpl implements LoginService {
         //判断当前用户在线数量
         String userId = roleMap.get("user_id")==null?"":roleMap.get("user_id").toString();
         int loginSuccessCount = redisOperatingService.getLoginSuccessCount(userId);
-        if(loginSuccessCount>=10){
+        if(loginSuccessCount>=maxCount){
             return RestResult.generateRestResult(AppResultEnum.LOGIN_COUNT_OUT.getCode(),AppResultEnum.LOGIN_COUNT_OUT.getMessage(), null);
         }
         
@@ -359,17 +361,17 @@ public class LoginServiceImpl implements LoginService {
      * 内部方法校验用户是否已冻结
      * @param user_id
      */
-    private void checkUserFrozenInside(String user_id) {
-        Integer frozen = userService.getFrozenByUserId(user_id);
-        if(frozen == null){
-            throw new BusinessException(BusinessErrorEnum.UMS_ACCOUNT_NOT_EXIST);
-        }
-        if (frozen.equals(UmsUserFrozenEnum.FROZEN.getValue())){
-            redisOperatingService.delToken(user_id);
-            //redisOperatingService.delTikenAndTikenIv(user_id);
-            throw new BusinessException(BusinessErrorEnum.UMS_ACCOUNT_FROZEN);
-        }
-    }
+//    private void checkUserFrozenInside(String user_id) {
+//        Integer frozen = userService.getFrozenByUserId(user_id);
+//        if(frozen == null){
+//            throw new BusinessException(BusinessErrorEnum.UMS_ACCOUNT_NOT_EXIST);
+//        }
+//        if (frozen.equals(UmsUserFrozenEnum.FROZEN.getValue())){
+//            redisOperatingService.delToken(user_id);
+//            //redisOperatingService.delTikenAndTikenIv(user_id);
+//            throw new BusinessException(BusinessErrorEnum.UMS_ACCOUNT_FROZEN);
+//        }
+//    }
     /**
      * 修改密码
      * 1.旧密码错误三次,直接退出
@@ -443,6 +445,8 @@ public class LoginServiceImpl implements LoginService {
         redisOperatingService.delByKey(userId+TokenConstant.TOKEN+"*");
         //清空tiken
         redisOperatingService.delByKey(userId+TokenConstant.TIKEN+"*");
+        redisOperatingService.delByKey(userId+TokenConstant.TIKEN_IV +"*");
+        redisOperatingService.delByKey(userId+TokenConstant.LOGINID +"*");
         redisOperatingService.delByKey(userId+TokenConstant.LOGIN_COUNT);
         //登录成功清理锁定次数
         redisOperatingService.delModifyPwdUserLock(userId);

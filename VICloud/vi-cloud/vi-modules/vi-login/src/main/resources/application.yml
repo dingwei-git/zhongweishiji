@@ -4,7 +4,3 @@ logging:
   config: classpath:logconfig/logback-custom.xml
 mybatis:
   mapper-locations: classpath:mapper/${dbtype}/*.xml
-
-login:
-  lock:
-    duration: 300

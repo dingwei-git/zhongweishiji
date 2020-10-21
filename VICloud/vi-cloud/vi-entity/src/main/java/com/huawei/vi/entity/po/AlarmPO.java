@@ -21,6 +21,7 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 public class AlarmPO implements Serializable {
+
     /**
      * 告警数据表名前缀
      */
@@ -100,7 +101,7 @@ public class AlarmPO implements Serializable {
      * 监控类型 id
      */
     private int monitorTypeId;
-
+    private String monitorTypeName;
     /**
      * 监控类型实体
      */
@@ -110,7 +111,7 @@ public class AlarmPO implements Serializable {
      * 故障类型 id
      */
     private String faultTypeId;
-
+    private String  faultTypeName;
     /**
      * 故障类型实体
      */
@@ -120,7 +121,7 @@ public class AlarmPO implements Serializable {
      * 告警等级 id
      */
     private int alarmLevelId;
-
+    private String alarmLevelName;
     /**
      * 告警等级实体
      */
@@ -147,7 +148,7 @@ public class AlarmPO implements Serializable {
      * 告警状态 id
      */
     private int alarmStatusId;
-
+    private String alarmStatusName;
     /**
      * 告警状态实体
      */

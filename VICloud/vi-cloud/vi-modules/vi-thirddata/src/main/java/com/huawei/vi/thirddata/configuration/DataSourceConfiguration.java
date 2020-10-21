@@ -53,8 +53,6 @@ public class DataSourceConfiguration {
         if("mysql".equals(dbtype)){
             viProperties = mysqlViDsProperties;
         }
-        //viProperties =guassViDsProperties;
-        System.out.println(viProperties);
         DruidDataSource datasource = new DruidDataSource();
         datasource.setUrl(viProperties.getUrl());
         datasource.setUsername(viProperties.getUsername());
@@ -62,21 +60,19 @@ public class DataSourceConfiguration {
         datasource.setDriverClassName(viProperties.getDriverClassName());
         datasource.setInitialSize(viProperties.getInitialSize());
         datasource.setMinIdle(viProperties.getMinIdle());
-//        datasource.setMaxActive(properties.getMaxActive());
-//        datasource.setMaxWait(properties.getMaxWait());
-//        datasource.setTimeBetweenEvictionRunsMillis(properties.getTimeBetweenEvictionRunsMillis());
-//        datasource.setMinEvictableIdleTimeMillis(properties.getMinEvictableIdleTimeMillis());
-//        datasource.setValidationQuery(properties.getValidationQuery());
-//        datasource.setTestWhileIdle(properties.getTestWhileIdle());
-//        datasource.setTestOnBorrow(properties.getTestOnBorrow());
-//        datasource.setTestOnReturn(properties.getTestOnReturn());
-//        datasource.setPoolPreparedStatements(properties.getPoolPreparedStatements());
-//        datasource.setMaxOpenPreparedStatements(properties.getMaxOpenPreparedStatements());
-//        datasource.setMaxPoolPreparedStatementPerConnectionSize(properties.getMaxPoolPreparedStatementPerConnectionSize());
-//        try {
-//            datasource.setFilters(properties.getFilters());
-//        } catch (SQLException e) {
-//        }
+        datasource.setMaxActive(viProperties.getMaxActive());
+        datasource.setMaxWait(viProperties.getMaxWait());
+        datasource.setTimeBetweenEvictionRunsMillis(viProperties.getTimeBetweenEvictionRunsMillis());
+        datasource.setMinEvictableIdleTimeMillis(viProperties.getMinEvictableIdleTimeMillis());
+        datasource.setValidationQuery(viProperties.getValidationQuery());
+        datasource.setTestWhileIdle(viProperties.getTestWhileIdle());
+        datasource.setTestOnBorrow(viProperties.getTestOnBorrow());
+        datasource.setTestOnReturn(viProperties.getTestOnReturn());
+        datasource.setPoolPreparedStatements(viProperties.getPoolPreparedStatements());
+        datasource.setMaxOpenPreparedStatements(viProperties.getMaxOpenPreparedStatements());
+        datasource.setMaxPoolPreparedStatementPerConnectionSize(viProperties.getMaxPoolPreparedStatementPerConnectionSize());
+        datasource.setBreakAfterAcquireFailure(viProperties.getBreakAfterAcquireFailure());
+        datasource.setConnectionErrorRetryAttempts(viProperties.getConnectionErrorRetryAttempts());
         return datasource;
     }
 
@@ -89,7 +85,6 @@ public class DataSourceConfiguration {
         if("mysql".equals(dbtype)){
             vicProperties = mysqlVicDsProperties;
         }
-        //vicProperties = guassVicDsProperties;
         DruidDataSource datasource = new DruidDataSource();
         datasource.setUrl(vicProperties.getUrl());
         datasource.setUsername(vicProperties.getUsername());
@@ -97,21 +92,19 @@ public class DataSourceConfiguration {
         datasource.setDriverClassName(vicProperties.getDriverClassName());
         datasource.setInitialSize(vicProperties.getInitialSize());
         datasource.setMinIdle(vicProperties.getMinIdle());
-//        datasource.setMaxActive(properties.getMaxActive());
-//        datasource.setMaxWait(properties.getMaxWait());
-//        datasource.setTimeBetweenEvictionRunsMillis(properties.getTimeBetweenEvictionRunsMillis());
-//        datasource.setMinEvictableIdleTimeMillis(properties.getMinEvictableIdleTimeMillis());
-//        datasource.setValidationQuery(properties.getValidationQuery());
-//        datasource.setTestWhileIdle(properties.getTestWhileIdle());
-//        datasource.setTestOnBorrow(properties.getTestOnBorrow());
-//        datasource.setTestOnReturn(properties.getTestOnReturn());
-//        datasource.setPoolPreparedStatements(properties.getPoolPreparedStatements());
-//        datasource.setMaxOpenPreparedStatements(properties.getMaxOpenPreparedStatements());
-//        datasource.setMaxPoolPreparedStatementPerConnectionSize(properties.getMaxPoolPreparedStatementPerConnectionSize());
-//        try {
-//            datasource.setFilters(properties.getFilters());
-//        } catch (SQLException e) {
-//        }
+        datasource.setMaxActive(vicProperties.getMaxActive());
+        datasource.setMaxWait(vicProperties.getMaxWait());
+        datasource.setTimeBetweenEvictionRunsMillis(vicProperties.getTimeBetweenEvictionRunsMillis());
+        datasource.setMinEvictableIdleTimeMillis(vicProperties.getMinEvictableIdleTimeMillis());
+        datasource.setValidationQuery(vicProperties.getValidationQuery());
+        datasource.setTestWhileIdle(vicProperties.getTestWhileIdle());
+        datasource.setTestOnBorrow(vicProperties.getTestOnBorrow());
+        datasource.setTestOnReturn(vicProperties.getTestOnReturn());
+        datasource.setPoolPreparedStatements(vicProperties.getPoolPreparedStatements());
+        datasource.setMaxOpenPreparedStatements(vicProperties.getMaxOpenPreparedStatements());
+        datasource.setMaxPoolPreparedStatementPerConnectionSize(vicProperties.getMaxPoolPreparedStatementPerConnectionSize());
+        datasource.setBreakAfterAcquireFailure(vicProperties.getBreakAfterAcquireFailure());
+        datasource.setConnectionErrorRetryAttempts(vicProperties.getConnectionErrorRetryAttempts());
         return datasource;
     }
 

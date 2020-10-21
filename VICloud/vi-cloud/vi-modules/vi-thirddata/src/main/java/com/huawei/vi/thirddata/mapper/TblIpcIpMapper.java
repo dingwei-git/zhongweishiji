@@ -130,4 +130,40 @@ public interface TblIpcIpMapper extends IbaseDao<TblIpcIp, String> {
 
     String getFileds(Map map)throws DataAccessException;
 
+    /*
+    * 图片溯源新
+    * */
+    List<Map<String,Object>> getPicturesCount(Map<String,Object>map) throws DataAccessException;
+
+    List<Map<String,Object>> getPicturesCountHour(Map<String,Object>map) throws DataAccessException;
+
+    List<String> qryCameraManagerOriList(Map<String,Object>map) throws DataAccessException;
+
+    String getRelationShip() throws DataAccessException;
+
+    List<Map<String,Object>> getlevelNames(Map<String,Object>map) throws DataAccessException;
+
+    List<String> getTime(Map<String,Object>map)throws DataAccessException;
+
+    List<String> getTimes(Map<String,Object>map)throws DataAccessException;
+
+    List<String> getPeriodTime(Map<String,Object>map)throws DataAccessException;
+
+    List<String> getPeriodTimes(Map<String,Object>map)throws DataAccessException;
+
+    List<Map<String,Object>> getPicturesCountDay(Map<String,Object>map) throws DataAccessException;
+
+    List<Map<String,Object>> getPicturesCountWD(Map<String,Object>map) throws DataAccessException;
+    /*
+    * 按照摄像机查询（新）
+    * */
+    List<Map<String,Object>> getPicturesCountCamera(Map<String,Object>map) throws DataAccessException;
+
+    List<Map<String,Object>> getCamernSns(Map<String,Object>map) throws DataAccessException;
+
+    List<Map<String,Object>> getPicturesCountCameraDay(Map<String,Object>map) throws DataAccessException;
+
+    String getMaxTime()throws DataAccessException;
+
+    List<Map<String,Object>> getcamSns(Map<String,Object>map)throws DataAccessException;
 }

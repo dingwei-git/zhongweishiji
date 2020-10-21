@@ -20,6 +20,10 @@ public class DSProperties {
     private Integer maxWait;
     private Integer timeBetweenEvictionRunsMillis;
     private Integer minEvictableIdleTimeMillis;
+    //数据库服务宕机自动重连机制 需要重连设置为false
+    private Boolean breakAfterAcquireFailure;
+    //连接出错后再尝试连接次数
+    private Integer connectionErrorRetryAttempts;
     private String validationQuery;
     private Boolean testWhileIdle;
     private Boolean testOnBorrow;

@@ -17,7 +17,7 @@ public class IntelligentTraceController {
     * */
     @RequestMapping(value = "/getIntelligent.do",method = {RequestMethod.POST})
     public RestResult intelligentTrace(@RequestBody ImageCountVO imageCountVO){
-         RestResult restResult = intelligentTraceService.intelligentTrace(imageCountVO);
+         RestResult restResult = intelligentTraceService.newIntelligentTrace(imageCountVO);
         return restResult;
     }
 
@@ -26,7 +26,7 @@ public class IntelligentTraceController {
     * */
     @RequestMapping(value = "/getIntelligentByCamera.do",method = {RequestMethod.POST})
     public RestResult intelligentTraceByCamera(@RequestBody ImageCountVO imageCountVO){
-        RestResult restResult = intelligentTraceService.intelligentTraceByCamera(imageCountVO);
+        RestResult restResult = intelligentTraceService.newIntelligentTraceCamera(imageCountVO);
         return restResult;
     }
 
@@ -36,7 +36,7 @@ public class IntelligentTraceController {
     * */
     @RequestMapping(value = "/getPageIntelligent.do",method = {RequestMethod.POST})
     public RestResult intelligentTracePage(@RequestBody ImageCountVO imageCountVO){
-        RestResult restResult = intelligentTraceService.intelligentTracePage(imageCountVO);
+        RestResult restResult = intelligentTraceService.intelligentTracePages(imageCountVO);
         return restResult;
     }
 
@@ -45,7 +45,7 @@ public class IntelligentTraceController {
     * */
     @RequestMapping(value = "/getPageIntelligentByCamera.do",method = {RequestMethod.POST})
     public RestResult intelligentTraceByCameraPage(@RequestBody ImageCountVO imageCountVO){
-        RestResult restResult = intelligentTraceService.intelligentTraceByCameraPage(imageCountVO);
+        RestResult restResult = intelligentTraceService.newIntelligentTraceCameras(imageCountVO);
         return restResult;
     }
 
@@ -66,7 +66,7 @@ public class IntelligentTraceController {
     * */
     @RequestMapping(value = "/getNetWorkTrace.do",method={RequestMethod.POST})
     public RestResult netWorkTrace(@RequestBody ImageCountVO imageCountVO){
-        RestResult restResult = intelligentTraceService.getNetWorkTrace(imageCountVO);
+        RestResult restResult = intelligentTraceService.getNetWorkTraces(imageCountVO);
         return restResult;
     }
 
@@ -75,7 +75,7 @@ public class IntelligentTraceController {
     * */
     @RequestMapping(value = "/getNetWorkTraceByHour.do",method = {RequestMethod.POST})
     public RestResult netWorkTraceByHour(@RequestBody ImageCountVO imageCountVO){
-        RestResult restResult = intelligentTraceService.getNetWorkTraceByHour(imageCountVO);
+        RestResult restResult = intelligentTraceService.getNetWorkTraceByHours(imageCountVO);
         return restResult;
     }
 

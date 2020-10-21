@@ -339,7 +339,10 @@
         select ${filds} from tbl_ipc_ip_tmp
         <where>
             <if test="levelid != null">
-                ${levelid}
+              and  (${levelid})
+            </if>
+            <if test="condition != null and condition != '' ">
+                and (ip like concat('%',#{condition},'%') or camera_name like concat('%',#{condition},'%')  or cameraNum like concat('%',#{condition},'%') )
             </if>
         </where>
         <if test="pageindex != null and rows != null">
@@ -352,7 +355,10 @@
         select count(*) from tbl_ipc_ip_tmp
         <where>
         <if test="levelid != null">
-             ( ${levelid} )
+            and ( ${levelid} )
+        </if>
+        <if test="condition != null and condition != '' ">
+            and (ip like concat('%',#{condition},'%') or camera_name like concat('%',#{condition},'%')  or cameraNum like concat('%',#{condition},'%') )
         </if>
         </where>
     </select>

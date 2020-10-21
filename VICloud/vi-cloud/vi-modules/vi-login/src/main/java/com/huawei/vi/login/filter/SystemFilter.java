@@ -50,9 +50,13 @@ public class SystemFilter extends OncePerRequestFilter {
 //                requestWrapper = new RequestWrapper(request);
 //            }
             RequestWrapper requestWrapper = null;
-            if (url.indexOf("modify_pwd") >= 0||url.indexOf("logout") >= 0||
+            if (url.indexOf("modify_pwd") >= 0||
                     url.indexOf("user") >= 0) {
                 try {
+                    if(StringUtils.isEmpty(request.getHeader(HeaderParamEnum.AUTHORIZATION.getTitle()))){
+                        log.info(BusinessErrorEnum.TOKEN_NOT_FOUND.getMsg());
+                        throw new BusinessException(BusinessErrorEnum.TOKEN_NOT_FOUND);
+                    }
                     String token = request.getHeader(HeaderParamEnum.AUTHORIZATION.getTitle()).substring(7);
                     String subToken = token.substring(token.indexOf(TokenConstant.TOKEN)+11);
                     Claims claims = parseJWT(subToken, TokenConstant.TOKEN_SECRET);
@@ -84,9 +88,10 @@ public class SystemFilter extends OncePerRequestFilter {
                         log.info(BusinessErrorEnum.TOKEN_NOT_SAME.getMsg());
                         throw new BusinessException(BusinessErrorEnum.TOKEN_NOT_SAME);
                     }
-                }catch (BusinessException ex){
-                    System.out.println(ex.getMsg());
                 }
+//                catch (BusinessException ex){
+//                    System.out.println(ex.getMsg());
+//                }
                 catch (Exception ex) {
                     //String responseString = new BusinessException(BusinessErrorEnum.UMS_TOKEN_OVERDUE).toString();
                     response.setContentType("text/html;charset=UTF-8");

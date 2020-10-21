@@ -6,11 +6,16 @@ import com.jovision.jaws.common.config.i18n.MessageSourceUtil;
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * 遍历对象，返回json
  */
 public class TraverseObjectUtil {
+
+    private static String positiveInteger = "^[1-9]\\d*$";
 
     public static JSONObject traverseCameraBriefInfoExes(Object obj){
         Field[] fields=obj.getClass().getDeclaredFields();
@@ -51,6 +56,28 @@ public class TraverseObjectUtil {
             return "";
         }
         return String.valueOf(obj);
+    }
+
+    /**
+     * 校验是否为正整数(不包括0)
+     * @param str
+     * @return
+     */
+    public static boolean checkPositiveInteger(String str){
+        Pattern pattern = Pattern.compile(positiveInteger);
+        boolean flag = pattern.matcher(str).matches();
+        return flag;
+    }
+
+    public static List<String> checkOther(List<String> list,String str){
+        List<String> resuleList = new ArrayList<String>();
+        list.forEach(k->{
+            if(str.equals(k)){
+                k = "-";
+            }
+            resuleList.add(k);
+        });
+        return resuleList;
     }
 
     public static RestResult checkGinsengRequest(MessageSourceUtil messageSourceUtil,HttpServletRequest request, String ... strs){

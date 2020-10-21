@@ -215,13 +215,14 @@ public class GbSyncDataController extends BaseController {
      */
     @PostMapping("/ipcipdatagird")
     public RestResult ipcipDatagird(
+                                    @RequestParam(value = "condition",required = false) String condition,
                                     @RequestParam(value = "levelCount",required = false) Integer levelCount,
                                     @RequestParam(value=CommonConst.DEVICE_SYNCDATA_LEVELID,required = false) String levelid,
                                     @RequestParam(CommonConst.DEVICE_SYNCDATA_PAGE_ROWS) String rows,
                                     @RequestParam(CommonConst.DEVICE_SYNCDATA_PAGE_OFFSET) String offset){
 
         try {
-            return gBsyncDataService.ipcipdatagird(levelCount,levelid,offset,rows);
+            return gBsyncDataService.ipcipdatagird(levelCount,levelid,offset,rows,condition);
         } catch (Exception e) {
             log.error("ipcipDatagird====exception:", e);
             return RestResult.generateRestResult(NumConstant.NUM_1_NEGATIVE, "操作失败",null);

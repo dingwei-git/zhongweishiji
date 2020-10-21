@@ -54,6 +54,10 @@ public class SystemFilter extends OncePerRequestFilter {
                     url.indexOf("/fault/") >= 0||
                     url.indexOf("/alarm/") >= 0) {
                 try {
+                    if(StringUtils.isEmpty(request.getHeader(HeaderParamEnum.AUTHORIZATION.getTitle()))){
+                        log.info(BusinessErrorEnum.TOKEN_NOT_FOUND.getMsg());
+                        throw new BusinessException(BusinessErrorEnum.TOKEN_NOT_FOUND);
+                    }
                     String token = request.getHeader(HeaderParamEnum.AUTHORIZATION.getTitle()).substring(7);
                     String subToken = token.substring(token.indexOf(TokenConstant.TOKEN)+11);
                     Claims claims = parseJWT(subToken, TokenConstant.TOKEN_SECRET);

@@ -6,7 +6,7 @@ import com.huawei.vi.thirddata.mapper.IntelligentTraceMapper;
 import com.huawei.vi.thirddata.mapper.TblIpcIpMapper;
 import com.huawei.vi.thirddata.service.intelligent.IntelligentTraceService;
 import com.jovision.jaws.common.config.i18n.MessageSourceUtil;
-import com.jovision.jaws.common.constant.CommonConst;
+import com.jovision.jaws.common.datasource.DataSourceEnum;
 import com.jovision.jaws.common.util.RestResult;
 import com.jovision.jaws.common.util.ServiceCommonConst;
 import com.jovision.jaws.common.util.TableCommonConstant;
@@ -33,6 +33,1526 @@ public class IntelligentTraceServiceImpl implements IntelligentTraceService {
     @Autowired
     MessageSourceUtil messageSourceUtil;
 
+
+    /*
+     * 图片溯源按组织查询（新）
+     *
+     * */
+    @Override
+    public RestResult newIntelligentTrace(ImageCountVO imageCountVO){
+        RestResult restResult = RestResult.generateRestResult(ServiceCommonConst.CODE_FAILURE,"",null);
+        List<ImageCountPo> imageCountPos = new ArrayList<>();
+        List<ImageCountPo> newImageCountPos = new ArrayList<>();
+        List<String> listStr = new ArrayList<>();
+        Map<String,Object> map = new HashMap<>();
+        String[] organizations = imageCountVO.getOrganization();
+        if(organizations == null || organizations.length ==0){
+            restResult.setMessage(messageSourceUtil.getMessage("device.organization"));
+            return restResult;
+        }
+        String[] sceneVoList = imageCountVO.getSceneVoList();
+        if(sceneVoList == null || sceneVoList.length ==0 ){
+            restResult.setMessage(messageSourceUtil.getMessage("device.indicatorScenario"));
+            return restResult;
+        }
+        List<String> sceneVo = Arrays.asList(sceneVoList);
+        List<String> str = new ArrayList<>();
+        List<String> organization = Arrays.asList(organizations);
+        //开始时间
+        String startTime = imageCountVO.getStartTime();
+        //结束时间
+        String endTime = imageCountVO.getEndTime();
+        String[] netWorkVolist = imageCountVO.getNetWorkList();
+        if(netWorkVolist == null || netWorkVolist.length ==0 ){
+            restResult.setMessage(messageSourceUtil.getMessage("device.networkElement"));
+            return restResult;
+        }
+        map.put("netWorkVolist",netWorkVolist);
+        List<Map> ipList = intelligentTraceMapper.getServerInfo(map);
+        if(ipList==null || ipList.size()<=0 || ipList.isEmpty()){
+            restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+            restResult.setMessage(messageSourceUtil.getMessage("device.warnings"));
+            return restResult;
+        }
+        List<String> netWorkVolists = Arrays.asList(netWorkVolist);
+        map.put("startTime",imageCountVO.getStartTime());
+        map.put("endTime",imageCountVO.getEndTime());
+        map.put("netWorks",netWorkVolists);
+        map.put("scenes",sceneVo);
+        map.put("tableName",Server_Param_Config);
+        String relationShip = tblIpcIpMapper.getRelationShip();
+        if(StringUtils.isEmpty(relationShip)){
+            restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+            restResult.setMessage(messageSourceUtil.getMessage("device.warnings"));
+            return restResult;
+        }
+        map.put("relationShip",relationShip);
+        map.put("organization",organization);
+        if(imageCountVO.getTimeType().equals("hour")) {
+            for (int y = 0; y < organization.size(); y++) {
+                Map<String, Object> organMap = new HashMap<>();
+                String id = organization.get(y);
+                String fileds = null;
+                if (id.length() == 3) {
+                    map.put("id0", id);
+                    fileds = "filed0";
+                    map.put("filed0", fileds);
+                }
+                if (id.length() == 6) {
+                    map.put("id1", id);
+                    fileds = "filed1";
+                    map.put("filed1", fileds);
+                }
+                if (id.length() == 9) {
+                    map.put("id2", id);
+                    fileds = "filed2";
+                    map.put("filed2", fileds);
+                }
+                if (id.length() == 12) {
+                    map.put("id3", id);
+                    fileds = "filed3";
+                    map.put("filed3", fileds);
+                }
+            }
+            map.put("ipList", ipList);
+            String name = null;
+            String ipAddress = null;
+            List<String> nameList = new ArrayList<>();
+            List<String> ipLists = new ArrayList<>();
+            List<Map<String, Object>> maps = tblIpcIpMapper.getlevelNames(map);
+            if(maps==null || maps.size()<=0 || maps.isEmpty()){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setMessage(messageSourceUtil.getMessage("device.warnings"));
+                return restResult;
+            }
+            for (int x = 0; x < maps.size(); x++) {
+                name = maps.get(x).get("NAME").toString();
+                nameList.add(name);
+            }
+            map.put("cityLists", nameList);
+            for (int i = 0; i < ipList.size(); i++) {
+                ipAddress = ipList.get(i).get("SERVICE_IP_ADDRESS").toString();
+                ipLists.add(ipAddress);
+            }
+            map.put("ivsNameStr", ipLists);
+            List<String> stringTime = tblIpcIpMapper.getPeriodTime(map);
+            if(stringTime == null || stringTime.size()<=0 || stringTime.isEmpty()){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setMessage(messageSourceUtil.getMessage("device.warning"));
+                return restResult;
+            }
+            stringTime.sort((String s1, String s2) -> s1.compareTo(s2));
+            Map<String, Object> map1 = new HashMap<>();
+            Map<String, Object> map2 = new HashMap<>();
+            map1.put("key1", stringTime);
+            List<Map<String, String>> mapList = new ArrayList<>();
+            for (int i = 0; i < stringTime.size(); i++) {
+                Map<String, String> map4 = new HashMap<>();
+                String oldString = stringTime.get(i).substring(0, 19);
+                String newString = oldString.replaceAll("-", "").replaceAll(":", "").replaceAll(" ", "");
+                map4.put("key1", oldString);
+                map4.put("key2", newString);
+                mapList.add(map4);
+            }
+
+            map.put("periodList", mapList);
+            List<String> stringTi = tblIpcIpMapper.getTimes(map);
+            if(stringTi == null || stringTi.size()<=0 || stringTi.isEmpty()){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setMessage(messageSourceUtil.getMessage("device.warning"));
+                return restResult;
+            }
+            List<String> strs = new ArrayList<>();
+            String newDate = null;
+            String newData = null;
+            for (int i = 0; i < stringTi.size(); i++) {
+                newData = stringTi.get(i).replaceAll("-", "");
+                newDate = "TBL_IMAGE_HOUR_STATISTICS_" + newData;
+                strs.add(newDate);
+            }
+            map.put("dayList", strs);
+            List<String> cameraManagerList = tblIpcIpMapper.qryCameraManagerOriList(map);
+            if(cameraManagerList==null || cameraManagerList.size()<=0 || cameraManagerList.isEmpty()){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setMessage(messageSourceUtil.getMessage("device.warnings"));
+                return restResult;
+            }
+            List<Map<String, String>> cameraList = new ArrayList<>();
+            for (int i = 0; i < cameraManagerList.size(); i++) {
+                Map<String, String> mapCamera = new HashMap<>();
+                String oldString = cameraManagerList.get(i).substring(28, cameraManagerList.get(i).length());
+                StringBuilder sb = new StringBuilder(oldString);
+                sb.insert(4,"-");
+                sb.insert(7,"-");
+                sb.insert(10," ");
+                sb.insert(13,":");
+                sb.insert(16,":");
+                oldString = sb.toString();
+                String newString = oldString.replaceAll("-", "").replaceAll(":", "").replaceAll(" ", "");
+                mapCamera.put("key1", oldString);
+                mapCamera.put("key2", newString);
+                cameraList.add(mapCamera);
+            }
+            map.put("cameraList", cameraList);
+            List<Map<String,Object>> resultList = tblIpcIpMapper.getPicturesCount(map);
+            if(resultList==null || resultList.size()<=0 || resultList.isEmpty()){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setMessage(messageSourceUtil.getMessage("device.warnings"));
+                return restResult;
+            }
+            List<Map<String,Object>> resultListCompare = new ArrayList<>();
+            for(int i=0;i<=resultList.size()-1;i++){
+                if(i == 0 ){
+                    resultListCompare.add(resultList.get(i));
+                }else {
+                    Map<String,Object> compareMap = new HashMap<>();
+                    compareMap.putAll(resultList.get(i));
+                    for(int a=0;a<=nameList.size()-1;a++){
+                        String column = (maps.get(a).get("NAME").toString()+"_VCM0").toUpperCase();
+                        compareMap.put(column,Integer.parseInt(resultList.get(i).get((column)).toString())-Integer.parseInt(resultList.get(i-1).get(column).toString()));
+                    }
+                    resultListCompare.add(compareMap);
+                }
+            }
+            List<Map<String,Object>> resultListNew = new ArrayList<>();
+            for( int i = 0; i < resultListCompare.size(); i++ ) {
+                Map<String, Object> mapLists = resultListCompare.get(i);
+                String time = null;
+                Iterator<String> it = mapLists.keySet().iterator();
+                while( it.hasNext() ) {
+                    Map<String, Object> newMap = new HashMap<>();
+                    String keys = (String) it.next();
+                    if (keys.equals("PERIOD_START_TIME")) {
+                        time = mapLists.get(keys).toString();
+                    }
+                    String[] keyVal = null;
+                    String newKey = null;
+                    if (keys.contains("_VCM0")) {
+                        String value = mapLists.get(keys).toString();
+                        keyVal = keys.split("_");
+                        String[] ke = null;
+                        ke = keys.split("_VCM0");
+                        newKey = keys.replaceAll("_VCM0", "");
+                        newMap.put("organization",  ke[0]);
+                        newMap.put("pictureCount", value);
+                        newMap.put("time", time);
+                        newMap.put("remark",  "VCM(" + ipLists.get(0) + ")");
+                        resultListNew.add(newMap);
+                    }
+                }
+                for(int x=0;x<resultListNew.size();x++){
+                    if(resultListNew.get(x).get("time")==null){
+                        resultListNew.get(x).put("time",time);
+                    }
+                }
+            }
+            Collections.sort(resultListNew,new Comparator<Map>() {
+                @Override
+                public int compare(Map o1, Map o2) {
+                    int ret = 0;
+                    //比较两个对象的顺序，如果前者小于、等于或者大于后者，则分别返回-1/0/1
+                    ret = o1.get("time").toString().compareTo(o2.get("time").toString());//逆序的话就用o2.compareTo(o1)即可
+                    return ret;
+                }
+            });
+            restResult.setData(resultListNew);
+            restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+        }
+        if(imageCountVO.getTimeType().equals("day")) {
+            for (int y = 0; y < organization.size(); y++) {
+                Map<String, Object> organMap = new HashMap<>();
+                String id = organization.get(y);
+                String fileds = null;
+                if (id.length() == 3) {
+                    map.put("id0", id);
+                    fileds = "filed0";
+                    map.put("filed0", fileds);
+                }
+                if (id.length() == 6) {
+                    map.put("id1", id);
+                    fileds = "filed1";
+                    map.put("filed1", fileds);
+                }
+                if (id.length() == 9) {
+                    map.put("id2", id);
+                    fileds = "filed2";
+                    map.put("filed2", fileds);
+                }
+                if (id.length() == 12) {
+                    map.put("id3", id);
+                    fileds = "filed3";
+                    map.put("filed3", fileds);
+                }
+            }
+            map.put("ipList", ipList);
+            String name = null;
+            String ipAddress = null;
+            List<String> nameList = new ArrayList<>();
+            List<String> ipLists = new ArrayList<>();
+            List<Map<String, Object>> maps = tblIpcIpMapper.getlevelNames(map);
+            if(maps==null || maps.size()<=0 || maps.isEmpty()){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setMessage(messageSourceUtil.getMessage("device.warnings"));
+                return restResult;
+            }
+            for (int x = 0; x < maps.size(); x++) {
+                name = maps.get(x).get("NAME").toString();
+                nameList.add(name);
+            }
+            map.put("cityLists", nameList);
+            for (int i = 0; i < ipList.size(); i++) {
+                ipAddress = ipList.get(i).get("SERVICE_IP_ADDRESS").toString();
+                ipLists.add(ipAddress);
+            }
+            map.put("ivsNameStr", ipLists);
+            List<String> stringTime = tblIpcIpMapper.getPeriodTime(map);
+            if(stringTime == null || stringTime.size()<=0 || stringTime.isEmpty()){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setMessage(messageSourceUtil.getMessage("device.warning"));
+                return restResult;
+            }
+            stringTime.sort((String s1, String s2) -> s1.compareTo(s2));
+            Map<String, Object> map1 = new HashMap<>();
+            Map<String, Object> map2 = new HashMap<>();
+            map1.put("key1", stringTime);
+            List<Map<String, String>> mapList = new ArrayList<>();
+            for (int i = 0; i < stringTime.size(); i++) {
+                Map<String, String> map4 = new HashMap<>();
+                String oldString = stringTime.get(i).substring(0, 19);
+                String newString = oldString.replaceAll("-", "").replaceAll(":", "").replaceAll(" ", "");
+                map4.put("key1", oldString);
+                map4.put("key2", newString);
+                mapList.add(map4);
+            }
+
+            map.put("periodList", mapList);
+            List<String> stringTi = tblIpcIpMapper.getTimes(map);
+            if(stringTi == null || stringTi.size()<=0 || stringTi.isEmpty()){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setMessage(messageSourceUtil.getMessage("device.warning"));
+                return restResult;
+            }
+            List<String> strs = new ArrayList<>();
+            String newDate = null;
+            String newData = null;
+            for (int i = 0; i < stringTi.size(); i++) {
+                newData = stringTi.get(i).replaceAll("-", "");
+                newDate = "TBL_IMAGE_DAY_STATISTICS_" + newData;
+                strs.add(newDate);
+            }
+            map.put("dayList", strs);
+            List<String> cameraManagerList = tblIpcIpMapper.qryCameraManagerOriList(map);
+            if(cameraManagerList==null || cameraManagerList.size()<=0 || cameraManagerList.isEmpty()){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setMessage(messageSourceUtil.getMessage("device.warnings"));
+                return restResult;
+            }
+            List<Map<String, String>> cameraList = new ArrayList<>();
+            for (int i = 0; i < cameraManagerList.size(); i++) {
+                Map<String, String> mapCamera = new HashMap<>();
+                String oldString = cameraManagerList.get(i).substring(28, cameraManagerList.get(i).length());
+                StringBuilder sb = new StringBuilder(oldString);
+                sb.insert(4,"-");
+                sb.insert(7,"-");
+                sb.insert(10," ");
+                sb.insert(13,":");
+                sb.insert(16,":");
+                oldString = sb.toString();
+                String newString = oldString.replaceAll("-", "").replaceAll(":", "").replaceAll(" ", "");
+                mapCamera.put("key1", oldString);
+                mapCamera.put("key2", newString);
+                cameraList.add(mapCamera);
+            }
+            map.put("cameraList", cameraList);
+            List<Map<String,Object>> resultList = tblIpcIpMapper.getPicturesCountDay(map);
+            if(resultList==null || resultList.size()<=0 || resultList.isEmpty()){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setMessage(messageSourceUtil.getMessage("device.warnings"));
+                return restResult;
+            }
+            List<Map<String,Object>> resultListNew = new ArrayList<>();
+            for( int i = 0; i < resultList.size(); i++ ) {
+                Map<String, Object> mapLists = resultList.get(i);
+                String time = null;
+                Iterator<String> it = mapLists.keySet().iterator();
+                while( it.hasNext() ) {
+                    Map<String, Object> newMap = new HashMap<>();
+                    String keys = (String) it.next();
+                    if (keys.equals("PERIOD_START_TIME")) {
+                        time = mapLists.get(keys).toString();
+                    }
+                    String[] keyVal = null;
+                    String newKey = null;
+                    if (keys.contains("_VCM0")) {
+                        String value = mapLists.get(keys).toString();
+                        keyVal = keys.split("_");
+                        newKey = keys.replaceAll("_VCM0", "");
+                        newMap.put("organization", keyVal[0]);
+                        newMap.put("pictureCount", value);
+                        newMap.put("time", time);
+                        newMap.put("remark",   "VCM(" + ipLists.get(0) + ")");
+                        resultListNew.add(newMap);
+                    }
+                }
+                for(int x=0;x<resultListNew.size();x++){
+                    if(resultListNew.get(x).get("time")==null){
+                        resultListNew.get(x).put("time",time);
+                    }
+                }
+            }
+        Collections.sort(resultListNew,new Comparator<Map>() {
+            @Override
+            public int compare(Map o1, Map o2) {
+                int ret = 0;
+                //比较两个对象的顺序，如果前者小于、等于或者大于后者，则分别返回-1/0/1
+                ret = o1.get("time").toString().compareTo(o2.get("time").toString());//逆序的话就用o2.compareTo(o1)即可
+                return ret;
+            }
+        });
+        restResult.setData(resultListNew);
+        restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+        }
+        return restResult;
+
+    }
+
+
+    /*
+    * 按摄像机查询（新）
+    * */
+    @Override
+    public RestResult newIntelligentTraceCamera(ImageCountVO imageCountVO){
+        RestResult restResult = RestResult.generateRestResult(ServiceCommonConst.CODE_FAILURE,"",null);
+        List<ImageCountPo> imageCountPos = new ArrayList<>();
+        List<ImageCountPo> newImageCountPos = new ArrayList<>();
+        List<String> listStr = new ArrayList<>();
+        Map<String,Object> map = new HashMap<>();
+        String[] organizations = imageCountVO.getOrganization();
+        if(organizations == null || organizations.length ==0){
+            restResult.setMessage(messageSourceUtil.getMessage("device.organization"));
+            return restResult;
+        }
+        String[] sceneVoList = imageCountVO.getSceneVoList();
+        if(sceneVoList == null || sceneVoList.length ==0 ){
+            restResult.setMessage(messageSourceUtil.getMessage("device.indicatorScenario"));
+            return restResult;
+        }
+        List<String> sceneVo = Arrays.asList(sceneVoList);
+        List<String> str = new ArrayList<>();
+        List<String> organization = Arrays.asList(organizations);
+        //开始时间
+        String startTime = imageCountVO.getStartTime();
+        //结束时间
+        String endTime = imageCountVO.getEndTime();
+        String[] netWorkVolist = imageCountVO.getNetWorkList();
+        if(netWorkVolist == null || netWorkVolist.length ==0 ){
+            restResult.setMessage(messageSourceUtil.getMessage("device.networkElement"));
+            return restResult;
+        }
+        map.put("netWorkVolist",netWorkVolist);
+        List<Map> ipList = intelligentTraceMapper.getServerInfo(map);
+        if(ipList==null || ipList.size()<=0 || ipList.isEmpty()){
+            restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+            restResult.setMessage(messageSourceUtil.getMessage("device.warnings"));
+            return restResult;
+        }
+        List<String> ipLists = new ArrayList<>();
+        if(ipList.size()>0 && ipList!=null) {
+            for (int i = 0; i < ipList.size(); i++) {
+                String ips = ipList.get(i).get("SERVICE_IP_ADDRESS").toString();
+                ipLists.add(ips);
+            }
+        }
+        map.put("ipLists",ipLists);
+        List<String> netWorkVolists = Arrays.asList(netWorkVolist);
+        map.put("startTime",imageCountVO.getStartTime());
+        map.put("endTime",imageCountVO.getEndTime());
+        map.put("netWorks",netWorkVolists);
+        map.put("scenes",sceneVo);
+        map.put("tableName",Server_Param_Config);
+        String relationShip = tblIpcIpMapper.getRelationShip();
+        map.put("relationShip",relationShip);
+        map.put("organization",organization);
+        //获取cameraSn
+        String maxTime = tblIpcIpMapper.getMaxTime();
+        if(StringUtils.isEmpty(maxTime)){
+            restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+            restResult.setMessage(messageSourceUtil.getMessage("device.warnings"));
+            return restResult;
+        }
+        maxTime = maxTime.replaceAll("-","").replaceAll(" ","").replaceAll(":","");
+        map.put("cameraTable","TBL_CAMERA_MANAGER_ORIGINAL_"+maxTime);
+        //获取cameraSns
+        List<Map<String,Object>> cameraSns = tblIpcIpMapper.getcamSns(map);
+        if(cameraSns==null || cameraSns.size()<=0 || cameraSns.isEmpty()){
+            restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+            restResult.setMessage(messageSourceUtil.getMessage("device.warnings"));
+            return restResult;
+        }
+        List<String> ipListes = new ArrayList<>();
+        List<String> camernStrList = new ArrayList<>();
+        for(int x=0;x<cameraSns.size();x++){
+            ipListes.add(cameraSns.get(x).get("IP").toString());
+            camernStrList.add(cameraSns.get(x).get("CAMERA_SN").toString());
+        }
+        map.put("ipListes",ipListes);
+        map.put("camernStrList",camernStrList);
+        if(imageCountVO.getTimeType().equals("hour")) {
+            map.put("ipList", ipList);
+            List<Map<String, Object>> maps = tblIpcIpMapper.getCamernSns(map);
+            if(maps==null || maps.size()<=0 || maps.isEmpty()){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setMessage(messageSourceUtil.getMessage("device.warnings"));
+                return restResult;
+            }
+            map.put("ivsNameStr", ipLists);
+            List<String> stringTime = tblIpcIpMapper.getPeriodTime(map);
+            if(stringTime==null || stringTime.size()<=0 || stringTime.isEmpty()){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setMessage(messageSourceUtil.getMessage("device.warnings"));
+                return restResult;
+            }
+            stringTime.sort((String s1, String s2) -> s1.compareTo(s2));
+            Map<String, Object> map1 = new HashMap<>();
+            map1.put("key1", stringTime);
+            List<Map<String, String>> mapList = new ArrayList<>();
+            for (int i = 0; i < stringTime.size(); i++) {
+                Map<String, String> map4 = new HashMap<>();
+                String oldString = stringTime.get(i);
+                String newString = oldString.replaceAll("-", "").replaceAll(":", "").replaceAll(" ", "");
+                map4.put("key1", oldString);
+                map4.put("key2", newString);
+                mapList.add(map4);
+            }
+            map.put("periodList", mapList);
+            List<String> stringTi = tblIpcIpMapper.getTimes(map);
+            if(stringTi == null || stringTi.size()<=0 || stringTi.isEmpty()){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setMessage(messageSourceUtil.getMessage("device.warning"));
+                return restResult;
+            }
+            List<String> strs = new ArrayList<>();
+            String newDate = null;
+            String newData = null;
+            for (int i = 0; i < stringTi.size(); i++) {
+                newData = stringTi.get(i).replaceAll("-", "");
+                newDate = "TBL_IMAGE_HOUR_STATISTICS_" + newData;
+                strs.add(newDate);
+            }
+            map.put("dayList", strs);
+            List<String> cameraManagerList = tblIpcIpMapper.qryCameraManagerOriList(map);
+            if(cameraManagerList==null || cameraManagerList.size()<=0 || cameraManagerList.isEmpty()){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setMessage(messageSourceUtil.getMessage("device.warnings"));
+                return restResult;
+            }
+            List<Map<String, String>> cameraList = new ArrayList<>();
+            for (int i = 0; i < cameraManagerList.size(); i++) {
+                Map<String, String> mapCamera = new HashMap<>();
+                String oldString = cameraManagerList.get(i).substring(28, cameraManagerList.get(i).length());
+                StringBuilder sb = new StringBuilder(oldString);
+                sb.insert(4,"-");
+                sb.insert(7,"-");
+                sb.insert(10," ");
+                sb.insert(13,":");
+                sb.insert(16,":");
+                oldString = sb.toString();
+                String newString = oldString.replaceAll("-", "").replaceAll(":", "").replaceAll(" ", "");
+                mapCamera.put("key1", oldString);
+                mapCamera.put("key2", newString);
+                cameraList.add(mapCamera);
+            }
+            map.put("cameraList", cameraList);
+            List<Map<String,Object>> resultList = tblIpcIpMapper.getPicturesCountCamera(map);
+            if(resultList==null || resultList.size()<=0 || resultList.isEmpty()){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setMessage(messageSourceUtil.getMessage("device.warnings"));
+                return restResult;
+            }
+            List<Map<String,Object>> resultListCompare = new ArrayList<>();
+            for(int i=0;i<=resultList.size()-1;i++){
+                if(i == 0 ){
+                    resultListCompare.add(resultList.get(i));
+                }else {
+                    Map<String,Object> compareMap = new HashMap<>();
+                    compareMap.putAll(resultList.get(i));
+                    for(int a=0;a<=cameraSns.size()-1;a++){
+                        String column = ("_VCM"+a).toUpperCase();
+                        compareMap.put(column,Integer.parseInt(resultList.get(i).get((column)).toString())-Integer.parseInt(resultList.get(i-1).get(column).toString()));
+                    }
+                    resultListCompare.add(compareMap);
+                }
+            }
+            List<Map<String,Object>> resultListNew = new ArrayList<>();
+            for( int i = 0; i < resultListCompare.size(); i++ ) {
+                Map<String, Object> mapLists = resultListCompare.get(i);
+                String time = null;
+                Iterator<String> it = mapLists.keySet().iterator();
+                while( it.hasNext() ) {
+                    Map<String, Object> newMap = new HashMap<>();
+                    String keys = (String) it.next();
+                    if (keys.equals("PERIOD_START_TIME")) {
+                        time = mapLists.get(keys).toString();
+                    }
+                    String[] keyVal = null;
+                    String newKey = null;
+                    if (keys.contains("_VCM")) {
+                        String value = mapLists.get(keys).toString();
+                        keyVal = keys.split("_VCM");
+                        Integer count =Integer.parseInt(keyVal[1]);
+                        newKey = keys.replaceAll("_VCM"+keyVal[1], ipListes.get(count));
+                        newMap.put("organization", newKey);
+                        newMap.put("pictureCount", value);
+                        newMap.put("time", time);
+                        newMap.put("remark", "VCM(" + ipLists.get(count) + ")");
+                        resultListNew.add(newMap);
+                    }
+                    if (keys.contains("_VCN")) {
+                        String value = mapLists.get(keys).toString();
+                        keyVal = keys.split("_VCN");
+                        Integer count =Integer.parseInt(keyVal[1]);
+                        newKey = keys.replaceAll("_VCN"+keyVal[1], organization.get(count));
+                        newMap.put("organization", newKey);
+                        newMap.put("pictureCount", value);
+                        newMap.put("time", time);
+                        newMap.put("remark", "VCN(" + ipLists.get(count) + ")");
+                        resultListNew.add(newMap);
+                    }
+                }
+                for(int x=0;x<resultListNew.size();x++){
+                    if(resultListNew.get(x).get("time")==null){
+                        resultListNew.get(x).put("time",time);
+                    }
+                }
+            }
+            Collections.sort(resultListNew,new Comparator<Map>() {
+                @Override
+                public int compare(Map o1, Map o2) {
+                    int ret = 0;
+                    //比较两个对象的顺序，如果前者小于、等于或者大于后者，则分别返回-1/0/1
+                    ret = o1.get("time").toString().compareTo(o2.get("time").toString());//逆序的话就用o2.compareTo(o1)即可
+                    return ret;
+                }
+            });
+            restResult.setData(resultListNew);
+            restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+        }
+        if(imageCountVO.getTimeType().equals("day")) {
+            map.put("ipList", ipList);
+            map.put("ivsNameStr", ipLists);
+            List<String> stringTime = tblIpcIpMapper.getPeriodTime(map);
+            if(stringTime == null || stringTime.size()<=0 || stringTime.isEmpty()){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setMessage(messageSourceUtil.getMessage("device.warning"));
+                return restResult;
+            }
+            stringTime.sort((String s1, String s2) -> s1.compareTo(s2));
+            Map<String, Object> map1 = new HashMap<>();
+            map1.put("key1", stringTime);
+            List<Map<String, String>> mapList = new ArrayList<>();
+            for (int i = 0; i < stringTime.size(); i++) {
+                Map<String, String> map4 = new HashMap<>();
+                String oldString = stringTime.get(i).substring(0, 19);
+                String newString = oldString.replaceAll("-", "").replaceAll(":", "").replaceAll(" ", "");
+                map4.put("key1", oldString);
+                map4.put("key2", newString);
+                mapList.add(map4);
+            }
+
+            map.put("periodList", mapList);
+            List<String> stringTi = tblIpcIpMapper.getTimes(map);
+            if(stringTi == null || stringTi.size()<=0 || stringTi.isEmpty()){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setMessage(messageSourceUtil.getMessage("device.warning"));
+                return restResult;
+            }
+            List<String> strs = new ArrayList<>();
+            String newDate = null;
+            String newData = null;
+            for (int i = 0; i < stringTi.size(); i++) {
+                newData = stringTi.get(i).replaceAll("-", "");
+                newDate = "TBL_IMAGE_HOUR_STATISTICS_" + newData;
+                strs.add(newDate);
+            }
+            map.put("dayList", strs);
+            List<String> cameraManagerList = tblIpcIpMapper.qryCameraManagerOriList(map);
+            if(cameraManagerList==null || cameraManagerList.size()<=0 || cameraManagerList.isEmpty()){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setMessage(messageSourceUtil.getMessage("device.warnings"));
+                return restResult;
+            }
+            List<Map<String, String>> cameraList = new ArrayList<>();
+            for (int i = 0; i < cameraManagerList.size(); i++) {
+                Map<String, String> mapCamera = new HashMap<>();
+                String oldString = cameraManagerList.get(i).substring(28, cameraManagerList.get(i).length());
+                StringBuilder sb = new StringBuilder(oldString);
+                sb.insert(4,"-");
+                sb.insert(7,"-");
+                sb.insert(10," ");
+                sb.insert(13,":");
+                sb.insert(16,":");
+                oldString = sb.toString();
+                String newString = oldString.replaceAll("-", "").replaceAll(":", "").replaceAll(" ", "");
+                mapCamera.put("key1", oldString);
+                mapCamera.put("key2", newString);
+                cameraList.add(mapCamera);
+            }
+            map.put("cameraList", cameraList);
+            List<Map<String,Object>> resultList = tblIpcIpMapper.getPicturesCountCameraDay(map);
+            if(resultList==null || resultList.size()<=0 || resultList.isEmpty()){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setMessage(messageSourceUtil.getMessage("device.warnings"));
+                return restResult;
+            }
+            List<Map<String,Object>> resultListNew = new ArrayList<>();
+            for( int i = 0; i < resultList.size(); i++ ) {
+                Map<String, Object> mapLists = resultList.get(i);
+                String time = null;
+                Iterator<String> it = mapLists.keySet().iterator();
+                while( it.hasNext() ) {
+                    Map<String, Object> newMap = new HashMap<>();
+                    String keys = (String) it.next();
+                    if (keys.equals("PERIOD_START_TIME")) {
+                        time = mapLists.get(keys).toString();
+                    }
+                    String[] keyVal = null;
+                    String newKey = null;
+                    if (keys.contains("_VCM")) {
+                        String value = mapLists.get(keys).toString();
+                        keyVal = keys.split("_VCM");
+                        Integer count =Integer.parseInt(keyVal[1]);
+                        newKey = keys.replaceAll("_VCM"+keyVal[1], ipListes.get(count));
+                        newMap.put("organization", newKey);
+                        newMap.put("pictureCount", value);
+                        newMap.put("time", time);
+                        newMap.put("remark", "VCM(" + ipLists.get(count) + ")");
+                        resultListNew.add(newMap);
+                    }
+                    if (keys.contains("_VCN")) {
+                        String value = mapLists.get(keys).toString();
+                        keyVal = keys.split("_VCN");
+                        Integer count =Integer.parseInt(keyVal[1]);
+                        newKey = keys.replaceAll("_VCN"+keyVal[1], organization.get(count));
+                        newMap.put("organization", newKey);
+                        newMap.put("pictureCount", value);
+                        newMap.put("time", time);
+                        newMap.put("remark", "VCN(" + ipLists.get(count) + ")");
+                        resultListNew.add(newMap);
+                    }
+                }
+                for(int x=0;x<resultListNew.size();x++){
+                    if(resultListNew.get(x).get("time")==null){
+                        resultListNew.get(x).put("time",time);
+                    }
+                }
+            }
+            Collections.sort(resultListNew,new Comparator<Map>() {
+                @Override
+                public int compare(Map o1, Map o2) {
+                    int ret = 0;
+                    //比较两个对象的顺序，如果前者小于、等于或者大于后者，则分别返回-1/0/1
+                    ret = o1.get("time").toString().compareTo(o2.get("time").toString());//逆序的话就用o2.compareTo(o1)即可
+                    return ret;
+                }
+            });
+
+            restResult.setData(resultListNew);
+            restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+        }
+        return restResult;
+    }
+
+
+    /*
+     * 图片溯源按摄像机查询分页(新)
+     * */
+    @Override
+    public RestResult newIntelligentTraceCameras(ImageCountVO imageCountVO){
+        RestResult restResult = RestResult.generateRestResult(ServiceCommonConst.CODE_FAILURE,"",null);
+        Integer currentPage = imageCountVO.getCurrentPage();
+        if ((Object) currentPage == null) {
+            currentPage = 0;
+        }
+        Integer pageSize = imageCountVO.getPageSize();
+        if ((Object) pageSize == null) {
+            pageSize = 0;
+        }
+        List<ImageCountPo> imageCountPos = new ArrayList<>();
+        List<ImageCountPo> newImageCountPos = new ArrayList<>();
+        List<String> listStr = new ArrayList<>();
+        Map<String,Object> map = new HashMap<>();
+        String[] organizations = imageCountVO.getOrganization();
+        if(organizations == null || organizations.length ==0){
+            restResult.setMessage(messageSourceUtil.getMessage("device.organization"));
+            return restResult;
+        }
+        String[] sceneVoList = imageCountVO.getSceneVoList();
+        if(sceneVoList == null || sceneVoList.length ==0 ){
+            restResult.setMessage(messageSourceUtil.getMessage("device.indicatorScenario"));
+            return restResult;
+        }
+        List<String> sceneVo = Arrays.asList(sceneVoList);
+        List<String> str = new ArrayList<>();
+        List<String> organization = Arrays.asList(organizations);
+        //开始时间
+        String startTime = imageCountVO.getStartTime();
+        //结束时间
+        String endTime = imageCountVO.getEndTime();
+        String[] netWorkVolist = imageCountVO.getNetWorkList();
+        if(netWorkVolist == null || netWorkVolist.length ==0 ){
+            restResult.setMessage(messageSourceUtil.getMessage("device.networkElement"));
+            return restResult;
+        }
+        map.put("netWorkVolist",netWorkVolist);
+        List<Map> ipList = intelligentTraceMapper.getServerInfo(map);
+        if(ipList==null || ipList.size()<=0 || ipList.isEmpty()){
+            restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+            restResult.setMessage(messageSourceUtil.getMessage("device.warnings"));
+            return restResult;
+        }
+        List<String> ipLists = new ArrayList<>();
+        if(ipList.size()>0 && ipList!=null) {
+            for (int i = 0; i < ipList.size(); i++) {
+                String ips = ipList.get(i).get("SERVICE_IP_ADDRESS").toString();
+                ipLists.add(ips);
+            }
+        }
+        map.put("ipLists",ipLists);
+        List<String> netWorkVolists = Arrays.asList(netWorkVolist);
+        map.put("startTime",imageCountVO.getStartTime());
+        map.put("endTime",imageCountVO.getEndTime());
+        map.put("netWorks",netWorkVolists);
+        map.put("scenes",sceneVo);
+        map.put("tableName",Server_Param_Config);
+        String relationShip = tblIpcIpMapper.getRelationShip();
+        if(StringUtils.isEmpty(relationShip)){
+            restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+            restResult.setMessage(messageSourceUtil.getMessage("device.warnings"));
+            return restResult;
+        }
+        map.put("relationShip",relationShip);
+        map.put("organization",organization);
+        //获取cameraSn
+        String maxTime = tblIpcIpMapper.getMaxTime();
+        if(StringUtils.isEmpty(maxTime)){
+            restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+            restResult.setMessage(messageSourceUtil.getMessage("device.warnings"));
+            return restResult;
+        }
+        maxTime = maxTime.replaceAll("-","").replaceAll(" ","").replaceAll(":","");
+        map.put("cameraTable","TBL_CAMERA_MANAGER_ORIGINAL_"+maxTime);
+        //获取cameraSns
+        List<Map<String,Object>> cameraSns = tblIpcIpMapper.getcamSns(map);
+        if(cameraSns==null || cameraSns.size()<=0 || cameraSns.isEmpty()){
+            restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+            restResult.setMessage(messageSourceUtil.getMessage("device.warnings"));
+            return restResult;
+        }
+        List<String> ipListes = new ArrayList<>();
+        List<String> camernStrList = new ArrayList<>();
+        for(int x=0;x<cameraSns.size();x++){
+            ipListes.add(cameraSns.get(x).get("IP").toString());
+            camernStrList.add(cameraSns.get(x).get("CAMERA_SN").toString());
+        }
+        map.put("ipListes",ipListes);
+        map.put("camernStrList",camernStrList);
+        if(imageCountVO.getTimeType().equals("hour")) {
+            map.put("ipList", ipList);
+            map.put("ivsNameStr", ipLists);
+            List<String> stringTime = tblIpcIpMapper.getPeriodTime(map);
+            if(stringTime==null || stringTime.size()<=0 || stringTime.isEmpty()){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setMessage(messageSourceUtil.getMessage("device.warnings"));
+                return restResult;
+            }
+            stringTime.sort((String s1, String s2) -> s1.compareTo(s2));
+            Map<String, Object> map1 = new HashMap<>();
+            Map<String, Object> map2 = new HashMap<>();
+            map1.put("key1", stringTime);
+            List<Map<String, String>> mapList = new ArrayList<>();
+            for (int i = 0; i < stringTime.size(); i++) {
+                Map<String, String> map4 = new HashMap<>();
+                String oldString = stringTime.get(i);
+                String newString = oldString.replaceAll("-", "").replaceAll(":", "").replaceAll(" ", "");
+                map4.put("key1", oldString);
+                map4.put("key2", newString);
+                mapList.add(map4);
+            }
+            map.put("periodList", mapList);
+            List<String> stringTi = tblIpcIpMapper.getTimes(map);
+            if(stringTi == null || stringTi.size()<=0 || stringTi.isEmpty()){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setMessage(messageSourceUtil.getMessage("device.warning"));
+                return restResult;
+            }
+            List<String> strs = new ArrayList<>();
+            String newDate = null;
+            String newData = null;
+            for (int i = 0; i < stringTi.size(); i++) {
+                newData = stringTi.get(i).replaceAll("-", "");
+                newDate = "TBL_IMAGE_HOUR_STATISTICS_" + newData;
+                strs.add(newDate);
+            }
+            map.put("dayList", strs);
+            List<String> cameraManagerList = tblIpcIpMapper.qryCameraManagerOriList(map);
+            if(cameraManagerList==null || cameraManagerList.size()<=0 || cameraManagerList.isEmpty()){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setMessage(messageSourceUtil.getMessage("device.warnings"));
+                return restResult;
+            }
+            List<Map<String, String>> cameraList = new ArrayList<>();
+            for (int i = 0; i < cameraManagerList.size(); i++) {
+                Map<String, String> mapCamera = new HashMap<>();
+                String oldString = cameraManagerList.get(i).substring(28, cameraManagerList.get(i).length());
+                StringBuilder sb = new StringBuilder(oldString);
+                sb.insert(4,"-");
+                sb.insert(7,"-");
+                sb.insert(10," ");
+                sb.insert(13,":");
+                sb.insert(16,":");
+                oldString = sb.toString();
+                String newString = oldString.replaceAll("-", "").replaceAll(":", "").replaceAll(" ", "");
+                mapCamera.put("key1", oldString);
+                mapCamera.put("key2", newString);
+                cameraList.add(mapCamera);
+            }
+            map.put("cameraList", cameraList);
+            List<Map<String,Object>> resultList = tblIpcIpMapper.getPicturesCountCamera(map);
+            if(resultList==null || resultList.size()<=0 || resultList.isEmpty()){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setMessage(messageSourceUtil.getMessage("device.warnings"));
+                return restResult;
+            }
+            List<Map<String,Object>> resultListCompare = new ArrayList<>();
+            for(int i=0;i<=resultList.size()-1;i++){
+                if(i == 0 ){
+                    resultListCompare.add(resultList.get(i));
+                }else {
+                    Map<String,Object> compareMap = new HashMap<>();
+                    compareMap.putAll(resultList.get(i));
+                    for(int a=0;a<=cameraSns.size()-1;a++){
+                        String column = ("_VCM"+a).toUpperCase();
+                        compareMap.put(column,Integer.parseInt(resultList.get(i).get((column)).toString())-Integer.parseInt(resultList.get(i-1).get(column).toString()));
+                    }
+                    resultListCompare.add(compareMap);
+                }
+            }
+            List<Map<String,Object>> resultListNew = new ArrayList<>();
+            for( int i = 0; i < resultListCompare.size(); i++ ) {
+                Map<String, Object> mapLists = resultListCompare.get(i);
+                String time = null;
+                Map<String,Object> objectMap = new HashMap<>();
+                objectMap.putAll(mapLists);
+                Set<String> keySet =  mapLists.keySet();
+                for(String key : keySet){
+                    Map<String, Object> newMap = new HashMap<>();
+                    String keys = key;
+                    if (keys.equals("PERIOD_START_TIME")) {
+                        time = mapLists.get(keys).toString();
+                    }
+                    String[] keyVal = null;
+                    String newKey = null;
+                    if (keys.contains("_VCM")) {
+                        String value = mapLists.get(keys).toString();
+                        keyVal = keys.split("_VCM");
+                        Integer count = Integer.parseInt(keyVal[1]);
+                        newKey = keys.replaceAll("_VCM"+keyVal[1], ipListes.get(count)+"_VCM(" + ipLists.get(count) + ")");
+                        objectMap.put(newKey,value);
+                        objectMap.put("time", mapLists.get("PERIOD_START_TIME"));
+                    }
+                    if (keys.contains("_VCN")) {
+                        String value = mapLists.get(keys).toString();
+                        keyVal = keys.split("_VCN");
+                        Integer count = Integer.parseInt(keyVal[1]);
+                        newKey = keys.replaceAll("_VCN"+keyVal[1], ipListes.get(count)+"_VCN(" + ipLists.get(count) + ")");
+                        objectMap.put(newKey,value);
+                        objectMap.put("time", mapLists.get("PERIOD_START_TIME"));
+                    }
+                }
+                resultListNew.add(objectMap);
+            }
+            Collections.sort(resultListNew,new Comparator<Map>() {
+                @Override
+                public int compare(Map o1, Map o2) {
+                    int ret = 0;
+                    //比较两个对象的顺序，如果前者小于、等于或者大于后者，则分别返回-1/0/1
+                    ret = o1.get("time").toString().compareTo(o2.get("time").toString());//逆序的话就用o2.compareTo(o1)即可
+                    return ret;
+                }
+            });
+            List<Map<String,Object>> ma= pageList(resultListNew,pageSize,currentPage);
+            Integer num = resultListNew.size();
+            Map<String,Object>mas = new HashedMap();
+            mas.put("total",num);
+            mas.put("list",ma);
+            if(resultListNew!=null&&resultListNew.size()>0){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setData(mas);
+                restResult.setMessage(messageSourceUtil.getMessage("device.querySuccess"));
+            }else{
+                Map<String,Object> listMap = new HashedMap();
+                List<String> stringList = new ArrayList<>();
+                listMap.put("total",0);
+                listMap.put("list",stringList);
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setData(listMap);
+            }
+        }
+        if(imageCountVO.getTimeType().equals("day")) {
+            map.put("ipList", ipList);
+            map.put("ivsNameStr", ipLists);
+            List<String> stringTime = tblIpcIpMapper.getPeriodTime(map);
+            if(stringTime==null || stringTime.size()<=0 || stringTime.isEmpty()){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setMessage(messageSourceUtil.getMessage("device.warnings"));
+                return restResult;
+            }
+            stringTime.sort((String s1, String s2) -> s1.compareTo(s2));
+            Map<String, Object> map1 = new HashMap<>();
+            Map<String, Object> map2 = new HashMap<>();
+            map1.put("key1", stringTime);
+            List<Map<String, String>> mapList = new ArrayList<>();
+            for (int i = 0; i < stringTime.size(); i++) {
+                Map<String, String> map4 = new HashMap<>();
+                String oldString = stringTime.get(i).substring(0, 19);
+                String newString = oldString.replaceAll("-", "").replaceAll(":", "").replaceAll(" ", "");
+                map4.put("key1", oldString);
+                map4.put("key2", newString);
+                mapList.add(map4);
+            }
+
+            map.put("periodList", mapList);
+            List<String> stringTi = tblIpcIpMapper.getTimes(map);
+            if(stringTi == null || stringTi.size()<=0 || stringTi.isEmpty()){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setMessage(messageSourceUtil.getMessage("device.warning"));
+                return restResult;
+            }
+            List<String> strs = new ArrayList<>();
+            String newDate = null;
+            String newData = null;
+            for (int i = 0; i < stringTi.size(); i++) {
+                newData = stringTi.get(i).replaceAll("-", "");
+                newDate = "TBL_IMAGE_HOUR_STATISTICS_" + newData;
+                strs.add(newDate);
+            }
+            map.put("dayList", strs);
+            List<String> cameraManagerList = tblIpcIpMapper.qryCameraManagerOriList(map);
+            if(cameraManagerList==null || cameraManagerList.size()<=0 || cameraManagerList.isEmpty()){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setMessage(messageSourceUtil.getMessage("device.warnings"));
+                return restResult;
+            }
+            List<Map<String, String>> cameraList = new ArrayList<>();
+            for (int i = 0; i < cameraManagerList.size(); i++) {
+                Map<String, String> mapCamera = new HashMap<>();
+                String oldString = cameraManagerList.get(i).substring(28, cameraManagerList.get(i).length());
+                StringBuilder sb = new StringBuilder(oldString);
+                sb.insert(4,"-");
+                sb.insert(7,"-");
+                sb.insert(10," ");
+                sb.insert(13,":");
+                sb.insert(16,":");
+                oldString = sb.toString();
+                String newString = oldString.replaceAll("-", "").replaceAll(":", "").replaceAll(" ", "");
+                mapCamera.put("key1", oldString);
+                mapCamera.put("key2", newString);
+                cameraList.add(mapCamera);
+            }
+            map.put("cameraList", cameraList);
+            List<Map<String,Object>> resultList = tblIpcIpMapper.getPicturesCountCameraDay(map);
+            if(resultList==null || resultList.size()<=0 || resultList.isEmpty()){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setMessage(messageSourceUtil.getMessage("device.warnings"));
+                return restResult;
+            }
+            List<Map<String,Object>> resultListNew = new ArrayList<>();
+            for( int i = 0; i < resultList.size(); i++ ) {
+                Map<String, Object> mapLists = resultList.get(i);
+                String time = null;
+                Map<String, Object> objectMap = new HashMap<>();
+                objectMap.putAll(mapLists);
+                Set<String> keySet = mapLists.keySet();
+                for(String key :keySet){
+                    Map<String, Object> newMap = new HashMap<>();
+                    String keys =key;
+                    String[] keyVal = null;
+                    String newKey = null;
+                    if (keys.contains("_VCM")) {
+                        String value = mapLists.get(keys).toString();
+                        keyVal = keys.split("_VCM");
+                        Integer count = Integer.parseInt(keyVal[1]);
+                        newKey = keys.replaceAll("_VCM"+keyVal[1], ipListes.get(count)+"_VCM(" + ipLists.get(count) + ")");
+                        objectMap.put(newKey,value);
+                        objectMap.put("time", mapLists.get("PERIOD_START_TIME"));
+                    }
+                    if (keys.contains("_VCN")) {
+                        String value = mapLists.get(keys).toString();
+                        keyVal = keys.split("_VCN");
+                        Integer count = Integer.parseInt(keyVal[1]);
+                        newKey = keys.replaceAll("_VCN"+keyVal[1], ipListes.get(count)+"_VCN(" + ipLists.get(count) + ")");
+                        objectMap.put(newKey,value);
+                        objectMap.put("time", mapLists.get("PERIOD_START_TIME"));
+                    }
+                }
+                resultListNew.add(objectMap);
+            }
+            Collections.sort(resultListNew,new Comparator<Map>() {
+                @Override
+                public int compare(Map o1, Map o2) {
+                    int ret = 0;
+                    //比较两个对象的顺序，如果前者小于、等于或者大于后者，则分别返回-1/0/1
+                    ret = o1.get("time").toString().compareTo(o2.get("time").toString());//逆序的话就用o2.compareTo(o1)即可
+                    return ret;
+                }
+            });
+            List<Map<String,Object>> ma= pageList(resultListNew,pageSize,currentPage);
+            Integer num = resultListNew.size();
+            Map<String,Object>mas = new HashedMap();
+            mas.put("total",num);
+            mas.put("list",ma);
+            if(resultListNew!=null&&resultListNew.size()>0){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setData(mas);
+                restResult.setMessage(messageSourceUtil.getMessage("device.querySuccess"));
+            }else{
+                Map<String,Object> listMap = new HashedMap();
+                List<String> stringList = new ArrayList<>();
+                listMap.put("total",0);
+                listMap.put("list",stringList);
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setData(listMap);
+            }
+        }
+        return restResult;
+    }
+
+
+    /*
+     * 图片溯源按组织查询分页(新)
+     * */
+    @Override
+    public RestResult intelligentTracePages(ImageCountVO imageCountVO){
+        RestResult restResult = RestResult.generateRestResult(ServiceCommonConst.CODE_FAILURE,"",null);
+        Integer currentPage = imageCountVO.getCurrentPage();
+        if((Object) currentPage == null){
+            currentPage = 0;
+        }
+        Integer pageSize = imageCountVO.getPageSize();
+        if((Object) pageSize == null){
+            pageSize = 0;
+        }
+        List<ImageCountPo> imageCountPos = new ArrayList<>();
+        List<ImageCountPo> newImageCountPos = new ArrayList<>();
+        List<String> listStr = new ArrayList<>();
+        Map<String,Object> map = new HashMap<>();
+        String[] organizations = imageCountVO.getOrganization();
+        if(organizations == null || organizations.length ==0){
+            restResult.setMessage(messageSourceUtil.getMessage("device.organization"));
+            return restResult;
+        }
+        String[] sceneVoList = imageCountVO.getSceneVoList();
+        if(sceneVoList == null || sceneVoList.length ==0 ){
+            restResult.setMessage(messageSourceUtil.getMessage("device.indicatorScenario"));
+            return restResult;
+        }
+        List<String> sceneVo = Arrays.asList(sceneVoList);
+        List<String> str = new ArrayList<>();
+        List<String> organization = Arrays.asList(organizations);
+        //开始时间
+        String startTime = imageCountVO.getStartTime();
+        //结束时间
+        String endTime = imageCountVO.getEndTime();
+        String[] netWorkVolist = imageCountVO.getNetWorkList();
+        if(netWorkVolist == null || netWorkVolist.length ==0 ){
+            restResult.setMessage(messageSourceUtil.getMessage("device.networkElement"));
+            return restResult;
+        }
+        map.put("netWorkVolist",netWorkVolist);
+        List<Map> ipList = intelligentTraceMapper.getServerInfo(map);
+        if(ipList==null || ipList.size()<=0 || ipList.isEmpty()){
+            restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+            restResult.setMessage(messageSourceUtil.getMessage("device.warnings"));
+            return restResult;
+        }
+        List<String> netWorkVolists = Arrays.asList(netWorkVolist);
+        map.put("startTime",imageCountVO.getStartTime());
+        map.put("endTime",imageCountVO.getEndTime());
+        map.put("netWorks",netWorkVolists);
+        map.put("scenes",sceneVo);
+        map.put("tableName",Server_Param_Config);
+        String relationShip = tblIpcIpMapper.getRelationShip();
+        if(StringUtils.isEmpty(relationShip)){
+            restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+            restResult.setMessage(messageSourceUtil.getMessage("device.warnings"));
+            return restResult;
+        }
+        map.put("relationShip",relationShip);
+        map.put("organization",organization);
+        if(imageCountVO.getTimeType().equals("hour")) {
+            for (int y = 0; y < organization.size(); y++) {
+                Map<String, Object> organMap = new HashMap<>();
+                String id = organization.get(y);
+                String fileds = null;
+                if (id.length() == 3) {
+                    map.put("id0", id);
+                    fileds = "filed0";
+                    map.put("filed0", fileds);
+                }
+                if (id.length() == 6) {
+                    map.put("id1", id);
+                    fileds = "filed1";
+                    map.put("filed1", fileds);
+                }
+                if (id.length() == 9) {
+                    map.put("id2", id);
+                    fileds = "filed2";
+                    map.put("filed2", fileds);
+                }
+                if (id.length() == 12) {
+                    map.put("id3", id);
+                    fileds = "filed3";
+                    map.put("filed3", fileds);
+                }
+            }
+            map.put("ipList", ipList);
+            String name = null;
+            String ipAddress = null;
+            List<String> nameList = new ArrayList<>();
+            List<String> ipLists = new ArrayList<>();
+            List<Map<String, Object>> maps = tblIpcIpMapper.getlevelNames(map);
+            if(maps==null || maps.size()<=0 || maps.isEmpty()){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setMessage(messageSourceUtil.getMessage("device.warnings"));
+                return restResult;
+            }
+            for (int x = 0; x < maps.size(); x++) {
+                name = maps.get(x).get("NAME").toString();
+                nameList.add(name);
+            }
+            map.put("cityLists", nameList);
+            for (int i = 0; i < ipList.size(); i++) {
+                ipAddress = ipList.get(i).get("SERVICE_IP_ADDRESS").toString();
+                ipLists.add(ipAddress);
+            }
+            map.put("ivsNameStr", ipLists);
+            List<String> stringTime = tblIpcIpMapper.getPeriodTime(map);
+            if(stringTime==null || stringTime.size()<=0 || stringTime.isEmpty()){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setMessage(messageSourceUtil.getMessage("device.warnings"));
+                return restResult;
+            }
+            stringTime.sort((String s1, String s2) -> s1.compareTo(s2));
+            Map<String, Object> map1 = new HashMap<>();
+            Map<String, Object> map2 = new HashMap<>();
+            map1.put("key1", stringTime);
+            List<Map<String, String>> mapList = new ArrayList<>();
+            for (int i = 0; i < stringTime.size(); i++) {
+                Map<String, String> map4 = new HashMap<>();
+                String oldString = stringTime.get(i).substring(0, 19);
+                String newString = oldString.replaceAll("-", "").replaceAll(":", "").replaceAll(" ", "");
+                map4.put("key1", oldString);
+                map4.put("key2", newString);
+                mapList.add(map4);
+            }
+
+            map.put("periodList", mapList);
+            List<String> stringTi = tblIpcIpMapper.getTimes(map);
+            if(stringTi == null || stringTi.size()<=0 || stringTi.isEmpty()){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setMessage(messageSourceUtil.getMessage("device.warning"));
+                return restResult;
+            }
+            List<String> strs = new ArrayList<>();
+            String newDate = null;
+            String newData = null;
+            for (int i = 0; i < stringTi.size(); i++) {
+                newData = stringTi.get(i).replaceAll("-", "");
+                newDate = "TBL_IMAGE_HOUR_STATISTICS_" + newData;
+                strs.add(newDate);
+            }
+            map.put("dayList", strs);
+            List<String> cameraManagerList = tblIpcIpMapper.qryCameraManagerOriList(map);
+            if(cameraManagerList==null || cameraManagerList.size()<=0 || cameraManagerList.isEmpty()){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setMessage(messageSourceUtil.getMessage("device.warnings"));
+                return restResult;
+            }
+            List<Map<String, String>> cameraList = new ArrayList<>();
+            for (int i = 0; i < cameraManagerList.size(); i++) {
+                Map<String, String> mapCamera = new HashMap<>();
+                String oldString = cameraManagerList.get(i).substring(28, cameraManagerList.get(i).length());
+                StringBuilder sb = new StringBuilder(oldString);
+                sb.insert(4,"-");
+                sb.insert(7,"-");
+                sb.insert(10," ");
+                sb.insert(13,":");
+                sb.insert(16,":");
+                oldString = sb.toString();
+                String newString = oldString.replaceAll("-", "").replaceAll(":", "").replaceAll(" ", "");
+                mapCamera.put("key1", oldString);
+                mapCamera.put("key2", newString);
+                cameraList.add(mapCamera);
+            }
+            map.put("cameraList", cameraList);
+            List<Map<String,Object>> resultList = tblIpcIpMapper.getPicturesCount(map);
+            if(resultList==null || resultList.size()<=0 || resultList.isEmpty()){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setMessage(messageSourceUtil.getMessage("device.warnings"));
+                return restResult;
+            }
+            List<Map<String,Object>> resultListCompare = new ArrayList<>();
+            for(int i=0;i<=resultList.size()-1;i++){
+                if(i == 0 ){
+                    resultListCompare.add(resultList.get(i));
+                }else {
+                    Map<String,Object> compareMap = new HashMap<>();
+                    compareMap.putAll(resultList.get(i));
+                    for(int a=0;a<=nameList.size()-1;a++){
+                        String column = (maps.get(a).get("NAME").toString()+"_VCM0").toUpperCase();
+                        compareMap.put(column,Integer.parseInt(resultList.get(i).get((column)).toString())-Integer.parseInt(resultList.get(i-1).get(column).toString()));
+                    }
+                    resultListCompare.add(compareMap);
+                }
+            }
+
+            List<Map<String,Object>> resultListNew = new ArrayList<>();
+            for( int i = 0; i < resultListCompare.size(); i++ ) {
+                Map<String, Object> mapLists = resultListCompare.get(i);
+                Map<String, Object>  objectObjectHashMap = new HashMap<>();
+                objectObjectHashMap.putAll(mapLists);
+                String time = null;
+                Set<String>keySet = mapLists.keySet();
+                /*Iterator<String> it = mapLists.keySet().iterator();
+                while( it.hasNext() ) {*/
+                for(String key : keySet){
+                    Map<String, Object> newMap = new HashMap<>();
+                    String keys = key;
+                    /*if (keys.equals("PERIOD_START_TIME")) {
+                        time = mapLists.get(keys).toString();
+                    }*/
+                    String[] keyVal = null;
+                    String newKey = null;
+                    if (keys.contains("_VCM0")) {
+                        String value = mapLists.get(keys).toString();
+                        keyVal = keys.split("_");
+                        newKey = keys.replaceAll("_VCM0", "_VCM(" + ipLists.get(0) + ")");
+                        objectObjectHashMap.put(newKey,value);
+                        objectObjectHashMap.put("time",mapLists.get("PERIOD_START_TIME"));
+                        /*newMap.put(keyVal[0]+"_VCM(" + ipLists.get(0) + ")",value);
+                        newMap.put("time", keyVal[0]+"_VCM(" + ipLists.get(0) + ")");*/
+                    }
+                }
+                resultListNew.add(objectObjectHashMap);
+                /*for(int x=0;x<resultListNew.size();x++){
+                    if(resultListNew.get(x).get("time")==null){
+                        resultListNew.get(x).put("time",time);
+                    }
+                }*/
+            }
+            Collections.sort(resultListNew,new Comparator<Map>() {
+                @Override
+                public int compare(Map o1, Map o2) {
+                    int ret = 0;
+                    //比较两个对象的顺序，如果前者小于、等于或者大于后者，则分别返回-1/0/1
+                    ret = o1.get("time").toString().compareTo(o2.get("time").toString());//逆序的话就用o2.compareTo(o1)即可
+                    return ret;
+                }
+            });
+            List<Map<String,Object>> ma= pageList(resultListNew,pageSize,currentPage);
+            Integer num = resultListNew.size();
+            Map<String,Object>mas = new HashedMap();
+            mas.put("total",num);
+            mas.put("list",ma);
+            if(resultListNew!=null&&resultListNew.size()>0){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setData(mas);
+                restResult.setMessage(messageSourceUtil.getMessage("device.querySuccess"));
+            }else{
+                Map<String,Object> listMap = new HashedMap();
+                List<String> stringList = new ArrayList<>();
+                listMap.put("total",0);
+                listMap.put("list",stringList);
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setData(listMap);
+            }
+        }
+        if(imageCountVO.getTimeType().equals("day")) {
+            for (int y = 0; y < organization.size(); y++) {
+                Map<String, Object> organMap = new HashMap<>();
+                String id = organization.get(y);
+                String fileds = null;
+                if (id.length() == 3) {
+                    map.put("id0", id);
+                    fileds = "filed0";
+                    map.put("filed0", fileds);
+                }
+                if (id.length() == 6) {
+                    map.put("id1", id);
+                    fileds = "filed1";
+                    map.put("filed1", fileds);
+                }
+                if (id.length() == 9) {
+                    map.put("id2", id);
+                    fileds = "filed2";
+                    map.put("filed2", fileds);
+                }
+                if (id.length() == 12) {
+                    map.put("id3", id);
+                    fileds = "filed3";
+                    map.put("filed3", fileds);
+                }
+            }
+            map.put("ipList", ipList);
+            String name = null;
+            String ipAddress = null;
+            List<String> nameList = new ArrayList<>();
+            List<String> ipLists = new ArrayList<>();
+            List<Map<String, Object>> maps = tblIpcIpMapper.getlevelNames(map);
+            if(maps==null || maps.size()<=0 || maps.isEmpty()){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setMessage(messageSourceUtil.getMessage("device.warnings"));
+                return restResult;
+            }
+            for (int x = 0; x < maps.size(); x++) {
+                name = maps.get(x).get("NAME").toString();
+                nameList.add(name);
+            }
+            map.put("cityLists", nameList);
+            for (int i = 0; i < ipList.size(); i++) {
+                ipAddress = ipList.get(i).get("SERVICE_IP_ADDRESS").toString();
+                ipLists.add(ipAddress);
+            }
+            map.put("ivsNameStr", ipLists);
+            List<String> stringTime = tblIpcIpMapper.getPeriodTime(map);
+            if(stringTime==null || stringTime.size()<=0 || stringTime.isEmpty()){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setMessage(messageSourceUtil.getMessage("device.warnings"));
+                return restResult;
+            }
+            stringTime.sort((String s1, String s2) -> s1.compareTo(s2));
+            System.out.println(stringTime);
+            Map<String, Object> map1 = new HashMap<>();
+            Map<String, Object> map2 = new HashMap<>();
+            map1.put("key1", stringTime);
+            List<Map<String, String>> mapList = new ArrayList<>();
+            for (int i = 0; i < stringTime.size(); i++) {
+                Map<String, String> map4 = new HashMap<>();
+                String oldString = stringTime.get(i).substring(0, 19);
+                String newString = oldString.replaceAll("-", "").replaceAll(":", "").replaceAll(" ", "");
+                map4.put("key1", oldString);
+                map4.put("key2", newString);
+                mapList.add(map4);
+            }
+
+            map.put("periodList", mapList);
+            List<String> stringTi = tblIpcIpMapper.getTimes(map);
+            if(stringTi == null || stringTi.size()<=0 || stringTi.isEmpty()){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setMessage(messageSourceUtil.getMessage("device.warning"));
+                return restResult;
+            }
+            stringTi.sort((String s1, String s2) -> s1.compareTo(s2));
+            List<String> strs = new ArrayList<>();
+            String newDate = null;
+            String newData = null;
+            for (int i = 0; i < stringTi.size(); i++) {
+                newData = stringTi.get(i).replaceAll("-", "");
+                newDate = "TBL_IMAGE_DAY_STATISTICS_" + newData;
+                strs.add(newDate);
+            }
+            map.put("dayList", strs);
+            List<String> cameraManagerList = tblIpcIpMapper.qryCameraManagerOriList(map);
+            if(cameraManagerList==null || cameraManagerList.size()<=0 || cameraManagerList.isEmpty()){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setMessage(messageSourceUtil.getMessage("device.warnings"));
+                return restResult;
+            }
+            List<Map<String, String>> cameraList = new ArrayList<>();
+            for (int i = 0; i < cameraManagerList.size(); i++) {
+                Map<String, String> mapCamera = new HashMap<>();
+                String oldString = cameraManagerList.get(i).substring(28, cameraManagerList.get(i).length());
+                StringBuilder sb = new StringBuilder(oldString);
+                sb.insert(4,"-");
+                sb.insert(7,"-");
+                sb.insert(10," ");
+                sb.insert(13,":");
+                sb.insert(16,":");
+                oldString = sb.toString();
+                String newString = oldString.replaceAll("-", "").replaceAll(":", "").replaceAll(" ", "");
+                mapCamera.put("key1", oldString);
+                mapCamera.put("key2", newString);
+                cameraList.add(mapCamera);
+            }
+            map.put("cameraList", cameraList);
+            List<Map<String,Object>> resultList = tblIpcIpMapper.getPicturesCountDay(map);
+            if(resultList==null || resultList.size()<=0 || resultList.isEmpty()){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setMessage(messageSourceUtil.getMessage("device.warnings"));
+                return restResult;
+            }
+            List<Map<String,Object>> resultListNew = new ArrayList<>();
+            for( int i = 0; i < resultList.size(); i++ ) {
+                Map<String, Object> mapLists = resultList.get(i);
+                Map<String, Object>  objectObjectHashMap = new HashMap<>();
+                objectObjectHashMap.putAll(mapLists);
+                String time = null;
+                Set<String> keySet = mapLists.keySet();
+                for(String key :keySet ) {
+                    //Map<String, Object> newMap = new HashMap<>();
+                    String keys =key;
+
+                    String[] keyVal = null;
+                    String newKey = null;
+                    if (keys.contains("_VCM0")) {
+                        String value = mapLists.get(keys).toString();
+                        keyVal = keys.split("_");
+                        newKey = keys.replaceAll("_VCM0", "_VCM(" + ipLists.get(0) + ")");
+                        /*newMap.put("organization", newKey);
+                        newMap.put("pictureCount", value);*/
+                        objectObjectHashMap.put(newKey,value);
+                        /* newMap.put(newKey,value);*/
+                        objectObjectHashMap.put("time", mapLists.get("PERIOD_START_TIME"));
+                        // newMap.put("remark", keyVal[0] + "_VCM(" + ipLists.get(0) + ")");
+                    }
+                }
+                resultListNew.add(objectObjectHashMap);
+
+            }
+            Collections.sort(resultListNew,new Comparator<Map>() {
+                @Override
+                public int compare(Map o1, Map o2) {
+                    int ret = 0;
+                    //比较两个对象的顺序，如果前者小于、等于或者大于后者，则分别返回-1/0/1
+                    ret = o1.get("time").toString().compareTo(o2.get("time").toString());//逆序的话就用o2.compareTo(o1)即可
+                    return ret;
+                }
+            });
+
+            List<Map<String,Object>> ma= pageList(resultListNew,pageSize,currentPage);
+            Integer num = resultListNew.size();
+            Map<String,Object>mas = new HashedMap();
+            mas.put("total",num);
+            mas.put("list",ma);
+            if(resultListNew!=null&&resultListNew.size()>0){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setData(mas);
+                restResult.setMessage(messageSourceUtil.getMessage("device.querySuccess"));
+            }else{
+                Map<String,Object> listMap = new HashedMap();
+                List<String> stringList = new ArrayList<>();
+                listMap.put("total",0);
+                listMap.put("list",stringList);
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setData(listMap);
+            }
+        }
+        return restResult;
+
+    }
+
+
+
     /*
     * 图片溯源按组织查询
     * */
@@ -51,6 +1571,8 @@ public class IntelligentTraceServiceImpl implements IntelligentTraceService {
             restResult.setMessage(messageSourceUtil.getMessage("device.networkElement"));
             return restResult;
         }
+        map.put("netWorkVolist",netWorkVolist);
+        List<Map> list = intelligentTraceMapper.getServerInfo(map);
         String[] sceneVoList = imageCountVO.getSceneVoList();
         if(sceneVoList == null || sceneVoList.length ==0 ){
             restResult.setMessage(messageSourceUtil.getMessage("device.indicatorScenario"));
@@ -342,6 +1864,7 @@ public class IntelligentTraceServiceImpl implements IntelligentTraceService {
        }
        return restResult;
     }
+
 
     /*
     * 图片溯源按摄像机查询
@@ -1201,6 +2724,30 @@ public class IntelligentTraceServiceImpl implements IntelligentTraceService {
         Collections.reverse(result);
         return result;
     }
+    private List<String> getBet(String start, String end) {
+        List<String> list = new ArrayList<>();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");//格式化为年月
+        Calendar min = Calendar.getInstance();
+        Calendar max = Calendar.getInstance();
+        try {
+            min.setTime(sdf.parse(start));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        min.set(min.get(Calendar.YEAR), min.get(Calendar.MONTH), min.get(Calendar.DATE),0,0,0);
+        try {
+            max.setTime(sdf.parse(end));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        max.set(max.get(Calendar.YEAR), max.get(Calendar.MONTH), max.get(Calendar.DATE),23,59,59);
+        Calendar curr = min;
+        while (curr.before(max)) {
+            list.add(sdf.format(curr.getTime()));
+            curr.add(Calendar.DATE, 1);
+        }
+        return list;
+    }
 
     /*
      * 获取一天之间的所有小时
@@ -1235,12 +2782,14 @@ public class IntelligentTraceServiceImpl implements IntelligentTraceService {
         RestResult restResult = RestResult.generateRestResult(ServiceCommonConst.CODE_FAILURE,messageSourceUtil.getMessage("device.configurationNotFound"),null);
         Map<String,Object> map = new HashMap<String,Object>();
         map.put(TableCommonConstant.SQL_TABLENAM,TableCommonConstant.TBL_SERVER_PARAM_CONFIG);
-        String intelligenttrace = messageSourceUtil.getMessage(CommonConst.INTELLIGENTTRACE);
+        String intelligenttrace = "1,2";
         if(StringUtils.isEmpty(intelligenttrace)){
             return restResult;
         }
         String[] intelligenttraceList = intelligenttrace.split(",");
         map.put("intelligenttraceList",intelligenttraceList);
+        DataSourceEnum videoinsightCollecter = DataSourceEnum.VideoinsightCollecter;
+        DataSourceEnum videoinsight = DataSourceEnum.VideoInsight;
         List<Map<String,String>> list =intelligentTraceMapper.gitintelligentTraceList(map);
         if(list!=null&&list.size()>0){
             restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
@@ -1250,6 +2799,599 @@ public class IntelligentTraceServiceImpl implements IntelligentTraceService {
             restResult.setMessage(messageSourceUtil.getMessage("device.result"));
         }
         return restResult;
+    }
+
+    @Override
+    public RestResult getNetWorkTraces(ImageCountVO imageCountVO){
+        RestResult restResult = RestResult.generateRestResult(ServiceCommonConst.CODE_FAILURE,"",null);
+        List<ImageCountPo> imageCountPos = new ArrayList<>();
+        List<ImageCountPo> newImageCountPos = new ArrayList<>();
+        List<String> listStr = new ArrayList<>();
+        Map<String,Object> map = new HashMap<>();
+        Integer currentPage = imageCountVO.getCurrentPage();
+        if((Object) currentPage == null){
+            currentPage = 0;
+        }
+        Integer pageSize = imageCountVO.getPageSize();
+        if((Object) pageSize == null){
+            pageSize = 0;
+        }
+        String[] sceneVoList = imageCountVO.getSceneVoList();
+        if(sceneVoList == null || sceneVoList.length ==0 ){
+            restResult.setMessage(messageSourceUtil.getMessage("device.indicatorScenario"));
+            return restResult;
+        }
+        List<String> sceneVo = Arrays.asList(sceneVoList);
+        String[] netWorkVolist = imageCountVO.getNetWorkList();
+        if(netWorkVolist == null || netWorkVolist.length ==0 ){
+            restResult.setMessage(messageSourceUtil.getMessage("device.networkElement"));
+            return restResult;
+        }
+        map.put("netWorkVolist",netWorkVolist);
+        List<Map> ipList = intelligentTraceMapper.getServerInfo(map);
+        if(ipList==null || ipList.size()<=0 || ipList.isEmpty()){
+            restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+            restResult.setMessage(messageSourceUtil.getMessage("device.warnings"));
+            return restResult;
+        }
+        List<String> ipLists = new ArrayList<>();
+        if(ipList.size()>0 && ipList!=null) {
+            for (int i = 0; i < ipList.size(); i++) {
+                String ipAddress = ipList.get(i).get("SERVICE_IP_ADDRESS").toString();
+                ipLists.add(ipAddress);
+            }
+        }
+        List<String> netWorkVolists = Arrays.asList(netWorkVolist);
+        map.put("startTime",imageCountVO.getStartTime());
+        map.put("endTime",imageCountVO.getEndTime());
+        map.put("netWorks",netWorkVolists);
+        map.put("scenes",sceneVo);
+        map.put("tableName",Server_Param_Config);
+        String relationShip = tblIpcIpMapper.getRelationShip();
+        map.put("relationShip",relationShip);
+        if(imageCountVO.getTimeType().equals("hour")) {
+            map.put("ipList", ipList);
+            map.put("ivsNameStr", ipLists);
+            List<String> stringTime = tblIpcIpMapper.getPeriodTime(map);
+            if(stringTime == null || stringTime.size()<=0 || stringTime.isEmpty()){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setMessage(messageSourceUtil.getMessage("device.warning"));
+                return restResult;
+            }
+            Map<String, Object> map1 = new HashMap<>();
+            map1.put("key1", stringTime);
+            List<Map<String, String>> mapList = new ArrayList<>();
+            for (int i = 0; i < stringTime.size(); i++) {
+                Map<String, String> map4 = new HashMap<>();
+                String oldString = stringTime.get(i).substring(0, 19);
+                String newString = oldString.replaceAll("-", "").replaceAll(":", "").replaceAll(" ", "");
+                map4.put("key1", oldString);
+                map4.put("key2", newString);
+                mapList.add(map4);
+            }
+            map.put("periodList", mapList);
+            List<String> stringTi = tblIpcIpMapper.getTimes(map);
+            if(stringTi==null || stringTi.size()<=0 || stringTi.isEmpty()){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setMessage(messageSourceUtil.getMessage("device.warnings"));
+                return restResult;
+            }
+            List<String> strs = new ArrayList<>();
+            String newDate = null;
+            String newData = null;
+            for (int i = 0; i < stringTi.size(); i++) {
+                newData = stringTi.get(i).replaceAll("-", "");
+                newDate = "TBL_IMAGE_HOUR_STATISTICS_" + newData;
+                strs.add(newDate);
+            }
+            map.put("dayList", strs);
+            List<String> cameraManagerList = tblIpcIpMapper.qryCameraManagerOriList(map);
+            if(cameraManagerList==null || cameraManagerList.size()<=0 || cameraManagerList.isEmpty()){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setMessage(messageSourceUtil.getMessage("device.warnings"));
+                return restResult;
+            }
+            List<Map<String, String>> cameraList = new ArrayList<>();
+            for (int i = 0; i < cameraManagerList.size(); i++) {
+                Map<String, String> mapCamera = new HashMap<>();
+                String oldString = cameraManagerList.get(i).substring(28, cameraManagerList.get(i).length());
+                StringBuilder sb = new StringBuilder(oldString);
+                sb.insert(4,"-");
+                sb.insert(7,"-");
+                sb.insert(10," ");
+                sb.insert(13,":");
+                sb.insert(16,":");
+                oldString = sb.toString();
+                String newString = oldString.replaceAll("-", "").replaceAll(":", "").replaceAll(" ", "");
+                mapCamera.put("key1", oldString);
+                mapCamera.put("key2", newString);
+                cameraList.add(mapCamera);
+            }
+            map.put("cameraList", cameraList);
+            List<Map<String,Object>> resultList = tblIpcIpMapper.getPicturesCountHour(map);
+            if(resultList==null || resultList.size()<=0 || resultList.isEmpty()){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setMessage(messageSourceUtil.getMessage("device.warnings"));
+                return restResult;
+            }
+            List<Map<String,Object>> resultListNew = new ArrayList<>();
+            for( int i = 0; i < resultList.size(); i++ ) {
+                Map<String, Object> mapLists = resultList.get(i);
+                String time = null;
+                Map<String,Object> objectMap = new HashMap<>();
+                objectMap.putAll(mapLists);
+                Set<String> keySet = mapLists.keySet();
+                for(String key :keySet){
+                    Map<String, Object> newMap = new HashMap<>();
+                    String keys = key;
+                    String[] keyVal = null;
+                    String newKey = null;
+                    if (keys.contains("_VCM")) {
+                        String value = mapLists.get(keys).toString();
+                        keyVal = keys.split("_VCM");
+                        Integer count = Integer.parseInt(keyVal[1]);
+                        newKey = keys.replaceAll("_VCM"+keyVal[1], "VCM(" + ipLists.get(count) + ")");
+                        objectMap.put(newKey,value);
+                        objectMap.put("time",mapLists.get("PERIOD_START_TIME"));
+                    }
+                    if (keys.contains("_VCN")) {
+                        String value = mapLists.get(keys).toString();
+                        keyVal = keys.split("_VCN");
+                        Integer count = Integer.parseInt(keyVal[1]);
+                        newKey = keys.replaceAll("_VCN"+keyVal[1], "VCN(" + ipLists.get(count) + ")");
+                        objectMap.put(newKey,value);
+                        objectMap.put("time",mapLists.get("PERIOD_START_TIME"));
+                    }
+                }
+                resultListNew.add(objectMap);
+            }
+            List<Map<String,Object>> ma = new ArrayList<>();
+            if(currentPage>0||pageSize>0){
+                ma= pageList(resultListNew,pageSize,currentPage);
+            }else{
+                ma = resultListNew;
+            }
+            Collections.sort(ma,new Comparator<Map>() {
+                @Override
+                public int compare(Map o1, Map o2) {
+                    int ret = 0;
+                    //比较两个对象的顺序，如果前者小于、等于或者大于后者，则分别返回-1/0/1
+                    ret = o1.get("time").toString().compareTo(o2.get("time").toString());//逆序的话就用o2.compareTo(o1)即可
+                    return ret;
+                }
+            });
+            Integer num = resultListNew.size();
+            Map<String,Object>maps= new HashedMap();
+            maps.put("total",num);
+            maps.put("list",ma);
+            restResult.setMessage(messageSourceUtil.getMessage("device.querySuccess"));
+            restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+            restResult.setData(maps);
+        }
+        if(imageCountVO.getTimeType().equals("day")) {
+            map.put("ipList", ipList);
+            map.put("ivsNameStr", ipLists);
+            List<String> stringTime = tblIpcIpMapper.getPeriodTime(map);
+            if(stringTime==null || stringTime.size()<=0 || stringTime.isEmpty()){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setMessage(messageSourceUtil.getMessage("device.warnings"));
+                return restResult;
+            }
+            Map<String, Object> map1 = new HashMap<>();
+            map1.put("key1", stringTime);
+            List<Map<String, String>> mapList = new ArrayList<>();
+            for (int i = 0; i < stringTime.size(); i++) {
+                Map<String, String> map4 = new HashMap<>();
+                String oldString = stringTime.get(i).substring(0, 19);
+                String newString = oldString.replaceAll("-", "").replaceAll(":", "").replaceAll(" ", "");
+                map4.put("key1", oldString);
+                map4.put("key2", newString);
+                mapList.add(map4);
+            }
+            map.put("periodList", mapList);
+            List<String> stringTi = tblIpcIpMapper.getTimes(map);
+            if(stringTi == null || stringTi.size()<=0 || stringTi.isEmpty()){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setMessage(messageSourceUtil.getMessage("device.warning"));
+                return restResult;
+            }
+            List<String> strs = new ArrayList<>();
+            String newDate = null;
+            String newData = null;
+            for (int i = 0; i < stringTi.size(); i++) {
+                newData = stringTi.get(i).replaceAll("-", "");
+                newDate = "TBL_IMAGE_DAY_STATISTICS_" + newData;
+                strs.add(newDate);
+            }
+            map.put("dayList", strs);
+            List<String> cameraManagerList = tblIpcIpMapper.qryCameraManagerOriList(map);
+            if(cameraManagerList==null || cameraManagerList.size()<=0 || cameraManagerList.isEmpty()){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setMessage(messageSourceUtil.getMessage("device.warnings"));
+                return restResult;
+            }
+            List<Map<String, String>> cameraList = new ArrayList<>();
+            for (int i = 0; i < cameraManagerList.size(); i++) {
+                Map<String, String> mapCamera = new HashMap<>();
+                String oldString = cameraManagerList.get(i).substring(28, cameraManagerList.get(i).length());
+                StringBuilder sb = new StringBuilder(oldString);
+                sb.insert(4,"-");
+                sb.insert(7,"-");
+                sb.insert(10," ");
+                sb.insert(13,":");
+                sb.insert(16,":");
+                oldString = sb.toString();
+                String newString = oldString.replaceAll("-", "").replaceAll(":", "").replaceAll(" ", "");
+                mapCamera.put("key1", oldString);
+                mapCamera.put("key2", newString);
+                cameraList.add(mapCamera);
+            }
+            map.put("cameraList", cameraList);
+            List<Map<String,Object>> resultList = tblIpcIpMapper.getPicturesCountWD(map);
+            if(resultList==null || resultList.size()<=0 || resultList.isEmpty()){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setMessage(messageSourceUtil.getMessage("device.warnings"));
+                return restResult;
+            }
+            List<Map<String,Object>> resultListNew = new ArrayList<>();
+            for( int i = 0; i < resultList.size(); i++ ) {
+                Map<String, Object> mapLists = resultList.get(i);
+                Map<String, Object> objectMap = new HashMap<>();
+                objectMap.putAll(mapLists);
+                Set<String> keySet = mapLists.keySet();
+                for(String key :keySet){
+                    Map<String, Object> newMap = new HashMap<>();
+                    String keys = key;
+                    String[] keyVal = null;
+                    String newKey = null;
+                    if (keys.contains("_VCM")) {
+                        String value = mapLists.get(keys).toString();
+                        keyVal = keys.split("_VCM");
+                        Integer count = Integer.parseInt(keyVal[1]);
+                        newKey = keys.replaceAll("_VCM"+keyVal[1], "VCM(" + ipLists.get(count) + ")");
+                        objectMap.put(newKey,value);
+                        objectMap.put("time",mapLists.get("PERIOD_START_TIME"));
+                    }
+                    if (keys.contains("_VCN")) {
+                        String value = mapLists.get(keys).toString();
+                        keyVal = keys.split("_VCN");
+                        Integer count = Integer.parseInt(keyVal[1]);
+                        newKey = keys.replaceAll("_VCN"+keyVal[1], "VCN(" + ipLists.get(count) + ")");
+                        objectMap.put(newKey,value);
+                        objectMap.put("time",mapLists.get("PERIOD_START_TIME"));
+                    }
+                }
+                resultListNew.add(objectMap);
+            }
+            List<Map<String,Object>> ma = new ArrayList<>();
+            if(currentPage>0||pageSize>0){
+                ma= pageList(resultListNew,pageSize,currentPage);
+            }else{
+                ma = resultListNew;
+            }
+            Collections.sort(ma,new Comparator<Map>() {
+                @Override
+                public int compare(Map o1, Map o2) {
+                    int ret = 0;
+                    //比较两个对象的顺序，如果前者小于、等于或者大于后者，则分别返回-1/0/1
+                    ret = o1.get("time").toString().compareTo(o2.get("time").toString());//逆序的话就用o2.compareTo(o1)即可
+                    return ret;
+                }
+            });
+            Integer num = resultListNew.size();
+            Map<String,Object>maps= new HashedMap();
+            maps.put("total",num);
+            maps.put("list",ma);
+            restResult.setMessage(messageSourceUtil.getMessage("device.querySuccess"));
+            restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+            restResult.setData(maps);
+        }
+        return restResult;
+
+    }
+
+
+    @Override
+    public RestResult getNetWorkTraceByHours(ImageCountVO imageCountVO){
+        RestResult restResult = RestResult.generateRestResult(ServiceCommonConst.CODE_FAILURE,"",null);
+        List<ImageCountPo> imageCountPos = new ArrayList<>();
+        List<ImageCountPo> newImageCountPos = new ArrayList<>();
+        List<String> listStr = new ArrayList<>();
+        Map<String,Object> map = new HashMap<>();
+        Integer currentPage = imageCountVO.getCurrentPage();
+        if((Object) currentPage == null){
+            currentPage = 0;
+        }
+        Integer pageSize = imageCountVO.getPageSize();
+        if((Object) pageSize == null){
+            pageSize = 0;
+        }
+        String[] sceneVoList = imageCountVO.getSceneVoList();
+        if(sceneVoList == null || sceneVoList.length ==0 ){
+            restResult.setMessage(messageSourceUtil.getMessage("device.indicatorScenario"));
+            return restResult;
+        }
+        List<String> sceneVo = Arrays.asList(sceneVoList);
+        List<String> str = new ArrayList<>();
+        //开始时间
+        String startTime = imageCountVO.getStartTime();
+        //结束时间
+        String endTime = imageCountVO.getEndTime();
+        String[] netWorkVolist = imageCountVO.getNetWorkList();
+        if(netWorkVolist == null || netWorkVolist.length ==0 ){
+            restResult.setMessage(messageSourceUtil.getMessage("device.networkElement"));
+            return restResult;
+        }
+        map.put("netWorkVolist",netWorkVolist);
+        List<Map> ipList = intelligentTraceMapper.getServerInfo(map);
+        if(ipList==null || ipList.size()<=0 || ipList.isEmpty()){
+            restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+            restResult.setMessage(messageSourceUtil.getMessage("device.warnings"));
+            return restResult;
+        }
+        List<String> ipLists = new ArrayList<>();
+        for (int i = 0; i < ipList.size(); i++) {
+            String ipAddress = ipList.get(i).get("SERVICE_IP_ADDRESS").toString();
+            ipLists.add(ipAddress);
+        }
+        List<String> netWorkVolists = Arrays.asList(netWorkVolist);
+        map.put("startTime",imageCountVO.getStartTime());
+        map.put("endTime",imageCountVO.getEndTime());
+        map.put("netWorks",netWorkVolists);
+        map.put("scenes",sceneVo);
+        map.put("tableName",Server_Param_Config);
+        String relationShip = tblIpcIpMapper.getRelationShip();
+        if(StringUtils.isEmpty(relationShip)){
+            restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+            restResult.setMessage(messageSourceUtil.getMessage("device.warnings"));
+            return restResult;
+        }
+        map.put("relationShip",relationShip);
+        if(imageCountVO.getTimeType().equals("hour")) {
+            map.put("ipList", ipList);
+            map.put("ivsNameStr", ipLists);
+            List<String> stringTime = tblIpcIpMapper.getPeriodTime(map);
+            if(stringTime==null || stringTime.size()<=0 || stringTime.isEmpty()){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setMessage(messageSourceUtil.getMessage("device.warnings"));
+                return restResult;
+            }
+            Map<String, Object> map1 = new HashMap<>();
+            map1.put("key1", stringTime);
+            List<Map<String, String>> mapList = new ArrayList<>();
+            for (int i = 0; i < stringTime.size(); i++) {
+                Map<String, String> map4 = new HashMap<>();
+                String oldString = stringTime.get(i).substring(0, 19);
+                String newString = oldString.replaceAll("-", "").replaceAll(":", "").replaceAll(" ", "");
+                map4.put("key1", oldString);
+                map4.put("key2", newString);
+                mapList.add(map4);
+            }
+            map.put("periodList", mapList);
+            List<String> stringTi = tblIpcIpMapper.getTimes(map);
+            if(stringTi == null || stringTi.size()<=0 || stringTi.isEmpty()){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setMessage(messageSourceUtil.getMessage("device.warning"));
+                return restResult;
+            }
+            List<String> strs = new ArrayList<>();
+            String newDate = null;
+            String newData = null;
+            for (int i = 0; i < stringTi.size(); i++) {
+                newData = stringTi.get(i).replaceAll("-", "");
+                newDate = "TBL_IMAGE_HOUR_STATISTICS_" + newData;
+                strs.add(newDate);
+            }
+            map.put("dayList", strs);
+            List<String> cameraManagerList = tblIpcIpMapper.qryCameraManagerOriList(map);
+            if(cameraManagerList==null || cameraManagerList.size()<=0 || cameraManagerList.isEmpty()){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setMessage(messageSourceUtil.getMessage("device.warnings"));
+                return restResult;
+            }
+            List<Map<String, String>> cameraList = new ArrayList<>();
+            for (int i = 0; i < cameraManagerList.size(); i++) {
+                Map<String, String> mapCamera = new HashMap<>();
+                String oldString = cameraManagerList.get(i).substring(28, cameraManagerList.get(i).length());
+                StringBuilder sb = new StringBuilder(oldString);
+                sb.insert(4,"-");
+                sb.insert(7,"-");
+                sb.insert(10," ");
+                sb.insert(13,":");
+                sb.insert(16,":");
+                oldString = sb.toString();
+                String newString = oldString.replaceAll("-", "").replaceAll(":", "").replaceAll(" ", "");
+                mapCamera.put("key1", oldString);
+                mapCamera.put("key2", newString);
+                cameraList.add(mapCamera);
+            }
+            map.put("cameraList", cameraList);
+            List<Map<String,Object>> resultList = tblIpcIpMapper.getPicturesCountHour(map);
+            if(resultList==null || resultList.size()<=0 || resultList.isEmpty()){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setMessage(messageSourceUtil.getMessage("device.warnings"));
+                return restResult;
+            }
+            List<Map<String,Object>> resultListCompare = new ArrayList<>();
+            for(int i=0;i<=resultList.size()-1;i++){
+                if(i == 0 ){
+                    resultListCompare.add(resultList.get(i));
+                }else {
+                    Map<String,Object> compareMap = new HashMap<>();
+                    compareMap.putAll(resultList.get(i));
+                    for(int a=0;a<=netWorkVolists.size()-1;a++){
+                        String column = ("_VCM0").toUpperCase();
+                        compareMap.put(column,Integer.parseInt(resultList.get(i).get((column)).toString())-Integer.parseInt(resultList.get(i-1).get(column).toString()));
+                    }
+                    resultListCompare.add(compareMap);
+                }
+            }
+            List<Map<String,Object>> resultListNew = new ArrayList<>();
+            for( int i = 0; i < resultListCompare.size(); i++ ) {
+                Map<String, Object> mapLists = resultListCompare.get(i);
+                String time = null;
+                Map<String, Object> objectMap = new HashMap<>();
+                objectMap.putAll(mapLists);
+                Set<String> keySet = mapLists.keySet();
+                for(String key :keySet){
+                    Map<String, Object> newMap = new HashMap<>();
+                    String keys = key;
+                    String[] keyVal = null;
+                    String newKey = null;
+                    if (keys.contains("_VCM")) {
+                        String value = mapLists.get(keys).toString();
+                        keyVal = keys.split("_VCM");
+                        Integer count = Integer.parseInt(keyVal[1]);
+                        newKey = keys.replaceAll("_VCM"+keyVal[1], "VCM(" + ipLists.get(count) + ")");
+                        objectMap.put(newKey,value);
+                        objectMap.put("time",mapLists.get("PERIOD_START_TIME"));
+                    }
+                    if (keys.contains("_VCN")) {
+                        String value = mapLists.get(keys).toString();
+                        keyVal = keys.split("_VCN");
+                        Integer count = Integer.parseInt(keyVal[1]);
+                        newKey = keys.replaceAll("_VCN"+keyVal[1], "VCN(" + ipLists.get(count) + ")");
+                        objectMap.put(newKey,value);
+                        objectMap.put("time",mapLists.get("PERIOD_START_TIME"));
+                    }
+                }
+                resultListNew.add(objectMap);
+            }
+            List<Map<String,Object>> ma = new ArrayList<>();
+            if(currentPage>0||pageSize>0){
+                ma= pageList(resultListNew,pageSize,currentPage);
+            }else{
+                ma = resultListNew;
+            }
+            Collections.sort(ma,new Comparator<Map>() {
+                @Override
+                public int compare(Map o1, Map o2) {
+                    int ret = 0;
+                    //比较两个对象的顺序，如果前者小于、等于或者大于后者，则分别返回-1/0/1
+                    ret = o1.get("time").toString().compareTo(o2.get("time").toString());//逆序的话就用o2.compareTo(o1)即可
+                    return ret;
+                }
+            });
+            Integer num = resultListNew.size();
+            Map<String,Object>maps= new HashedMap();
+            maps.put("total",num);
+            maps.put("list",ma);
+            restResult.setMessage(messageSourceUtil.getMessage("device.querySuccess"));
+            restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+            restResult.setData(maps);
+        }
+        if(imageCountVO.getTimeType().equals("day")) {
+            map.put("ipList", ipList);
+            map.put("ivsNameStr", ipLists);
+            List<String> stringTime = tblIpcIpMapper.getPeriodTime(map);
+            if(stringTime==null || stringTime.size()<=0 || stringTime.isEmpty()){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setMessage(messageSourceUtil.getMessage("device.warnings"));
+                return restResult;
+            }
+            Map<String, Object> map1 = new HashMap<>();
+            map1.put("key1", stringTime);
+            List<Map<String, String>> mapList = new ArrayList<>();
+            for (int i = 0; i < stringTime.size(); i++) {
+                Map<String, String> map4 = new HashMap<>();
+                String oldString = stringTime.get(i).substring(0, 19);
+                String newString = oldString.replaceAll("-", "").replaceAll(":", "").replaceAll(" ", "");
+                map4.put("key1", oldString);
+                map4.put("key2", newString);
+                mapList.add(map4);
+            }
+            map.put("periodList", mapList);
+            List<String> stringTi = tblIpcIpMapper.getTimes(map);
+            if(stringTi == null || stringTi.size()<=0 || stringTi.isEmpty()){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setMessage(messageSourceUtil.getMessage("device.warning"));
+                return restResult;
+            }
+            List<String> strs = new ArrayList<>();
+            String newDate = null;
+            String newData = null;
+            for (int i = 0; i < stringTi.size(); i++) {
+                newData = stringTi.get(i).replaceAll("-", "");
+                newDate = "TBL_IMAGE_DAY_STATISTICS_" + newData;
+                strs.add(newDate);
+            }
+            map.put("dayList", strs);
+            List<String> cameraManagerList = tblIpcIpMapper.qryCameraManagerOriList(map);
+            if(cameraManagerList==null || cameraManagerList.size()<=0 || cameraManagerList.isEmpty()){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setMessage(messageSourceUtil.getMessage("device.warnings"));
+                return restResult;
+            }
+            List<Map<String, String>> cameraList = new ArrayList<>();
+            for (int i = 0; i < cameraManagerList.size(); i++) {
+                Map<String, String> mapCamera = new HashMap<>();
+                String oldString = cameraManagerList.get(i).substring(28, cameraManagerList.get(i).length());
+                StringBuilder sb = new StringBuilder(oldString);
+                sb.insert(4,"-");
+                sb.insert(7,"-");
+                sb.insert(10," ");
+                sb.insert(13,":");
+                sb.insert(16,":");
+                oldString = sb.toString();
+                String newString = oldString.replaceAll("-", "").replaceAll(":", "").replaceAll(" ", "");
+                mapCamera.put("key1", oldString);
+                mapCamera.put("key2", newString);
+                cameraList.add(mapCamera);
+            }
+            map.put("cameraList", cameraList);
+            List<Map<String,Object>> resultList = tblIpcIpMapper.getPicturesCountWD(map);
+            if(resultList==null || resultList.size()<=0 || resultList.isEmpty()){
+                restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+                restResult.setMessage(messageSourceUtil.getMessage("device.warnings"));
+                return restResult;
+            }
+            List<Map<String,Object>> resultListNew = new ArrayList<>();
+            for( int i = 0; i < resultList.size(); i++ ) {
+                Map<String, Object> mapLists = resultList.get(i);
+                String time = null;
+                Map<String,Object> objectMap = new HashMap<>();
+                objectMap.putAll(mapLists);
+                Set<String> keySet = mapLists.keySet();
+                for(String key :keySet){
+                    Map<String, Object> newMap = new HashMap<>();
+                    String keys = key;
+                    String[] keyVal = null;
+                    String newKey = null;
+                    if (keys.contains("_VCM0")) {
+                        String value = mapLists.get(keys).toString();
+                        keyVal = keys.split("_");
+                        newKey = keys.replaceAll("_VCM0", "VCM(" + ipLists.get(0) + ")");
+                        objectMap.put(newKey,value);
+                        objectMap.put("time",mapLists.get("PERIOD_START_TIME"));
+                    }
+                }
+                resultListNew.add(objectMap);
+            }
+            List<Map<String,Object>> ma = new ArrayList<>();
+            if(currentPage>0||pageSize>0){
+                ma= pageList(resultListNew,pageSize,currentPage);
+            }else{
+                ma = resultListNew;
+            }
+            Collections.sort(ma,new Comparator<Map>() {
+                @Override
+                public int compare(Map o1, Map o2) {
+                    int ret = 0;
+                    //比较两个对象的顺序，如果前者小于、等于或者大于后者，则分别返回-1/0/1
+                    ret = o1.get("time").toString().compareTo(o2.get("time").toString());//逆序的话就用o2.compareTo(o1)即可
+                    return ret;
+                }
+            });
+            Integer num = resultListNew.size();
+            Map<String,Object>maps= new HashedMap();
+            maps.put("total",num);
+            maps.put("list",ma);
+            restResult.setMessage(messageSourceUtil.getMessage("device.querySuccess"));
+            restResult.setCode(ServiceCommonConst.CODE_SUCCESS);
+            restResult.setData(maps);
+        }
+        return restResult;
+
     }
 
     @Override
@@ -1383,6 +3525,8 @@ public class IntelligentTraceServiceImpl implements IntelligentTraceService {
         List<String> cityLists = new ArrayList<>();
         cityLists.add("");
         List<Map<String,Object>> list = intelligentTraceMapper.getIvs(tableName,ivsNameStr,cityLists);
+
+
         List<Map<String,Object>> map1 = new ArrayList<>();
         if(currentPage>0||pageSize>0){
             map1= pageList(list,pageSize,currentPage);
@@ -1570,4 +3714,7 @@ public class IntelligentTraceServiceImpl implements IntelligentTraceService {
         restResult.setData(mapList);
         return restResult;
     }
+
+
+
 }

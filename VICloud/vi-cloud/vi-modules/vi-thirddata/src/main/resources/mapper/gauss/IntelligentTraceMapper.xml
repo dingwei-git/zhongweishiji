@@ -24,9 +24,9 @@
 		faultRelationId, tableName
 	</sql>
     <select id="gitintelligentTraceList" parameterType="map" resultType="map">
-        select service_sub_id as `serviceSubId`,remark as `remark` from ${tabName}
+        select service_sub_type as `serviceSubId`,remark as `remark` from ${tabName}
         where 1=1
-        and remark is not null and service_sub_id is not null and
+        and remark is not null and SERVICE_FLAG =3 and
         service_sub_type in
         <foreach collection="intelligenttraceList" item="intelligenttrace" index="index" open="(" separator="," close=")">
             #{intelligenttrace}
@@ -357,6 +357,15 @@
         drop table ${tableName}
     </update>
 
+    <select id="getServerInfo" parameterType="map" resultType="map">
+         select service_ip_address,service_sub_type
+         from tbl_server_param_config
+         where remark in
+         <foreach collection="netWorkVolist" item="item" index ="index" open="(" close=")" separator=",">
+             #{item}
+         </foreach>
+         AND SERVICE_SUB_TYPE =2
+    </select>
 
 
 

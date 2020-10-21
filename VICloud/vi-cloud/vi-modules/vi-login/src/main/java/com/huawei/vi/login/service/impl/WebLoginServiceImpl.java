@@ -117,8 +117,8 @@ public class WebLoginServiceImpl implements WebLoginService {
                 restResult.setMessage(MessageFormat.format(messageSourceUtil.getMessage("LoginService.user.locked"),remainTime(loginUserName)));
                 redisOperatingService.delValueByFuzzyKey(webUserPO.getUserId()+"_web_");
                 redisOperatingService.delValueByKey(countKey);
-            wand =  Utils.getWand("addAll","",webLoginLimitExpire);
-            redisOperatingService.setTokenByTime(countKey,wand);
+                wand =  Utils.getWand("addAll","",webLoginLimitExpire);
+                redisOperatingService.setTokenByTime(countKey,wand);
                 return restResult;
             }
             countValue = redisOperatingService.getValueByKey(countKey);
