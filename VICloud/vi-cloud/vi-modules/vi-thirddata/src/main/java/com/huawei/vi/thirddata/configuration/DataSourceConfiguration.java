@@ -23,8 +23,9 @@ import java.util.Map;
 @Configuration
 public class DataSourceConfiguration {
 
-    @Value("${dbtype}")
-    private String dbtype;
+//    @Value("${dbtype}")
+//    private String dbtype;
+    private String dbtype = "mysql";
 
     @Autowired
     private MysqlViDsProperties mysqlViDsProperties;

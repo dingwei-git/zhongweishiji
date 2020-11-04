@@ -3,4 +3,5 @@ server:
 logging:
   config: classpath:logconfig/logback-custom.xml
 mybatis:
-  mapperLocations: classpath:mapper/${dbtype}/*.xml
+  #mapperLocations: classpath:mapper/${dbtype}/*.xml
+  mapperLocations: classpath:mapper/mysql/*.xml

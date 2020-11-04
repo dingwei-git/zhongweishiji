@@ -45,8 +45,9 @@ public class GBsyncDataServiceImpl implements GBsyncDataService {
     @Value("${vi.url}")
     private String viURL;
 
-    @Value("${dbtype}")
-    private String dbtype;
+//    @Value("${dbtype}")
+//    private String dbtype;
+    private String dbtype = "mysql";
 
     @Autowired
     private RestTemplate restTemplate;
