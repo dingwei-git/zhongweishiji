@@ -156,23 +156,23 @@ public class WebLoginServiceImpl implements WebLoginService {
             redisOperatingService.setTokenByTime(token,"1",webTokenExpire, TimeUnit.MINUTES);
             String url = checkCertificateUrl+"/ign/checkIsImportLicense.do?isDefault="+successUser.getIsDefault()+"&token="+token;
             LOG.info("url========================="+url);
-            JSONObject param = new JSONObject();
-            String str = HttpUtils.sendPost(url,param);
-            LOG.info("str========================="+str);
-            if(StringUtils.isEmpty(str)||"isLoginFlag".equals(str)){
-                // 清除token，登陆失败
-                redisOperatingService.delValueByKey(token);
-                LOG.info("license========================="+messageSourceUtil.getMessage("license"));
-                restResult.setMessage(messageSourceUtil.getMessage("license"));
-                return restResult;
-            }
-            JSONObject json = JSONObject.parseObject(str);
-            if(!"0".equals(json.getString("code"))){
-                redisOperatingService.delValueByKey(token);
-                restResult.setMessage(json.getString("message"));
-                return restResult;
-            }
-            dataMap.put("page",json.getJSONObject("data").getString("page"));
+//            JSONObject param = new JSONObject();
+//            String str = HttpUtils.sendPost(url,param);
+//            LOG.info("str========================="+str);
+//            if(StringUtils.isEmpty(str)||"isLoginFlag".equals(str)){
+//                // 清除token，登陆失败
+//                redisOperatingService.delValueByKey(token);
+//                LOG.info("license========================="+messageSourceUtil.getMessage("license"));
+//                restResult.setMessage(messageSourceUtil.getMessage("license"));
+//                return restResult;
+//            }
+//            JSONObject json = JSONObject.parseObject(str);
+//            if(!"0".equals(json.getString("code"))){
+//                redisOperatingService.delValueByKey(token);
+//                restResult.setMessage(json.getString("message"));
+//                return restResult;
+//            }
+//            dataMap.put("page",json.getJSONObject("data").getString("page"));
 //            dataMap.put("page","performanceMonitoring");
             wand = Utils.getWand("add",wand,webLoginLimitExpire);
             redisOperatingService.setTokenByTime(countKey,wand);
