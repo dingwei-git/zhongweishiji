@@ -32,6 +32,26 @@ spring:
       transport:
         port: 8719
         dashboard: 8.131.69.238:8849
+---
+spring:
+  gateway:
+    discovery:
+      locator:
+        enabled: true
+        lower-case-service-id: true
+    routes:
+      - id: elco-user
+        uri: lb://elco-user
+        predicates:
+          - Path=/user/**
+        filters:
+          - StripPrefix=1
+      - id: elco-order
+        uri: lb://elco-order
+        predicates:
+          - Path=/order/**
+        filters:
+          - StripPrefix=1
 #      datasource:
 #        ds1:
 #          nacos:
