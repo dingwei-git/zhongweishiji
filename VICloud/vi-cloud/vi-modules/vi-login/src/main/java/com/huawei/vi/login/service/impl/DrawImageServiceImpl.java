@@ -75,6 +75,7 @@ public class DrawImageServiceImpl implements DrawImageService {
             }
             resultMap.put("DrawImage", code);
             resultMap.put(DRAW_IMAGE_ID, drawImageId);
+            resultMap.put("random", random);
             redisOperatingService.setTokenByTime(drawImageId,random, TokenConstant.DRAW_IMAGE_EXPIRE,TimeUnit.SECONDS);
         } catch (IOException e) {
             LOG.error("getImage error:{}", e.getMessage());
